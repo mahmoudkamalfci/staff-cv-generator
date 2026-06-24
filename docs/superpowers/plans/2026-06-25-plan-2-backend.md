@@ -25,6 +25,7 @@
 ### Task 1: Backend Project Setup
 
 **Files:**
+
 - Modify: `apps/backend/package.json`
 - Create: `apps/backend/tsconfig.json`
 - Create: `apps/backend/eslint.config.js`
@@ -37,6 +38,7 @@
 - Create: `apps/backend/src/middleware/validate.ts`
 
 **Interfaces:**
+
 - Consumes: `@cv-generator/shared` (all schemas), `@cv-generator/config` (eslintConfig)
 - Produces:
   - `app` — Express Application, exported from `src/app.ts`
@@ -313,6 +315,7 @@ git commit -m "feat(backend): scaffold Express app with middleware"
 ### Task 2: Database Setup with Knex Migrations
 
 **Files:**
+
 - Create: `apps/backend/knexfile.ts`
 - Create: `apps/backend/src/db/knex.ts`
 - Create: `apps/backend/src/db/migrations/001_create_users.ts`
@@ -325,6 +328,7 @@ git commit -m "feat(backend): scaffold Express app with middleware"
 - Create: `apps/backend/src/db/seeds/001_templates.ts`
 
 **Interfaces:**
+
 - Produces: `db` — Knex instance exported from `src/db/knex.ts`. Used by all repository functions as: `import { db } from '../db/knex.js'`
 
 - [ ] **Step 1: Create `apps/backend/knexfile.ts`**
@@ -500,7 +504,12 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('generated_cvs', (table) => {
     table.uuid('id').primary().defaultTo(knex.fn.uuid());
     table.uuid('staff_id').notNullable().references('id').inTable('staff').onDelete('CASCADE');
-    table.uuid('template_id').notNullable().references('id').inTable('cv_templates').onDelete('CASCADE');
+    table
+      .uuid('template_id')
+      .notNullable()
+      .references('id')
+      .inTable('cv_templates')
+      .onDelete('CASCADE');
     table.uuid('generated_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
     table.timestamp('generated_at').notNullable().defaultTo(knex.fn.now());
   });
@@ -523,21 +532,24 @@ export async function seed(knex: Knex): Promise<void> {
       id: knex.fn.uuid(),
       name: 'Classic',
       layout_key: 'classic',
-      description: 'Traditional two-column layout with a professional sidebar for skills and a main content area for project experience.',
+      description:
+        'Traditional two-column layout with a professional sidebar for skills and a main content area for project experience.',
       is_active: true,
     },
     {
       id: knex.fn.uuid(),
       name: 'Modern',
       layout_key: 'modern',
-      description: 'Full-width card-based layout with an accent color header, skill tag pills, and project cards.',
+      description:
+        'Full-width card-based layout with an accent color header, skill tag pills, and project cards.',
       is_active: true,
     },
     {
       id: knex.fn.uuid(),
       name: 'Compact',
       layout_key: 'compact',
-      description: 'Single-column dense layout optimized for one page. Maximum information density with minimal decoration.',
+      description:
+        'Single-column dense layout optimized for one page. Maximum information density with minimal decoration.',
       is_active: true,
     },
   ]);
@@ -573,6 +585,7 @@ git commit -m "feat(backend): add Knex migrations for all tables + template seed
 ### Task 3: Auth Routes (Login, Refresh, Logout)
 
 **Files:**
+
 - Create: `apps/backend/src/auth/auth.repository.ts`
 - Create: `apps/backend/src/auth/auth.service.ts`
 - Create: `apps/backend/src/auth/auth.router.ts`
@@ -580,6 +593,7 @@ git commit -m "feat(backend): add Knex migrations for all tables + template seed
 - Create: `apps/backend/src/middleware/requireAuth.ts`
 
 **Interfaces:**
+
 - Consumes: `db` from `../db/knex.js`, `LoginSchema` from `@cv-generator/shared`, `AppError` from `../middleware/errorHandler.js`
 - Produces:
   - `requireAuth` middleware — attaches `req.user: { id: string; email: string; role: 'admin' | 'staff' }` to request
@@ -603,11 +617,9 @@ export interface DbUser {
 }
 
 export const authRepository = {
-  findByEmail: (email: string) =>
-    db<DbUser>('users').where({ email }).first(),
+  findByEmail: (email: string) => db<DbUser>('users').where({ email }).first(),
 
-  findById: (id: string) =>
-    db<DbUser>('users').where({ id }).first(),
+  findById: (id: string) => db<DbUser>('users').where({ id }).first(),
 
   create: (data: { email: string; passwordHash: string; role: 'admin' | 'staff' }) =>
     db<DbUser>('users')
@@ -665,7 +677,11 @@ export const authService = {
     if (existing) throw new AppError(409, 'Email already in use');
 
     const passwordHash = await bcrypt.hash(input.password, 12);
-    const user = await authRepository.create({ email: input.email, passwordHash, role: input.role });
+    const user = await authRepository.create({
+      email: input.email,
+      passwordHash,
+      role: input.role,
+    });
     return { userId: user.id };
   },
 };
@@ -782,18 +798,21 @@ authRouter.post(
 - [ ] **Step 5: Mount auth router in `apps/backend/src/app.ts`**
 
 Add after the existing imports:
+
 ```ts
 import cookieParser from 'cookie-parser';
 import { authRouter } from './auth/auth.router.js';
 ```
 
 Add `"cookie-parser": "^1.4.6"` and `"@types/cookie-parser": "^1.4.7"` to `package.json` deps, then install:
+
 ```bash
 pnpm add cookie-parser --filter @cv-generator/backend
 pnpm add -D @types/cookie-parser --filter @cv-generator/backend
 ```
 
 In `createApp()`, add after `app.use(express.urlencoded(...))`:
+
 ```ts
 app.use(cookieParser());
 app.use('/api/auth', authRouter);
@@ -804,11 +823,13 @@ app.use('/api/auth', authRouter);
 Start server: `pnpm --filter @cv-generator/backend dev`
 
 Test login (should 401 with no users yet):
+
 ```bash
 curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"wrong"}'
 ```
+
 Expected: `{"error":"Invalid email or password"}`
 
 - [ ] **Step 7: Commit**
@@ -823,12 +844,14 @@ git commit -m "feat(backend): add JWT auth with login, refresh, logout endpoints
 ### Task 4: Staff & Skills Routes
 
 **Files:**
+
 - Create: `apps/backend/src/staff/staff.repository.ts`
 - Create: `apps/backend/src/staff/staff.router.ts`
 - Create: `apps/backend/src/upload/upload.ts`
 - Modify: `apps/backend/src/app.ts` (mount staff router)
 
 **Interfaces:**
+
 - Consumes: `db`, `requireAuth`, `requireAdmin`, `asyncHandler`, `validate`, `CreateStaffSchema`, `UpdateStaffSchema`, `CreateSkillSchema`, `UpdateSkillSchema` from `@cv-generator/shared`
 - Produces:
   - `GET /api/staff` → `Staff[]`
@@ -862,7 +885,11 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  _req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback,
+) => {
   const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowed.includes(ext)) {
@@ -914,7 +941,16 @@ export const staffRepository = {
       .returning('*')
       .then((rows) => rows[0]!),
 
-  update: (id: string, data: Partial<{ name: string; jobTitle: string; yearsExperience: number; summary: string; photoUrl: string }>) => {
+  update: (
+    id: string,
+    data: Partial<{
+      name: string;
+      jobTitle: string;
+      yearsExperience: number;
+      summary: string;
+      photoUrl: string;
+    }>,
+  ) => {
     const update: Record<string, unknown> = {};
     if (data.name !== undefined) update['name'] = data.name;
     if (data.jobTitle !== undefined) update['job_title'] = data.jobTitle;
@@ -922,7 +958,11 @@ export const staffRepository = {
     if (data.summary !== undefined) update['summary'] = data.summary;
     if (data.photoUrl !== undefined) update['photo_url'] = data.photoUrl;
     update['updated_at'] = db.fn.now();
-    return db('staff').where({ id }).update(update).returning('*').then((rows) => rows[0]!);
+    return db('staff')
+      .where({ id })
+      .update(update)
+      .returning('*')
+      .then((rows) => rows[0]!);
   },
 
   delete: (id: string) => db('staff').where({ id }).delete(),
@@ -931,10 +971,17 @@ export const staffRepository = {
   getSkills: (staffId: string) => db('skills').where({ staff_id: staffId }),
 
   addSkill: (staffId: string, name: string, level: string) =>
-    db('skills').insert({ staff_id: staffId, name, level }).returning('*').then((rows) => rows[0]!),
+    db('skills')
+      .insert({ staff_id: staffId, name, level })
+      .returning('*')
+      .then((rows) => rows[0]!),
 
   updateSkill: (id: string, data: { name?: string; level?: string }) =>
-    db('skills').where({ id }).update(data).returning('*').then((rows) => rows[0]!),
+    db('skills')
+      .where({ id })
+      .update(data)
+      .returning('*')
+      .then((rows) => rows[0]!),
 
   deleteSkill: (id: string) => db('skills').where({ id }).delete(),
 };
@@ -950,64 +997,102 @@ import { validate } from '../middleware/validate.js';
 import { requireAuth, requireAdmin } from '../middleware/requireAuth.js';
 import { upload } from '../upload/upload.js';
 import { AppError } from '../middleware/errorHandler.js';
-import { CreateStaffSchema, UpdateStaffSchema, CreateSkillSchema, UpdateSkillSchema } from '@cv-generator/shared';
+import {
+  CreateStaffSchema,
+  UpdateStaffSchema,
+  CreateSkillSchema,
+  UpdateSkillSchema,
+} from '@cv-generator/shared';
 
 export const staffRouter = Router();
 
 staffRouter.use(requireAuth);
 
 // GET /api/staff
-staffRouter.get('/', asyncHandler(async (_req, res) => {
-  const staff = await staffRepository.findAll();
-  res.json(staff.map(camelizeStaff));
-}));
+staffRouter.get(
+  '/',
+  asyncHandler(async (_req, res) => {
+    const staff = await staffRepository.findAll();
+    res.json(staff.map(camelizeStaff));
+  }),
+);
 
 // GET /api/staff/:id
-staffRouter.get('/:id', asyncHandler(async (req, res) => {
-  const staff = await staffRepository.findWithSkills(req.params.id!);
-  if (!staff) throw new AppError(404, 'Staff member not found');
-  res.json(camelizeStaff(staff));
-}));
+staffRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const staff = await staffRepository.findWithSkills(req.params.id!);
+    if (!staff) throw new AppError(404, 'Staff member not found');
+    res.json(camelizeStaff(staff));
+  }),
+);
 
 // POST /api/staff (admin only)
-staffRouter.post('/', requireAdmin, validate(CreateStaffSchema), asyncHandler(async (req, res) => {
-  const staff = await staffRepository.create(req.body);
-  res.status(201).json(camelizeStaff(staff));
-}));
+staffRouter.post(
+  '/',
+  requireAdmin,
+  validate(CreateStaffSchema),
+  asyncHandler(async (req, res) => {
+    const staff = await staffRepository.create(req.body);
+    res.status(201).json(camelizeStaff(staff));
+  }),
+);
 
 // PATCH /api/staff/:id (admin only)
-staffRouter.patch('/:id', requireAdmin, validate(UpdateStaffSchema), asyncHandler(async (req, res) => {
-  const staff = await staffRepository.update(req.params.id!, req.body);
-  if (!staff) throw new AppError(404, 'Staff member not found');
-  res.json(camelizeStaff(staff));
-}));
+staffRouter.patch(
+  '/:id',
+  requireAdmin,
+  validate(UpdateStaffSchema),
+  asyncHandler(async (req, res) => {
+    const staff = await staffRepository.update(req.params.id!, req.body);
+    if (!staff) throw new AppError(404, 'Staff member not found');
+    res.json(camelizeStaff(staff));
+  }),
+);
 
 // DELETE /api/staff/:id (admin only)
-staffRouter.delete('/:id', requireAdmin, asyncHandler(async (req, res) => {
-  await staffRepository.delete(req.params.id!);
-  res.status(204).send();
-}));
+staffRouter.delete(
+  '/:id',
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    await staffRepository.delete(req.params.id!);
+    res.status(204).send();
+  }),
+);
 
 // POST /api/staff/:id/photo (admin only)
-staffRouter.post('/:id/photo', requireAdmin, upload.single('photo'), asyncHandler(async (req, res) => {
-  if (!req.file) throw new AppError(400, 'No file uploaded');
-  const photoUrl = `/uploads/${req.file.filename}`;
-  const staff = await staffRepository.update(req.params.id!, { photoUrl });
-  if (!staff) throw new AppError(404, 'Staff member not found');
-  res.json({ photoUrl });
-}));
+staffRouter.post(
+  '/:id/photo',
+  requireAdmin,
+  upload.single('photo'),
+  asyncHandler(async (req, res) => {
+    if (!req.file) throw new AppError(400, 'No file uploaded');
+    const photoUrl = `/uploads/${req.file.filename}`;
+    const staff = await staffRepository.update(req.params.id!, { photoUrl });
+    if (!staff) throw new AppError(404, 'Staff member not found');
+    res.json({ photoUrl });
+  }),
+);
 
 // GET /api/staff/:id/skills
-staffRouter.get('/:id/skills', asyncHandler(async (req, res) => {
-  const skills = await staffRepository.getSkills(req.params.id!);
-  res.json(skills.map(camelizeSkill));
-}));
+staffRouter.get(
+  '/:id/skills',
+  asyncHandler(async (req, res) => {
+    const skills = await staffRepository.getSkills(req.params.id!);
+    res.json(skills.map(camelizeSkill));
+  }),
+);
 
 // POST /api/staff/:id/skills (admin only)
-staffRouter.post('/:id/skills', requireAdmin, validate(CreateSkillSchema), asyncHandler(async (req, res) => {
-  const skill = await staffRepository.addSkill(req.params.id!, req.body.name, req.body.level);
-  res.status(201).json(camelizeSkill(skill));
-}));
+staffRouter.post(
+  '/:id/skills',
+  requireAdmin,
+  validate(CreateSkillSchema),
+  asyncHandler(async (req, res) => {
+    const skill = await staffRepository.addSkill(req.params.id!, req.body.name, req.body.level);
+    res.status(201).json(camelizeSkill(skill));
+  }),
+);
 
 // PATCH /api/skills/:skillId (admin only) — note: mounted on staffRouter but uses different param
 // This is handled by a separate skills router mounted at /api/skills
@@ -1052,26 +1137,40 @@ export const skillsRouter = Router();
 
 skillsRouter.use(requireAuth, requireAdmin);
 
-skillsRouter.patch('/:id', validate(UpdateSkillSchema), asyncHandler(async (req, res) => {
-  const skill = await staffRepository.updateSkill(req.params.id!, req.body);
-  res.json({ id: skill['id'], staffId: skill['staff_id'], name: skill['name'], level: skill['level'] });
-}));
+skillsRouter.patch(
+  '/:id',
+  validate(UpdateSkillSchema),
+  asyncHandler(async (req, res) => {
+    const skill = await staffRepository.updateSkill(req.params.id!, req.body);
+    res.json({
+      id: skill['id'],
+      staffId: skill['staff_id'],
+      name: skill['name'],
+      level: skill['level'],
+    });
+  }),
+);
 
-skillsRouter.delete('/:id', asyncHandler(async (req, res) => {
-  await staffRepository.deleteSkill(req.params.id!);
-  res.status(204).send();
-}));
+skillsRouter.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    await staffRepository.deleteSkill(req.params.id!);
+    res.status(204).send();
+  }),
+);
 ```
 
 - [ ] **Step 5: Mount routers in `apps/backend/src/app.ts`**
 
 Add imports:
+
 ```ts
 import { staffRouter } from './staff/staff.router.js';
 import { skillsRouter } from './staff/skills.router.js';
 ```
 
 Add after auth router mount:
+
 ```ts
 app.use('/api/staff', staffRouter);
 app.use('/api/skills', skillsRouter);
@@ -1089,12 +1188,14 @@ git commit -m "feat(backend): add staff and skills CRUD endpoints with photo upl
 ### Task 5: Projects & Participations Routes
 
 **Files:**
+
 - Create: `apps/backend/src/projects/projects.repository.ts`
 - Create: `apps/backend/src/projects/projects.router.ts`
 - Create: `apps/backend/src/projects/participations.router.ts`
 - Modify: `apps/backend/src/app.ts`
 
 **Interfaces:**
+
 - Consumes: `CreateProjectSchema`, `UpdateProjectSchema`, `CreateParticipationSchema`, `UpdateParticipationSchema` from `@cv-generator/shared`
 - Produces:
   - `GET /api/projects` → `Project[]`
@@ -1114,7 +1215,10 @@ import { db } from '../db/knex.js';
 
 export const projectsRepository = {
   findAll: () =>
-    db('projects').select('*').orderBy('start_date', 'desc').then((rows) => rows.map(camelizeProject)),
+    db('projects')
+      .select('*')
+      .orderBy('start_date', 'desc')
+      .then((rows) => rows.map(camelizeProject)),
 
   findById: async (id: string) => {
     const project = await db('projects').where({ id }).first();
@@ -1123,10 +1227,21 @@ export const projectsRepository = {
       .join('staff as s', 'pp.staff_id', 's.id')
       .where('pp.project_id', id)
       .select('pp.*', 's.name as staff_name', 's.job_title as staff_job_title');
-    return { ...camelizeProject(project), participations: participations.map(camelizeParticipation) };
+    return {
+      ...camelizeProject(project),
+      participations: participations.map(camelizeParticipation),
+    };
   },
 
-  create: (data: { name: string; description: string; client: string; location: string; startDate: string; endDate?: string | null; technologies: string[] }) =>
+  create: (data: {
+    name: string;
+    description: string;
+    client: string;
+    location: string;
+    startDate: string;
+    endDate?: string | null;
+    technologies: string[];
+  }) =>
     db('projects')
       .insert({
         name: data.name,
@@ -1140,7 +1255,18 @@ export const projectsRepository = {
       .returning('*')
       .then((rows) => camelizeProject(rows[0]!)),
 
-  update: (id: string, data: Partial<{ name: string; description: string; client: string; location: string; startDate: string; endDate: string | null; technologies: string[] }>) => {
+  update: (
+    id: string,
+    data: Partial<{
+      name: string;
+      description: string;
+      client: string;
+      location: string;
+      startDate: string;
+      endDate: string | null;
+      technologies: string[];
+    }>,
+  ) => {
     const update: Record<string, unknown> = {};
     if (data.name !== undefined) update['name'] = data.name;
     if (data.description !== undefined) update['description'] = data.description;
@@ -1150,7 +1276,11 @@ export const projectsRepository = {
     if (data.endDate !== undefined) update['end_date'] = data.endDate;
     if (data.technologies !== undefined) update['technologies'] = data.technologies;
     update['updated_at'] = db.fn.now();
-    return db('projects').where({ id }).update(update).returning('*').then((rows) => camelizeProject(rows[0]!));
+    return db('projects')
+      .where({ id })
+      .update(update)
+      .returning('*')
+      .then((rows) => camelizeProject(rows[0]!));
   },
 
   delete: (id: string) => db('projects').where({ id }).delete(),
@@ -1160,17 +1290,40 @@ export const projectsRepository = {
     db('project_participations as pp')
       .join('projects as p', 'pp.project_id', 'p.id')
       .where('pp.staff_id', staffId)
-      .select('pp.*', 'p.name as project_name', 'p.client as project_client', 'p.start_date as project_start_date', 'p.end_date as project_end_date', 'p.description as project_description', 'p.location as project_location', 'p.technologies as project_technologies')
+      .select(
+        'pp.*',
+        'p.name as project_name',
+        'p.client as project_client',
+        'p.start_date as project_start_date',
+        'p.end_date as project_end_date',
+        'p.description as project_description',
+        'p.location as project_location',
+        'p.technologies as project_technologies',
+      )
       .orderBy('p.start_date', 'desc'),
 
-  createParticipation: (data: { staffId: string; projectId: string; role: string; responsibilities: string }) =>
+  createParticipation: (data: {
+    staffId: string;
+    projectId: string;
+    role: string;
+    responsibilities: string;
+  }) =>
     db('project_participations')
-      .insert({ staff_id: data.staffId, project_id: data.projectId, role: data.role, responsibilities: data.responsibilities })
+      .insert({
+        staff_id: data.staffId,
+        project_id: data.projectId,
+        role: data.role,
+        responsibilities: data.responsibilities,
+      })
       .returning('*')
       .then((rows) => rows[0]!),
 
   updateParticipation: (id: string, data: { role?: string; responsibilities?: string }) =>
-    db('project_participations').where({ id }).update(data).returning('*').then((rows) => rows[0]!),
+    db('project_participations')
+      .where({ id })
+      .update(data)
+      .returning('*')
+      .then((rows) => rows[0]!),
 
   deleteParticipation: (id: string) => db('project_participations').where({ id }).delete(),
 };
@@ -1225,31 +1378,51 @@ export const projectsRouter = Router();
 
 projectsRouter.use(requireAuth);
 
-projectsRouter.get('/', asyncHandler(async (_req, res) => {
-  const projects = await projectsRepository.findAll();
-  res.json(projects);
-}));
+projectsRouter.get(
+  '/',
+  asyncHandler(async (_req, res) => {
+    const projects = await projectsRepository.findAll();
+    res.json(projects);
+  }),
+);
 
-projectsRouter.get('/:id', asyncHandler(async (req, res) => {
-  const project = await projectsRepository.findById(req.params.id!);
-  if (!project) throw new AppError(404, 'Project not found');
-  res.json(project);
-}));
+projectsRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const project = await projectsRepository.findById(req.params.id!);
+    if (!project) throw new AppError(404, 'Project not found');
+    res.json(project);
+  }),
+);
 
-projectsRouter.post('/', requireAdmin, validate(CreateProjectSchema), asyncHandler(async (req, res) => {
-  const project = await projectsRepository.create(req.body);
-  res.status(201).json(project);
-}));
+projectsRouter.post(
+  '/',
+  requireAdmin,
+  validate(CreateProjectSchema),
+  asyncHandler(async (req, res) => {
+    const project = await projectsRepository.create(req.body);
+    res.status(201).json(project);
+  }),
+);
 
-projectsRouter.patch('/:id', requireAdmin, validate(UpdateProjectSchema), asyncHandler(async (req, res) => {
-  const project = await projectsRepository.update(req.params.id!, req.body);
-  res.json(project);
-}));
+projectsRouter.patch(
+  '/:id',
+  requireAdmin,
+  validate(UpdateProjectSchema),
+  asyncHandler(async (req, res) => {
+    const project = await projectsRepository.update(req.params.id!, req.body);
+    res.json(project);
+  }),
+);
 
-projectsRouter.delete('/:id', requireAdmin, asyncHandler(async (req, res) => {
-  await projectsRepository.delete(req.params.id!);
-  res.status(204).send();
-}));
+projectsRouter.delete(
+  '/:id',
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    await projectsRepository.delete(req.params.id!);
+    res.status(204).send();
+  }),
+);
 ```
 
 - [ ] **Step 3: Create `apps/backend/src/projects/participations.router.ts`**
@@ -1266,25 +1439,37 @@ export const participationsRouter = Router();
 
 participationsRouter.use(requireAuth, requireAdmin);
 
-participationsRouter.post('/', validate(CreateParticipationSchema), asyncHandler(async (req, res) => {
-  const p = await projectsRepository.createParticipation(req.body);
-  res.status(201).json(p);
-}));
+participationsRouter.post(
+  '/',
+  validate(CreateParticipationSchema),
+  asyncHandler(async (req, res) => {
+    const p = await projectsRepository.createParticipation(req.body);
+    res.status(201).json(p);
+  }),
+);
 
-participationsRouter.patch('/:id', validate(UpdateParticipationSchema), asyncHandler(async (req, res) => {
-  const p = await projectsRepository.updateParticipation(req.params.id!, req.body);
-  res.json(p);
-}));
+participationsRouter.patch(
+  '/:id',
+  validate(UpdateParticipationSchema),
+  asyncHandler(async (req, res) => {
+    const p = await projectsRepository.updateParticipation(req.params.id!, req.body);
+    res.json(p);
+  }),
+);
 
-participationsRouter.delete('/:id', asyncHandler(async (req, res) => {
-  await projectsRepository.deleteParticipation(req.params.id!);
-  res.status(204).send();
-}));
+participationsRouter.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    await projectsRepository.deleteParticipation(req.params.id!);
+    res.status(204).send();
+  }),
+);
 ```
 
 - [ ] **Step 4: Mount in `apps/backend/src/app.ts`**
 
 Add imports and mount:
+
 ```ts
 import { projectsRouter } from './projects/projects.router.js';
 import { participationsRouter } from './projects/participations.router.js';
@@ -1294,13 +1479,17 @@ app.use('/api/participations', participationsRouter);
 ```
 
 Also add staff participations to `staffRouter` in `staff.router.ts`:
+
 ```ts
 // GET /api/staff/:id/participations
-staffRouter.get('/:id/participations', asyncHandler(async (req, res) => {
-  const { projectsRepository } = await import('../projects/projects.repository.js');
-  const participations = await projectsRepository.getStaffParticipations(req.params.id!);
-  res.json(participations);
-}));
+staffRouter.get(
+  '/:id/participations',
+  asyncHandler(async (req, res) => {
+    const { projectsRepository } = await import('../projects/projects.repository.js');
+    const participations = await projectsRepository.getStaffParticipations(req.params.id!);
+    res.json(participations);
+  }),
+);
 ```
 
 - [ ] **Step 5: Commit**
@@ -1315,12 +1504,14 @@ git commit -m "feat(backend): add projects and participations CRUD endpoints"
 ### Task 6: CV Generation & Templates Routes
 
 **Files:**
+
 - Create: `apps/backend/src/cv/cv.repository.ts`
 - Create: `apps/backend/src/cv/cv.router.ts`
 - Create: `apps/backend/src/cv/templates.router.ts`
 - Modify: `apps/backend/src/app.ts`
 
 **Interfaces:**
+
 - Consumes: all repositories above
 - Produces:
   - `GET /api/templates` → `CVTemplate[]`
@@ -1334,33 +1525,44 @@ import { db } from '../db/knex.js';
 
 export const cvRepository = {
   getAllTemplates: () =>
-    db('cv_templates').where({ is_active: true }).select('*').orderBy('name').then((rows) =>
-      rows.map((r) => ({
-        id: r['id'],
-        name: r['name'],
-        layoutKey: r['layout_key'],
-        description: r['description'],
-        isActive: r['is_active'],
-        createdAt: r['created_at'],
-      }))
-    ),
+    db('cv_templates')
+      .where({ is_active: true })
+      .select('*')
+      .orderBy('name')
+      .then((rows) =>
+        rows.map((r) => ({
+          id: r['id'],
+          name: r['name'],
+          layoutKey: r['layout_key'],
+          description: r['description'],
+          isActive: r['is_active'],
+          createdAt: r['created_at'],
+        })),
+      ),
 
   getTemplateById: (id: string) =>
-    db('cv_templates').where({ id, is_active: true }).first().then((r) =>
-      r
-        ? {
-            id: r['id'],
-            name: r['name'],
-            layoutKey: r['layout_key'],
-            description: r['description'],
-            isActive: r['is_active'],
-            createdAt: r['created_at'],
-          }
-        : null
-    ),
+    db('cv_templates')
+      .where({ id, is_active: true })
+      .first()
+      .then((r) =>
+        r
+          ? {
+              id: r['id'],
+              name: r['name'],
+              layoutKey: r['layout_key'],
+              description: r['description'],
+              isActive: r['is_active'],
+              createdAt: r['created_at'],
+            }
+          : null,
+      ),
 
   logGeneration: (staffId: string, templateId: string, generatedBy: string) =>
-    db('generated_cvs').insert({ staff_id: staffId, template_id: templateId, generated_by: generatedBy }),
+    db('generated_cvs').insert({
+      staff_id: staffId,
+      template_id: templateId,
+      generated_by: generatedBy,
+    }),
 
   assembleCVData: async (staffId: string, templateId: string) => {
     const staff = await db('staff').where({ id: staffId }).first();
@@ -1389,7 +1591,12 @@ export const cvRepository = {
         createdAt: staff['created_at'],
         updatedAt: staff['updated_at'],
       },
-      skills: skills.map((s) => ({ id: s['id'], staffId: s['staff_id'], name: s['name'], level: s['level'] })),
+      skills: skills.map((s) => ({
+        id: s['id'],
+        staffId: s['staff_id'],
+        name: s['name'],
+        level: s['level'],
+      })),
       participations: participations.map((p) => ({
         id: p['participation_id'],
         staffId: p['staff_id'],
@@ -1436,16 +1643,22 @@ export const templatesRouter = Router();
 
 templatesRouter.use(requireAuth);
 
-templatesRouter.get('/', asyncHandler(async (_req, res) => {
-  const templates = await cvRepository.getAllTemplates();
-  res.json(templates);
-}));
+templatesRouter.get(
+  '/',
+  asyncHandler(async (_req, res) => {
+    const templates = await cvRepository.getAllTemplates();
+    res.json(templates);
+  }),
+);
 
-templatesRouter.get('/:id', asyncHandler(async (req, res) => {
-  const template = await cvRepository.getTemplateById(req.params.id!);
-  if (!template) throw new AppError(404, 'Template not found');
-  res.json(template);
-}));
+templatesRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const template = await cvRepository.getTemplateById(req.params.id!);
+    if (!template) throw new AppError(404, 'Template not found');
+    res.json(template);
+  }),
+);
 ```
 
 - [ ] **Step 3: Create `apps/backend/src/cv/cv.router.ts`**
@@ -1462,16 +1675,19 @@ export const cvRouter = Router();
 cvRouter.use(requireAuth);
 
 // GET /api/cv/:staffId/:templateId
-cvRouter.get('/:staffId/:templateId', asyncHandler(async (req, res) => {
-  const { staffId, templateId } = req.params as { staffId: string; templateId: string };
-  const data = await cvRepository.assembleCVData(staffId, templateId);
-  if (!data) throw new AppError(404, 'Staff member or template not found');
+cvRouter.get(
+  '/:staffId/:templateId',
+  asyncHandler(async (req, res) => {
+    const { staffId, templateId } = req.params as { staffId: string; templateId: string };
+    const data = await cvRepository.assembleCVData(staffId, templateId);
+    if (!data) throw new AppError(404, 'Staff member or template not found');
 
-  // Log the generation
-  await cvRepository.logGeneration(staffId, templateId, req.user!.id);
+    // Log the generation
+    await cvRepository.logGeneration(staffId, templateId, req.user!.id);
 
-  res.json(data);
-}));
+    res.json(data);
+  }),
+);
 ```
 
 - [ ] **Step 4: Mount in `apps/backend/src/app.ts`**
@@ -1487,6 +1703,7 @@ app.use('/api/cv', cvRouter);
 - [ ] **Step 5: Verify full API**
 
 Start server and test:
+
 ```bash
 # Should return 3 templates (after seed)
 curl http://localhost:3001/api/templates \

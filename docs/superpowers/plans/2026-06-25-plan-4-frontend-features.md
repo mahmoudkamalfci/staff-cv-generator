@@ -23,12 +23,14 @@
 ### Task 1: Data Hooks (React Query)
 
 **Files:**
+
 - Create: `apps/frontend/src/hooks/useStaff.ts`
 - Create: `apps/frontend/src/hooks/useProjects.ts`
 - Create: `apps/frontend/src/hooks/useTemplates.ts`
 - Create: `apps/frontend/src/hooks/useCVData.ts`
 
 **Interfaces:**
+
 - Produces:
   - `useStaffList()` → `{ data: Staff[], isLoading, error }`
   - `useStaffDetail(id)` → `{ data: StaffWithSkills, isLoading, error }`
@@ -52,7 +54,13 @@
 ```ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Staff, StaffWithSkills, CreateStaffInput, UpdateStaffInput, CreateSkillInput } from '@cv-generator/shared';
+import type {
+  Staff,
+  StaffWithSkills,
+  CreateStaffInput,
+  UpdateStaffInput,
+  CreateSkillInput,
+} from '@cv-generator/shared';
 
 export const staffKeys = {
   all: ['staff'] as const,
@@ -109,9 +117,11 @@ export function useUploadStaffPhoto(staffId: string) {
     mutationFn: (file: File) => {
       const form = new FormData();
       form.append('photo', file);
-      return api.post<{ photoUrl: string }>(`/staff/${staffId}/photo`, form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }).then((r) => r.data);
+      return api
+        .post<{ photoUrl: string }>(`/staff/${staffId}/photo`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then((r) => r.data);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) }),
   });
@@ -148,7 +158,13 @@ export function useStaffParticipations(staffId: string) {
 ```ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Project, CreateProjectInput, UpdateProjectInput, CreateParticipationInput, UpdateParticipationInput } from '@cv-generator/shared';
+import type {
+  Project,
+  CreateProjectInput,
+  UpdateProjectInput,
+  CreateParticipationInput,
+  UpdateParticipationInput,
+} from '@cv-generator/shared';
 
 export const projectKeys = {
   all: ['projects'] as const,
@@ -173,7 +189,8 @@ export function useProjectDetail(id: string) {
 export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateProjectInput) => api.post<Project>('/projects', data).then((r) => r.data),
+    mutationFn: (data: CreateProjectInput) =>
+      api.post<Project>('/projects', data).then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: projectKeys.all }),
   });
 }
@@ -265,9 +282,11 @@ git commit -m "feat(frontend): add React Query data hooks for staff, projects, t
 ### Task 2: Dashboard Page
 
 **Files:**
+
 - Modify: `apps/frontend/src/pages/dashboard/DashboardPage.tsx`
 
 **Interfaces:**
+
 - Consumes: `useStaffList`, `useProjectList`, `useTemplateList`
 - Produces: Dashboard page showing stat cards (staff count, project count, template count) and a welcome message
 
@@ -311,7 +330,11 @@ function StatCard({ title, value, icon: Icon, color, to, isLoading }: StatCardPr
           </div>
         </div>
         <Link to={to}>
-          <Button variant="ghost" size="sm" className="mt-4 text-xs text-muted-foreground hover:text-foreground px-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-4 text-xs text-muted-foreground hover:text-foreground px-0"
+          >
             View all →
           </Button>
         </Link>
@@ -333,9 +356,7 @@ export default function DashboardPage() {
         <h2 className="text-2xl font-bold text-foreground">
           Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}
         </h2>
-        <p className="text-muted-foreground mt-1">
-          Here's what's in your CV generator today.
-        </p>
+        <p className="text-muted-foreground mt-1">Here's what's in your CV generator today.</p>
       </div>
 
       {/* Stats Grid */}
@@ -376,7 +397,8 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm mb-4">
-            Select a staff member and a template to generate a professional CV for your next proposal.
+            Select a staff member and a template to generate a professional CV for your next
+            proposal.
           </p>
           <Link to="/cv">
             <Button variant="accent">Open CV Generator</Button>
@@ -400,6 +422,7 @@ git commit -m "feat(frontend): implement dashboard page with stat cards"
 ### Task 3: Staff Pages (List, Detail, Form)
 
 **Files:**
+
 - Modify: `apps/frontend/src/pages/staff/StaffListPage.tsx`
 - Modify: `apps/frontend/src/pages/staff/StaffDetailPage.tsx`
 - Modify: `apps/frontend/src/pages/staff/StaffFormPage.tsx`
@@ -407,6 +430,7 @@ git commit -m "feat(frontend): implement dashboard page with stat cards"
 - Create: `apps/frontend/src/components/staff/SkillsManager.tsx`
 
 **Interfaces:**
+
 - Consumes: `useStaffList`, `useStaffDetail`, `useCreateStaff`, `useUpdateStaff`, `useDeleteStaff`, `useAddSkill`, `useDeleteSkill`, `useUploadStaffPhoto`
 
 - [ ] **Step 1: Create `apps/frontend/src/components/staff/SkillBadge.tsx`**
@@ -467,7 +491,13 @@ import { SkillBadge } from './SkillBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
 interface SkillsManagerProps {
@@ -482,7 +512,13 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
   const addSkill = useAddSkill(staffId);
   const deleteSkill = useDeleteSkill(staffId);
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<CreateSkillInput>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<CreateSkillInput>({
     resolver: zodResolver(CreateSkillSchema),
   });
 
@@ -501,7 +537,9 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        {skills.length === 0 && <p className="text-muted-foreground text-sm">No skills added yet.</p>}
+        {skills.length === 0 && (
+          <p className="text-muted-foreground text-sm">No skills added yet.</p>
+        )}
         {skills.map((skill) => (
           <SkillBadge key={skill.id} skill={skill} onDelete={handleDelete} canDelete={canEdit} />
         ))}
@@ -516,8 +554,15 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
       {adding && (
         <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 items-end flex-wrap">
           <div className="space-y-1">
-            <Label htmlFor="skill-name" className="text-xs">Skill name</Label>
-            <Input id="skill-name" {...register('name')} placeholder="e.g. React" className="h-8 w-40" />
+            <Label htmlFor="skill-name" className="text-xs">
+              Skill name
+            </Label>
+            <Input
+              id="skill-name"
+              {...register('name')}
+              placeholder="e.g. React"
+              className="h-8 w-40"
+            />
             {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
           </div>
           <div className="space-y-1">
@@ -528,7 +573,9 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
               </SelectTrigger>
               <SelectContent>
                 {['beginner', 'intermediate', 'advanced', 'expert'].map((l) => (
-                  <SelectItem key={l} value={l} className="capitalize">{l}</SelectItem>
+                  <SelectItem key={l} value={l} className="capitalize">
+                    {l}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -536,7 +583,9 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
           <Button type="submit" size="sm" disabled={addSkill.isPending}>
             {addSkill.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add'}
           </Button>
-          <Button type="button" size="sm" variant="ghost" onClick={() => setAdding(false)}>Cancel</Button>
+          <Button type="button" size="sm" variant="ghost" onClick={() => setAdding(false)}>
+            Cancel
+          </Button>
         </form>
       )}
     </div>
@@ -624,7 +673,10 @@ export default function StaffListPage() {
               </Card>
             ))
           : filtered?.map((member) => (
-              <Card key={member.id} className="shadow-card hover:shadow-elevated transition-shadow duration-200">
+              <Card
+                key={member.id}
+                className="shadow-card hover:shadow-elevated transition-shadow duration-200"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
                     <Avatar className="w-12 h-12">
@@ -697,7 +749,13 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { SkillsManager } from '@/components/staff/SkillsManager';
 import { getInitials, formatDate } from '@/lib/utils';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -790,7 +848,9 @@ export default function StaffDetailPage() {
               </SelectTrigger>
               <SelectContent>
                 {templates?.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -817,7 +877,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Upload } from 'lucide-react';
 import { CreateStaffSchema, type CreateStaffInput } from '@cv-generator/shared';
-import { useStaffDetail, useCreateStaff, useUpdateStaff, useUploadStaffPhoto } from '@/hooks/useStaff';
+import {
+  useStaffDetail,
+  useCreateStaff,
+  useUpdateStaff,
+  useUploadStaffPhoto,
+} from '@/hooks/useStaff';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -875,7 +940,11 @@ export default function StaffFormPage() {
   };
 
   if (isEdit && isLoading) {
-    return <div className="flex justify-center h-64 items-center"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>;
+    return (
+      <div className="flex justify-center h-64 items-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
   }
 
   return (
@@ -892,7 +961,9 @@ export default function StaffFormPage() {
       </div>
 
       <Card className="shadow-card">
-        <CardHeader><CardTitle className="text-base">Profile Information</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Profile Information</CardTitle>
+        </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-2">
@@ -902,8 +973,14 @@ export default function StaffFormPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="jobTitle">Job Title</Label>
-              <Input id="jobTitle" {...register('jobTitle')} placeholder="Senior Software Engineer" />
-              {errors.jobTitle && <p className="text-destructive text-xs">{errors.jobTitle.message}</p>}
+              <Input
+                id="jobTitle"
+                {...register('jobTitle')}
+                placeholder="Senior Software Engineer"
+              />
+              {errors.jobTitle && (
+                <p className="text-destructive text-xs">{errors.jobTitle.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="yearsExperience">Years of Experience</Label>
@@ -914,7 +991,9 @@ export default function StaffFormPage() {
                 max={60}
                 {...register('yearsExperience', { valueAsNumber: true })}
               />
-              {errors.yearsExperience && <p className="text-destructive text-xs">{errors.yearsExperience.message}</p>}
+              {errors.yearsExperience && (
+                <p className="text-destructive text-xs">{errors.yearsExperience.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="summary">Profile Summary</Label>
@@ -925,13 +1004,21 @@ export default function StaffFormPage() {
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
                 placeholder="Brief professional summary…"
               />
-              {errors.summary && <p className="text-destructive text-xs">{errors.summary.message}</p>}
+              {errors.summary && (
+                <p className="text-destructive text-xs">{errors.summary.message}</p>
+              )}
             </div>
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
               {isSubmitting ? (
-                <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving…</>
-              ) : isEdit ? 'Update Profile' : 'Create Profile'}
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving…
+                </>
+              ) : isEdit ? (
+                'Update Profile'
+              ) : (
+                'Create Profile'
+              )}
             </Button>
           </form>
         </CardContent>
@@ -939,7 +1026,9 @@ export default function StaffFormPage() {
 
       {isEdit && (
         <Card className="shadow-card">
-          <CardHeader><CardTitle className="text-base">Profile Photo</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Profile Photo</CardTitle>
+          </CardHeader>
           <CardContent>
             <input
               ref={fileRef}
@@ -954,9 +1043,13 @@ export default function StaffFormPage() {
               disabled={uploadPhoto.isPending}
             >
               {uploadPhoto.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Uploading…</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" /> Uploading…
+                </>
               ) : (
-                <><Upload className="w-4 h-4 mr-2" /> Upload Photo</>
+                <>
+                  <Upload className="w-4 h-4 mr-2" /> Upload Photo
+                </>
               )}
             </Button>
             <p className="text-muted-foreground text-xs mt-2">JPG, PNG, or WebP. Max 5MB.</p>
@@ -980,11 +1073,13 @@ git commit -m "feat(frontend): implement staff list, detail, and form pages"
 ### Task 4: Project Pages
 
 **Files:**
+
 - Modify: `apps/frontend/src/pages/projects/ProjectListPage.tsx`
 - Modify: `apps/frontend/src/pages/projects/ProjectDetailPage.tsx`
 - Modify: `apps/frontend/src/pages/projects/ProjectFormPage.tsx`
 
 **Interfaces:**
+
 - Consumes: `useProjectList`, `useProjectDetail`, `useCreateProject`, `useUpdateProject`, `useDeleteProject`, `useCreateParticipation`, `useDeleteParticipation`
 
 - [ ] **Step 1: Replace `apps/frontend/src/pages/projects/ProjectListPage.tsx`**
@@ -1027,34 +1122,54 @@ export default function ProjectListPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Projects</h2>
-          <p className="text-muted-foreground text-sm mt-1">{projects?.length ?? 0} projects in the system</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            {projects?.length ?? 0} projects in the system
+          </p>
         </div>
         {user?.role === 'admin' && (
           <Link to="/projects/new">
-            <Button variant="accent"><Plus className="w-4 h-4 mr-2" /> Add Project</Button>
+            <Button variant="accent">
+              <Plus className="w-4 h-4 mr-2" /> Add Project
+            </Button>
           </Link>
         )}
       </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input placeholder="Search by name or client…" className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Input
+          placeholder="Search by name or client…"
+          className="pl-9"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       <div className="space-y-3">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="shadow-card"><CardContent className="p-5"><Skeleton className="h-16 w-full" /></CardContent></Card>
+              <Card key={i} className="shadow-card">
+                <CardContent className="p-5">
+                  <Skeleton className="h-16 w-full" />
+                </CardContent>
+              </Card>
             ))
           : filtered?.map((project) => (
-              <Card key={project.id} className="shadow-card hover:shadow-elevated transition-shadow duration-200">
+              <Card
+                key={project.id}
+                className="shadow-card hover:shadow-elevated transition-shadow duration-200"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 flex-wrap">
                         <h3 className="font-semibold text-foreground">{project.name}</h3>
                         <Badge variant="outline">{project.client}</Badge>
-                        {project.endDate === null && <Badge className="bg-success/20 text-success border-0 text-xs">Ongoing</Badge>}
+                        {project.endDate === null && (
+                          <Badge className="bg-success/20 text-success border-0 text-xs">
+                            Ongoing
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-1 text-muted-foreground text-sm mt-1">
                         <Calendar className="w-3.5 h-3.5" />
@@ -1062,23 +1177,40 @@ export default function ProjectListPage() {
                       </div>
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {(project.technologies as string[]).slice(0, 6).map((tech) => (
-                          <span key={tech} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{tech}</span>
+                          <span
+                            key={tech}
+                            className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
+                          >
+                            {tech}
+                          </span>
                         ))}
                         {(project.technologies as string[]).length > 6 && (
-                          <span className="text-xs text-muted-foreground">+{(project.technologies as string[]).length - 6} more</span>
+                          <span className="text-xs text-muted-foreground">
+                            +{(project.technologies as string[]).length - 6} more
+                          </span>
                         )}
                       </div>
                     </div>
                     <div className="flex gap-1 shrink-0">
                       <Link to={`/projects/${project.id}`}>
-                        <Button variant="ghost" size="icon" title="View"><Eye className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" title="View">
+                          <Eye className="w-4 h-4" />
+                        </Button>
                       </Link>
                       {user?.role === 'admin' && (
                         <>
                           <Link to={`/projects/${project.id}/edit`}>
-                            <Button variant="ghost" size="icon" title="Edit"><Pencil className="w-4 h-4" /></Button>
+                            <Button variant="ghost" size="icon" title="Edit">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
                           </Link>
-                          <Button variant="ghost" size="icon" title="Delete" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(project.id, project.name)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Delete"
+                            className="text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDelete(project.id, project.name)}
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </>
@@ -1090,7 +1222,11 @@ export default function ProjectListPage() {
             ))}
       </div>
 
-      {!isLoading && filtered?.length === 0 && <div className="text-center py-16 text-muted-foreground"><p>No projects found.</p></div>}
+      {!isLoading && filtered?.length === 0 && (
+        <div className="text-center py-16 text-muted-foreground">
+          <p>No projects found.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -1167,19 +1303,30 @@ export default function ProjectFormPage() {
     }
   };
 
-  if (isEdit && isLoading) return <div className="flex justify-center h-64 items-center"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>;
+  if (isEdit && isLoading)
+    return (
+      <div className="flex justify-center h-64 items-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
 
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
         <Link to={isEdit ? `/projects/${id}` : '/projects'}>
-          <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4 mr-2" /> Back</Button>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          </Button>
         </Link>
-        <h2 className="text-2xl font-bold text-foreground">{isEdit ? 'Edit Project' : 'Add Project'}</h2>
+        <h2 className="text-2xl font-bold text-foreground">
+          {isEdit ? 'Edit Project' : 'Add Project'}
+        </h2>
       </div>
 
       <Card className="shadow-card">
-        <CardHeader><CardTitle className="text-base">Project Details</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Project Details</CardTitle>
+        </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-2">
@@ -1191,19 +1338,25 @@ export default function ProjectFormPage() {
               <div className="space-y-2">
                 <Label htmlFor="client">Client</Label>
                 <Input id="client" {...register('client')} placeholder="Acme Corp" />
-                {errors.client && <p className="text-destructive text-xs">{errors.client.message}</p>}
+                {errors.client && (
+                  <p className="text-destructive text-xs">{errors.client.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="location">Location</Label>
                 <Input id="location" {...register('location')} placeholder="Cairo, Egypt" />
-                {errors.location && <p className="text-destructive text-xs">{errors.location.message}</p>}
+                {errors.location && (
+                  <p className="text-destructive text-xs">{errors.location.message}</p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="startDate">Start Date</Label>
                 <Input id="startDate" type="date" {...register('startDate')} />
-                {errors.startDate && <p className="text-destructive text-xs">{errors.startDate.message}</p>}
+                {errors.startDate && (
+                  <p className="text-destructive text-xs">{errors.startDate.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="endDate">End Date (leave empty if ongoing)</Label>
@@ -1212,30 +1365,65 @@ export default function ProjectFormPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <textarea id="description" {...register('description')} rows={4} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none" placeholder="Project overview…" />
-              {errors.description && <p className="text-destructive text-xs">{errors.description.message}</p>}
+              <textarea
+                id="description"
+                {...register('description')}
+                rows={4}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                placeholder="Project overview…"
+              />
+              {errors.description && (
+                <p className="text-destructive text-xs">{errors.description.message}</p>
+              )}
             </div>
 
             {/* Technologies */}
             <div className="space-y-2">
               <Label>Technologies</Label>
               <div className="flex gap-2">
-                <Input value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())} placeholder="e.g. React, Node.js" className="flex-1" />
-                <Button type="button" variant="outline" size="icon" onClick={addTech}><Plus className="w-4 h-4" /></Button>
+                <Input
+                  value={techInput}
+                  onChange={(e) => setTechInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())}
+                  placeholder="e.g. React, Node.js"
+                  className="flex-1"
+                />
+                <Button type="button" variant="outline" size="icon" onClick={addTech}>
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {technologies.map((tech) => (
-                  <span key={tech} className="inline-flex items-center gap-1 text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full">
+                  <span
+                    key={tech}
+                    className="inline-flex items-center gap-1 text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full"
+                  >
                     {tech}
-                    <button type="button" onClick={() => removeTech(tech)} className="hover:text-destructive"><X className="w-3 h-3" /></button>
+                    <button
+                      type="button"
+                      onClick={() => removeTech(tech)}
+                      className="hover:text-destructive"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   </span>
                 ))}
               </div>
-              {errors.technologies && <p className="text-destructive text-xs">At least one technology is required</p>}
+              {errors.technologies && (
+                <p className="text-destructive text-xs">At least one technology is required</p>
+              )}
             </div>
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving…</> : isEdit ? 'Update Project' : 'Create Project'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving…
+                </>
+              ) : isEdit ? (
+                'Update Project'
+              ) : (
+                'Create Project'
+              )}
             </Button>
           </form>
         </CardContent>
@@ -1248,6 +1436,7 @@ export default function ProjectFormPage() {
 - [ ] **Step 3: Implement `ProjectDetailPage.tsx`** — show project info + assigned staff. Implementation follows same pattern as StaffDetailPage: fetch with `useProjectDetail(id)`, render project metadata, technology tags, and a list of participations with staff names.
 
 Create `apps/frontend/src/pages/projects/ProjectDetailPage.tsx`:
+
 ```tsx
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Pencil, Loader2, Calendar, MapPin, Building2, Users } from 'lucide-react';
@@ -1264,17 +1453,39 @@ export default function ProjectDetailPage() {
   const { user } = useAuth();
   const { data: project, isLoading } = useProjectDetail(id!);
 
-  if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-accent" /></div>;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
   if (!project) return <p className="text-muted-foreground">Project not found.</p>;
 
-  const p = project as typeof project & { participations?: Array<{ id: string; staffId: string; role: string; responsibilities: string; staffName?: string; staffJobTitle?: string }> };
+  const p = project as typeof project & {
+    participations?: Array<{
+      id: string;
+      staffId: string;
+      role: string;
+      responsibilities: string;
+      staffName?: string;
+      staffJobTitle?: string;
+    }>;
+  };
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
       <div className="flex items-center justify-between">
-        <Link to="/projects"><Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects</Button></Link>
+        <Link to="/projects">
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects
+          </Button>
+        </Link>
         {user?.role === 'admin' && (
-          <Link to={`/projects/${id}/edit`}><Button variant="outline" size="sm"><Pencil className="w-4 h-4 mr-2" /> Edit</Button></Link>
+          <Link to={`/projects/${id}/edit`}>
+            <Button variant="outline" size="sm">
+              <Pencil className="w-4 h-4 mr-2" /> Edit
+            </Button>
+          </Link>
         )}
       </div>
 
@@ -1283,19 +1494,33 @@ export default function ProjectDetailPage() {
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div>
               <h2 className="text-2xl font-bold text-foreground">{project.name}</h2>
-              {project.endDate === null && <Badge className="bg-success/20 text-success border-0 mt-1">Ongoing</Badge>}
+              {project.endDate === null && (
+                <Badge className="bg-success/20 text-success border-0 mt-1">Ongoing</Badge>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground"><Building2 className="w-4 h-4" /> {project.client}</div>
-            <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-4 h-4" /> {project.location}</div>
-            <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="w-4 h-4" /> {formatDate(project.startDate)} — {formatDate(project.endDate)}</div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Building2 className="w-4 h-4" /> {project.client}
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="w-4 h-4" /> {project.location}
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="w-4 h-4" /> {formatDate(project.startDate)} —{' '}
+              {formatDate(project.endDate)}
+            </div>
           </div>
           <Separator />
           <p className="text-foreground leading-relaxed">{project.description}</p>
           <div className="flex flex-wrap gap-1.5">
             {(project.technologies as string[]).map((tech) => (
-              <span key={tech} className="text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full">{tech}</span>
+              <span
+                key={tech}
+                className="text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full"
+              >
+                {tech}
+              </span>
             ))}
           </div>
         </CardContent>
@@ -1313,7 +1538,10 @@ export default function ProjectDetailPage() {
               <div key={part.id} className="border border-border rounded-lg p-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <Link to={`/staff/${part.staffId}`} className="font-medium text-foreground hover:text-accent transition-colors">
+                    <Link
+                      to={`/staff/${part.staffId}`}
+                      className="font-medium text-foreground hover:text-accent transition-colors"
+                    >
                       {part.staffName ?? 'Staff Member'}
                     </Link>
                     <p className="text-sm text-muted-foreground">{part.staffJobTitle}</p>
@@ -1343,6 +1571,7 @@ git commit -m "feat(frontend): implement project list, detail, and form pages"
 ### Task 5: CV Generator Page & Templates Browser
 
 **Files:**
+
 - Modify: `apps/frontend/src/pages/cv/CVGeneratorPage.tsx`
 - Modify: `apps/frontend/src/pages/templates/TemplatesPage.tsx`
 
@@ -1356,7 +1585,13 @@ import { useStaffList } from '@/hooks/useStaff';
 import { useTemplateList } from '@/hooks/useTemplates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
@@ -1390,7 +1625,9 @@ export default function CVGeneratorPage() {
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">1</span>
+            <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">
+              1
+            </span>
             Select Staff Member
           </CardTitle>
         </CardHeader>
@@ -1435,7 +1672,9 @@ export default function CVGeneratorPage() {
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">2</span>
+            <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">
+              2
+            </span>
             Select Template
           </CardTitle>
         </CardHeader>
@@ -1455,13 +1694,17 @@ export default function CVGeneratorPage() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <LayoutTemplate className={`w-5 h-5 ${selectedTemplateId === template.id ? 'text-accent' : 'text-muted-foreground'}`} />
+                    <LayoutTemplate
+                      className={`w-5 h-5 ${selectedTemplateId === template.id ? 'text-accent' : 'text-muted-foreground'}`}
+                    />
                     <div>
                       <p className="font-medium text-sm text-foreground">{template.name}</p>
                       <p className="text-xs text-muted-foreground">{template.description}</p>
                     </div>
                     {selectedTemplateId === template.id && (
-                      <Badge className="ml-auto bg-accent/20 text-accent border-0 text-xs">Selected</Badge>
+                      <Badge className="ml-auto bg-accent/20 text-accent border-0 text-xs">
+                        Selected
+                      </Badge>
                     )}
                   </div>
                 </button>
@@ -1514,11 +1757,16 @@ export default function TemplatesPage() {
         {isLoading
           ? Array.from({ length: 3 }).map((_, i) => (
               <Card key={i} className="shadow-card">
-                <CardContent className="p-6"><Skeleton className="h-24 w-full" /></CardContent>
+                <CardContent className="p-6">
+                  <Skeleton className="h-24 w-full" />
+                </CardContent>
               </Card>
             ))
           : templates?.map((template) => (
-              <Card key={template.id} className="shadow-card hover:shadow-elevated transition-shadow duration-200">
+              <Card
+                key={template.id}
+                className="shadow-card hover:shadow-elevated transition-shadow duration-200"
+              >
                 <CardHeader>
                   <div className="w-10 h-10 rounded-xl bg-accent/15 flex items-center justify-center mb-3">
                     <LayoutTemplate className="w-5 h-5 text-accent" />
@@ -1527,9 +1775,13 @@ export default function TemplatesPage() {
                   <CardDescription className="text-sm">{template.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Badge variant="secondary" className="capitalize">{template.layoutKey} layout</Badge>
+                  <Badge variant="secondary" className="capitalize">
+                    {template.layoutKey} layout
+                  </Badge>
                   {template.isActive && (
-                    <Badge className="ml-2 bg-success/20 text-success border-0 text-xs">Active</Badge>
+                    <Badge className="ml-2 bg-success/20 text-success border-0 text-xs">
+                      Active
+                    </Badge>
                   )}
                 </CardContent>
               </Card>
@@ -1552,12 +1804,14 @@ git commit -m "feat(frontend): implement CV generator page and templates browser
 ### Task 6: CV Template Components & Print Preview
 
 **Files:**
+
 - Create: `apps/frontend/src/components/cv-templates/ClassicTemplate.tsx`
 - Create: `apps/frontend/src/components/cv-templates/ModernTemplate.tsx`
 - Create: `apps/frontend/src/components/cv-templates/CompactTemplate.tsx`
 - Modify: `apps/frontend/src/pages/cv/CVPreviewPage.tsx`
 
 **Interfaces:**
+
 - Consumes: `useCVData(staffId, templateId)` → `CVData`
 - All templates receive `{ data: CVData }` prop and render a print-ready layout
 
@@ -1567,7 +1821,9 @@ git commit -m "feat(frontend): implement CV generator page and templates browser
 import type { CVData } from '@cv-generator/shared';
 import { formatDate } from '@/lib/utils';
 
-interface Props { data: CVData }
+interface Props {
+  data: CVData;
+}
 
 export function ClassicTemplate({ data }: Props) {
   const { staff, skills, participations } = data;
@@ -1577,7 +1833,11 @@ export function ClassicTemplate({ data }: Props) {
       {/* Header */}
       <div className="bg-slate-800 text-white p-8 flex gap-6 items-start">
         {staff.photoUrl && (
-          <img src={staff.photoUrl} alt={staff.name} className="w-24 h-24 rounded-full object-cover border-2 border-white/30 shrink-0" />
+          <img
+            src={staff.photoUrl}
+            alt={staff.name}
+            className="w-24 h-24 rounded-full object-cover border-2 border-white/30 shrink-0"
+          />
         )}
         <div>
           <h1 className="text-3xl font-bold">{staff.name}</h1>
@@ -1589,7 +1849,9 @@ export function ClassicTemplate({ data }: Props) {
       <div className="flex">
         {/* Sidebar */}
         <aside className="w-56 bg-slate-100 p-6 shrink-0">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Skills</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+            Skills
+          </h2>
           <div className="space-y-1.5">
             {skills.map((skill) => (
               <div key={skill.id}>
@@ -1600,7 +1862,14 @@ export function ClassicTemplate({ data }: Props) {
                 <div className="h-1 bg-slate-200 rounded-full">
                   <div
                     className="h-1 bg-slate-600 rounded-full"
-                    style={{ width: { beginner: '25%', intermediate: '50%', advanced: '75%', expert: '100%' }[skill.level] }}
+                    style={{
+                      width: {
+                        beginner: '25%',
+                        intermediate: '50%',
+                        advanced: '75%',
+                        expert: '100%',
+                      }[skill.level],
+                    }}
                   />
                 </div>
               </div>
@@ -1611,20 +1880,26 @@ export function ClassicTemplate({ data }: Props) {
         {/* Main */}
         <main className="flex-1 p-6">
           <section className="mb-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Profile</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+              Profile
+            </h2>
             <p className="text-gray-700 leading-relaxed">{staff.summary}</p>
           </section>
 
           {participations.length > 0 && (
             <section>
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Project Experience</h2>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">
+                Project Experience
+              </h2>
               <div className="space-y-5">
                 {participations.map((p) => (
                   <div key={p.id} className="border-l-2 border-slate-300 pl-4">
                     <div className="flex justify-between items-start flex-wrap gap-2">
                       <div>
                         <h3 className="font-bold text-gray-900">{p.project.name}</h3>
-                        <p className="text-slate-600 text-xs">{p.project.client} · {p.project.location}</p>
+                        <p className="text-slate-600 text-xs">
+                          {p.project.client} · {p.project.location}
+                        </p>
                       </div>
                       <span className="text-xs text-slate-500 whitespace-nowrap">
                         {formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}
@@ -1634,7 +1909,12 @@ export function ClassicTemplate({ data }: Props) {
                     <p className="text-xs text-gray-600 mt-1">{p.responsibilities}</p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {(p.project.technologies as string[]).map((t) => (
-                        <span key={t} className="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">{t}</span>
+                        <span
+                          key={t}
+                          className="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded"
+                        >
+                          {t}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -1655,7 +1935,9 @@ export function ClassicTemplate({ data }: Props) {
 import type { CVData } from '@cv-generator/shared';
 import { formatDate } from '@/lib/utils';
 
-interface Props { data: CVData }
+interface Props {
+  data: CVData;
+}
 
 export function ModernTemplate({ data }: Props) {
   const { staff, skills, participations } = data;
@@ -1673,7 +1955,11 @@ export function ModernTemplate({ data }: Props) {
       <div className="bg-gradient-to-r from-blue-700 to-blue-500 text-white px-8 py-10">
         <div className="flex items-center gap-6">
           {staff.photoUrl && (
-            <img src={staff.photoUrl} alt={staff.name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white/40 shrink-0" />
+            <img
+              src={staff.photoUrl}
+              alt={staff.name}
+              className="w-20 h-20 rounded-2xl object-cover border-2 border-white/40 shrink-0"
+            />
           )}
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight">{staff.name}</h1>
@@ -1693,10 +1979,15 @@ export function ModernTemplate({ data }: Props) {
         {/* Skills */}
         {skills.length > 0 && (
           <section>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-700 mb-3">Skills</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-700 mb-3">
+              Skills
+            </h2>
             <div className="flex flex-wrap gap-2">
               {skills.map((skill) => (
-                <div key={skill.id} className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full">
+                <div
+                  key={skill.id}
+                  className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full"
+                >
                   <span className={`w-2 h-2 rounded-full ${levelDot[skill.level]}`} />
                   <span className="text-sm font-medium text-gray-800">{skill.name}</span>
                 </div>
@@ -1708,24 +1999,35 @@ export function ModernTemplate({ data }: Props) {
         {/* Experience */}
         {participations.length > 0 && (
           <section>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-700 mb-4">Project Experience</h2>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-700 mb-4">
+              Project Experience
+            </h2>
             <div className="space-y-4">
               {participations.map((p) => (
                 <div key={p.id} className="border border-gray-200 rounded-xl p-5">
                   <div className="flex justify-between items-start flex-wrap gap-2">
                     <div>
                       <h3 className="font-bold text-base text-gray-900">{p.project.name}</h3>
-                      <p className="text-sm text-gray-500">{p.project.client} · {p.project.location}</p>
+                      <p className="text-sm text-gray-500">
+                        {p.project.client} · {p.project.location}
+                      </p>
                     </div>
                     <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
                       {formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-blue-700 mt-2 uppercase tracking-wide">{p.role}</p>
+                  <p className="text-xs font-bold text-blue-700 mt-2 uppercase tracking-wide">
+                    {p.role}
+                  </p>
                   <p className="text-sm text-gray-600 mt-1">{p.responsibilities}</p>
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {(p.project.technologies as string[]).map((t) => (
-                      <span key={t} className="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">{t}</span>
+                      <span
+                        key={t}
+                        className="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full"
+                      >
+                        {t}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -1745,21 +2047,32 @@ export function ModernTemplate({ data }: Props) {
 import type { CVData } from '@cv-generator/shared';
 import { formatDate } from '@/lib/utils';
 
-interface Props { data: CVData }
+interface Props {
+  data: CVData;
+}
 
 export function CompactTemplate({ data }: Props) {
   const { staff, skills, participations } = data;
 
   return (
-    <div className="cv-page bg-white text-gray-900 min-h-[297mm] w-[210mm] mx-auto font-sans leading-snug" style={{ fontSize: '11px' }}>
+    <div
+      className="cv-page bg-white text-gray-900 min-h-[297mm] w-[210mm] mx-auto font-sans leading-snug"
+      style={{ fontSize: '11px' }}
+    >
       {/* Compact Header */}
       <div className="border-b-2 border-gray-800 px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{staff.name}</h1>
-          <p className="text-gray-600">{staff.jobTitle} · {staff.yearsExperience} years experience</p>
+          <p className="text-gray-600">
+            {staff.jobTitle} · {staff.yearsExperience} years experience
+          </p>
         </div>
         {staff.photoUrl && (
-          <img src={staff.photoUrl} alt={staff.name} className="w-14 h-14 rounded object-cover border border-gray-300" />
+          <img
+            src={staff.photoUrl}
+            alt={staff.name}
+            className="w-14 h-14 rounded object-cover border border-gray-300"
+          />
         )}
       </div>
 
@@ -1770,9 +2083,14 @@ export function CompactTemplate({ data }: Props) {
         {/* Skills inline */}
         {skills.length > 0 && (
           <div>
-            <span className="font-bold text-gray-900 uppercase text-[9px] tracking-widest">Skills: </span>
+            <span className="font-bold text-gray-900 uppercase text-[9px] tracking-widest">
+              Skills:{' '}
+            </span>
             {skills.map((s, i) => (
-              <span key={s.id}>{s.name}{i < skills.length - 1 ? ', ' : ''}</span>
+              <span key={s.id}>
+                {s.name}
+                {i < skills.length - 1 ? ', ' : ''}
+              </span>
             ))}
           </div>
         )}
@@ -1780,17 +2098,26 @@ export function CompactTemplate({ data }: Props) {
         {/* Experience */}
         {participations.length > 0 && (
           <div>
-            <h2 className="font-bold uppercase text-[9px] tracking-widest text-gray-900 border-b border-gray-200 pb-1 mb-2">Project Experience</h2>
+            <h2 className="font-bold uppercase text-[9px] tracking-widest text-gray-900 border-b border-gray-200 pb-1 mb-2">
+              Project Experience
+            </h2>
             <div className="space-y-3">
               {participations.map((p) => (
                 <div key={p.id}>
                   <div className="flex justify-between">
                     <span className="font-bold text-gray-900">{p.project.name}</span>
-                    <span className="text-gray-500">{formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}</span>
+                    <span className="text-gray-500">
+                      {formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}
+                    </span>
                   </div>
-                  <p className="text-gray-600">{p.project.client} · {p.project.location} · <span className="font-medium">{p.role}</span></p>
+                  <p className="text-gray-600">
+                    {p.project.client} · {p.project.location} ·{' '}
+                    <span className="font-medium">{p.role}</span>
+                  </p>
                   <p className="text-gray-700">{p.responsibilities}</p>
-                  <p className="text-gray-500 text-[10px]">{(p.project.technologies as string[]).join(' · ')}</p>
+                  <p className="text-gray-500 text-[10px]">
+                    {(p.project.technologies as string[]).join(' · ')}
+                  </p>
                 </div>
               ))}
             </div>
@@ -1814,7 +2141,10 @@ import { ModernTemplate } from '@/components/cv-templates/ModernTemplate';
 import { CompactTemplate } from '@/components/cv-templates/CompactTemplate';
 import type { LayoutKey } from '@cv-generator/shared';
 
-const templateComponents: Record<LayoutKey, React.ComponentType<{ data: NonNullable<ReturnType<typeof useCVData>['data']> }>> = {
+const templateComponents: Record<
+  LayoutKey,
+  React.ComponentType<{ data: NonNullable<ReturnType<typeof useCVData>['data']> }>
+> = {
   classic: ClassicTemplate,
   modern: ModernTemplate,
   compact: CompactTemplate,
@@ -1836,7 +2166,12 @@ export default function CVPreviewPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <p className="text-destructive">Failed to load CV data.</p>
-        <Link to="/cv"><Button variant="outline"><ArrowLeft className="w-4 h-4 mr-2" />Back to Generator</Button></Link>
+        <Link to="/cv">
+          <Button variant="outline">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Generator
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -1848,13 +2183,19 @@ export default function CVPreviewPage() {
       {/* Print Toolbar — hidden when printing */}
       <div className="no-print sticky top-0 z-20 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <Link to="/cv"><Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4 mr-2" />Back</Button></Link>
+          <Link to="/cv">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          </Link>
           <span className="text-sm font-medium text-gray-700">
             {data.staff.name} · {data.template.name} Template
           </span>
         </div>
         <Button onClick={() => window.print()} variant="accent" size="sm">
-          <Printer className="w-4 h-4 mr-2" />Print / Save PDF
+          <Printer className="w-4 h-4 mr-2" />
+          Print / Save PDF
         </Button>
       </div>
 
@@ -1870,6 +2211,7 @@ export default function CVPreviewPage() {
 - [ ] **Step 5: Verify full app end-to-end**
 
 With both backend and frontend running:
+
 1. Navigate to `http://localhost:5173/login` — should see the login page
 2. Log in (create an admin user first via the backend seed or register endpoint)
 3. Navigate to Staff → create a staff member
@@ -1906,6 +2248,7 @@ Internal tool for generating professional staff CVs for technical proposal submi
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js 20+
 - pnpm 9+
 - PostgreSQL 15+
@@ -1913,23 +2256,32 @@ Internal tool for generating professional staff CVs for technical proposal submi
 ### Setup
 
 \`\`\`bash
+
 # 1. Install dependencies
+
 pnpm install
 
 # 2. Set up environment variables
+
 cp apps/backend/.env.example apps/backend/.env
+
 # Edit apps/backend/.env with your PostgreSQL connection string and JWT secrets
 
 cp apps/frontend/.env.example apps/frontend/.env
 
 # 3. Run database migrations and seeds
+
 pnpm --filter @cv-generator/backend migrate
 pnpm --filter @cv-generator/backend seed
 
 # 4. Start development servers
+
 pnpm dev
+
 # Frontend: http://localhost:5173
+
 # Backend: http://localhost:3001
+
 \`\`\`
 
 ## Key Design Decisions

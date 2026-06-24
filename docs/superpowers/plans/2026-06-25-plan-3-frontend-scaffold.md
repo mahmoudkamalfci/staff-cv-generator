@@ -24,6 +24,7 @@
 ### Task 1: Vite + React + TypeScript App Scaffold
 
 **Files:**
+
 - Modify: `apps/frontend/package.json`
 - Create: `apps/frontend/tsconfig.json`
 - Create: `apps/frontend/tsconfig.app.json`
@@ -37,6 +38,7 @@
 - Create: `apps/frontend/src/vite-env.d.ts`
 
 **Interfaces:**
+
 - Produces: Running Vite dev server at `http://localhost:5173` with a blank React app
 
 - [ ] **Step 1: Replace `apps/frontend/package.json`**
@@ -101,10 +103,7 @@
 ```json
 {
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
 ```
 
@@ -201,10 +200,16 @@ export default [
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="GISCON internal staff CV generation tool for technical proposals" />
+    <meta
+      name="description"
+      content="GISCON internal staff CV generation tool for technical proposals"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <title>GISCON CV Generator</title>
   </head>
   <body>
@@ -283,10 +288,12 @@ git commit -m "feat(frontend): scaffold Vite + React + TypeScript app"
 ### Task 2: Tailwind v4 Design System
 
 **Files:**
+
 - Create: `apps/frontend/src/index.css`
 - Create: `apps/frontend/src/lib/utils.ts`
 
 **Interfaces:**
+
 - Produces:
   - `cn(...inputs)` — className merger utility exported from `src/lib/utils.ts`
   - Full Tailwind v4 `@theme` with OKLCH semantic color tokens, dark mode, animations, and typography
@@ -294,7 +301,7 @@ git commit -m "feat(frontend): scaffold Vite + React + TypeScript app"
 - [ ] **Step 1: Create `apps/frontend/src/index.css`**
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ============================================================
    THEME — Tailwind v4 CSS-first configuration
@@ -302,91 +309,117 @@ git commit -m "feat(frontend): scaffold Vite + React + TypeScript app"
    ============================================================ */
 @theme {
   /* --- Typography --- */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
   /* --- Semantic Color Tokens (Light Mode) --- */
-  --color-background:      oklch(98%   0.005 264);
-  --color-foreground:      oklch(13%   0.025 264);
+  --color-background: oklch(98% 0.005 264);
+  --color-foreground: oklch(13% 0.025 264);
 
-  --color-primary:         oklch(27%   0.06  250);
-  --color-primary-hover:   oklch(22%   0.07  250);
+  --color-primary: oklch(27% 0.06 250);
+  --color-primary-hover: oklch(22% 0.07 250);
   --color-primary-foreground: oklch(98% 0.005 264);
 
-  --color-secondary:       oklch(94%   0.012 264);
-  --color-secondary-hover: oklch(90%   0.015 264);
+  --color-secondary: oklch(94% 0.012 264);
+  --color-secondary-hover: oklch(90% 0.015 264);
   --color-secondary-foreground: oklch(20% 0.03 264);
 
-  --color-muted:           oklch(93%   0.008 264);
-  --color-muted-foreground: oklch(48%  0.02  264);
+  --color-muted: oklch(93% 0.008 264);
+  --color-muted-foreground: oklch(48% 0.02 264);
 
-  --color-accent:          oklch(56%   0.18  250);
-  --color-accent-hover:    oklch(50%   0.20  250);
+  --color-accent: oklch(56% 0.18 250);
+  --color-accent-hover: oklch(50% 0.2 250);
   --color-accent-foreground: oklch(98% 0.005 264);
 
-  --color-destructive:     oklch(54%   0.22  27);
+  --color-destructive: oklch(54% 0.22 27);
   --color-destructive-foreground: oklch(98% 0.005 264);
 
-  --color-success:         oklch(55%   0.16  145);
+  --color-success: oklch(55% 0.16 145);
   --color-success-foreground: oklch(98% 0.005 264);
 
-  --color-warning:         oklch(72%   0.18  70);
+  --color-warning: oklch(72% 0.18 70);
   --color-warning-foreground: oklch(13% 0.025 264);
 
-  --color-border:          oklch(88%   0.010 264);
-  --color-input:           oklch(88%   0.010 264);
-  --color-ring:            oklch(56%   0.18  250);
+  --color-border: oklch(88% 0.01 264);
+  --color-input: oklch(88% 0.01 264);
+  --color-ring: oklch(56% 0.18 250);
 
-  --color-card:            oklch(100%  0     0);
-  --color-card-foreground: oklch(13%   0.025 264);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(13% 0.025 264);
 
-  --color-popover:         oklch(100%  0     0);
+  --color-popover: oklch(100% 0 0);
   --color-popover-foreground: oklch(13% 0.025 264);
 
-  --color-sidebar:         oklch(15%   0.03  250);
-  --color-sidebar-foreground: oklch(90% 0.010 264);
-  --color-sidebar-border:  oklch(22%   0.04  250);
-  --color-sidebar-active:  oklch(56%   0.18  250);
-  --color-sidebar-muted:   oklch(60%   0.015 264);
+  --color-sidebar: oklch(15% 0.03 250);
+  --color-sidebar-foreground: oklch(90% 0.01 264);
+  --color-sidebar-border: oklch(22% 0.04 250);
+  --color-sidebar-active: oklch(56% 0.18 250);
+  --color-sidebar-muted: oklch(60% 0.015 264);
 
   /* --- Border Radius --- */
-  --radius-sm:   0.25rem;
-  --radius-md:   0.375rem;
-  --radius-lg:   0.5rem;
-  --radius-xl:   0.75rem;
-  --radius-2xl:  1rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
   --radius-full: 9999px;
 
   /* --- Shadows --- */
   --shadow-card: 0 1px 3px 0 oklch(0% 0 0 / 0.08), 0 1px 2px -1px oklch(0% 0 0 / 0.06);
-  --shadow-elevated: 0 4px 16px -2px oklch(0% 0 0 / 0.10), 0 2px 6px -2px oklch(0% 0 0 / 0.06);
-  --shadow-modal: 0 20px 60px -8px oklch(0% 0 0 / 0.20);
+  --shadow-elevated: 0 4px 16px -2px oklch(0% 0 0 / 0.1), 0 2px 6px -2px oklch(0% 0 0 / 0.06);
+  --shadow-modal: 0 20px 60px -8px oklch(0% 0 0 / 0.2);
 
   /* --- Animations --- */
-  --animate-fade-in:    fade-in 0.18s ease-out;
-  --animate-fade-out:   fade-out 0.15s ease-in;
+  --animate-fade-in: fade-in 0.18s ease-out;
+  --animate-fade-out: fade-out 0.15s ease-in;
   --animate-slide-in-up: slide-in-up 0.22s ease-out;
   --animate-slide-in-right: slide-in-right 0.22s ease-out;
-  --animate-scale-in:   scale-in 0.15s ease-out;
+  --animate-scale-in: scale-in 0.15s ease-out;
 
   @keyframes fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   @keyframes fade-out {
-    from { opacity: 1; }
-    to   { opacity: 0; }
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
   @keyframes slide-in-up {
-    from { transform: translateY(8px); opacity: 0; }
-    to   { transform: translateY(0);   opacity: 1; }
+    from {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
   @keyframes slide-in-right {
-    from { transform: translateX(-8px); opacity: 0; }
-    to   { transform: translateX(0);    opacity: 1; }
+    from {
+      transform: translateX(-8px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
   @keyframes scale-in {
-    from { transform: scale(0.95); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 }
 
@@ -396,48 +429,48 @@ git commit -m "feat(frontend): scaffold Vite + React + TypeScript app"
 @custom-variant dark (&:where(.dark, .dark *));
 
 .dark {
-  --color-background:      oklch(13%   0.025 264);
-  --color-foreground:      oklch(95%   0.008 264);
+  --color-background: oklch(13% 0.025 264);
+  --color-foreground: oklch(95% 0.008 264);
 
-  --color-primary:         oklch(72%   0.12  250);
-  --color-primary-hover:   oklch(78%   0.13  250);
+  --color-primary: oklch(72% 0.12 250);
+  --color-primary-hover: oklch(78% 0.13 250);
   --color-primary-foreground: oklch(13% 0.025 264);
 
-  --color-secondary:       oklch(20%   0.03  264);
-  --color-secondary-hover: oklch(24%   0.035 264);
-  --color-secondary-foreground: oklch(90% 0.010 264);
+  --color-secondary: oklch(20% 0.03 264);
+  --color-secondary-hover: oklch(24% 0.035 264);
+  --color-secondary-foreground: oklch(90% 0.01 264);
 
-  --color-muted:           oklch(20%   0.028 264);
-  --color-muted-foreground: oklch(62%  0.018 264);
+  --color-muted: oklch(20% 0.028 264);
+  --color-muted-foreground: oklch(62% 0.018 264);
 
-  --color-accent:          oklch(62%   0.20  250);
-  --color-accent-hover:    oklch(67%   0.21  250);
+  --color-accent: oklch(62% 0.2 250);
+  --color-accent-hover: oklch(67% 0.21 250);
   --color-accent-foreground: oklch(13% 0.025 264);
 
-  --color-destructive:     oklch(46%   0.17  27);
+  --color-destructive: oklch(46% 0.17 27);
   --color-destructive-foreground: oklch(95% 0.008 264);
 
-  --color-success:         oklch(50%   0.13  145);
+  --color-success: oklch(50% 0.13 145);
   --color-success-foreground: oklch(95% 0.008 264);
 
-  --color-warning:         oklch(66%   0.15  70);
+  --color-warning: oklch(66% 0.15 70);
   --color-warning-foreground: oklch(13% 0.025 264);
 
-  --color-border:          oklch(24%   0.030 264);
-  --color-input:           oklch(24%   0.030 264);
-  --color-ring:            oklch(62%   0.20  250);
+  --color-border: oklch(24% 0.03 264);
+  --color-input: oklch(24% 0.03 264);
+  --color-ring: oklch(62% 0.2 250);
 
-  --color-card:            oklch(16%   0.028 264);
-  --color-card-foreground: oklch(95%   0.008 264);
+  --color-card: oklch(16% 0.028 264);
+  --color-card-foreground: oklch(95% 0.008 264);
 
-  --color-popover:         oklch(16%   0.028 264);
+  --color-popover: oklch(16% 0.028 264);
   --color-popover-foreground: oklch(95% 0.008 264);
 
-  --color-sidebar:         oklch(10%   0.020 264);
-  --color-sidebar-foreground: oklch(88% 0.010 264);
-  --color-sidebar-border:  oklch(18%   0.030 264);
-  --color-sidebar-active:  oklch(62%   0.20  250);
-  --color-sidebar-muted:   oklch(55%   0.012 264);
+  --color-sidebar: oklch(10% 0.02 264);
+  --color-sidebar-foreground: oklch(88% 0.01 264);
+  --color-sidebar-border: oklch(18% 0.03 264);
+  --color-sidebar-active: oklch(62% 0.2 250);
+  --color-sidebar-muted: oklch(55% 0.012 264);
 
   --shadow-card: 0 1px 3px 0 oklch(0% 0 0 / 0.3), 0 1px 2px -1px oklch(0% 0 0 / 0.2);
   --shadow-elevated: 0 4px 16px -2px oklch(0% 0 0 / 0.4), 0 2px 6px -2px oklch(0% 0 0 / 0.3);
@@ -447,7 +480,9 @@ git commit -m "feat(frontend): scaffold Vite + React + TypeScript app"
    BASE STYLES
    ============================================================ */
 @layer base {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     @apply border-border box-border;
   }
 
@@ -461,7 +496,12 @@ git commit -m "feat(frontend): scaffold Vite + React + TypeScript app"
     line-height: 1.6;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold leading-tight tracking-tight;
   }
 
@@ -471,18 +511,31 @@ git commit -m "feat(frontend): scaffold Vite + React + TypeScript app"
   }
 
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { @apply bg-muted; }
-  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground; }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground;
+  }
 }
 
 /* ============================================================
    PRINT STYLES — for CV printing
    ============================================================ */
 @media print {
-  .no-print { display: none !important; }
-  .print-only { display: block !important; }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
 
   body {
     background: white !important;
@@ -536,8 +589,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <h1 className="text-4xl font-bold text-primary">GISCON CV Generator</h1>
         <p className="text-muted-foreground">Design system loaded ✓</p>
         <div className="flex gap-2 justify-center">
-          <span className="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm">Primary</span>
-          <span className="px-3 py-1 bg-accent text-accent-foreground rounded-lg text-sm">Accent</span>
+          <span className="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm">
+            Primary
+          </span>
+          <span className="px-3 py-1 bg-accent text-accent-foreground rounded-lg text-sm">
+            Accent
+          </span>
           <span className="px-3 py-1 bg-muted text-muted-foreground rounded-lg text-sm">Muted</span>
         </div>
       </div>
@@ -566,6 +623,7 @@ git commit -m "feat(frontend): add Tailwind v4 design system with OKLCH tokens a
 ### Task 3: shadcn/ui Component Installation
 
 **Files:**
+
 - Create: `apps/frontend/components.json`
 - Create: `apps/frontend/src/components/ui/button.tsx`
 - Create: `apps/frontend/src/components/ui/card.tsx`
@@ -585,6 +643,7 @@ git commit -m "feat(frontend): add Tailwind v4 design system with OKLCH tokens a
 - Create: `apps/frontend/src/hooks/use-toast.ts`
 
 **Interfaces:**
+
 - Produces: All shadcn/ui components ready to import from `@/components/ui/*`
 
 - [ ] **Step 1: Create `apps/frontend/components.json`**
@@ -615,6 +674,7 @@ git commit -m "feat(frontend): add Tailwind v4 design system with OKLCH tokens a
 - [ ] **Step 2: Install shadcn/ui components via CLI**
 
 Run from `apps/frontend/`:
+
 ```bash
 cd apps/frontend
 npx shadcn@latest add button card input label select badge avatar dialog toast separator skeleton tabs dropdown-menu tooltip --yes
@@ -627,6 +687,7 @@ If the CLI fails due to Tailwind v4, manually create components using Radix prim
 - [ ] **Step 3: Verify Button component was created at `apps/frontend/src/components/ui/button.tsx`**
 
 The file should look like:
+
 ```tsx
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
@@ -661,15 +722,16 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    return (
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+    );
   },
 );
 Button.displayName = 'Button';
@@ -684,6 +746,7 @@ If the CLI created a different version, keep it — just ensure it uses our `cn(
 Follow shadcn/ui toast hook documentation. The hook provides `toast({ title, description, variant })` and `useToast()`.
 
 The minimal version:
+
 ```ts
 // This file is auto-generated by shadcn/ui CLI.
 // If missing, run: npx shadcn@latest add toast
@@ -704,11 +767,13 @@ git commit -m "feat(frontend): add shadcn/ui component library"
 ### Task 4: API Client & Auth Context
 
 **Files:**
+
 - Create: `apps/frontend/src/lib/api.ts`
 - Create: `apps/frontend/src/contexts/AuthContext.tsx`
 - Create: `apps/frontend/src/hooks/useAuth.ts`
 
 **Interfaces:**
+
 - Produces:
   - `api` — Axios instance from `src/lib/api.ts`. Usage: `api.get('/staff')`, `api.post('/auth/login', body)`
   - `AuthProvider` — React context provider from `src/contexts/AuthContext.tsx`
@@ -852,9 +917,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, isLoading, login, logout }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -886,6 +949,7 @@ git commit -m "feat(frontend): add Axios API client with JWT interceptors and au
 ### Task 5: App Shell — Router, Layout, Providers
 
 **Files:**
+
 - Create: `apps/frontend/src/components/layout/AppShell.tsx`
 - Create: `apps/frontend/src/components/layout/Sidebar.tsx`
 - Create: `apps/frontend/src/components/layout/Topbar.tsx`
@@ -895,6 +959,7 @@ git commit -m "feat(frontend): add Axios API client with JWT interceptors and au
 - Create: `apps/frontend/src/App.tsx`
 
 **Interfaces:**
+
 - Consumes: `useAuth`, `AuthProvider`, `Button`, `Avatar` from shadcn, all `lucide-react` icons
 - Produces: Full app with sidebar navigation, topbar, protected routes, and login page accessible at `http://localhost:5173/login`
 
@@ -1111,7 +1176,9 @@ export default function LoginPage() {
                 aria-describedby={errors.email ? 'email-error' : undefined}
               />
               {errors.email && (
-                <p id="email-error" className="text-destructive text-xs">{errors.email.message}</p>
+                <p id="email-error" className="text-destructive text-xs">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -1126,19 +1193,26 @@ export default function LoginPage() {
                 aria-describedby={errors.password ? 'password-error' : undefined}
               />
               {errors.password && (
-                <p id="password-error" className="text-destructive text-xs">{errors.password.message}</p>
+                <p id="password-error" className="text-destructive text-xs">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
             {error && (
-              <div className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg" role="alert">
+              <div
+                className="text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg"
+                role="alert"
+              >
                 {error}
               </div>
             )}
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Signing in…</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Signing in…
+                </>
               ) : (
                 'Sign in'
               )}
@@ -1226,51 +1300,99 @@ export default function App() {
               <Route element={<AppShell />}>
                 <Route
                   path="/"
-                  element={<Suspense fallback={<PageLoader />}><DashboardPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <DashboardPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/staff"
-                  element={<Suspense fallback={<PageLoader />}><StaffListPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <StaffListPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/staff/new"
-                  element={<Suspense fallback={<PageLoader />}><StaffFormPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <StaffFormPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/staff/:id"
-                  element={<Suspense fallback={<PageLoader />}><StaffDetailPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <StaffDetailPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/staff/:id/edit"
-                  element={<Suspense fallback={<PageLoader />}><StaffFormPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <StaffFormPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/projects"
-                  element={<Suspense fallback={<PageLoader />}><ProjectListPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProjectListPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/projects/new"
-                  element={<Suspense fallback={<PageLoader />}><ProjectFormPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProjectFormPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/projects/:id"
-                  element={<Suspense fallback={<PageLoader />}><ProjectDetailPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProjectDetailPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/projects/:id/edit"
-                  element={<Suspense fallback={<PageLoader />}><ProjectFormPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProjectFormPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/cv"
-                  element={<Suspense fallback={<PageLoader />}><CVGeneratorPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <CVGeneratorPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/cv/preview/:staffId/:templateId"
-                  element={<Suspense fallback={<PageLoader />}><CVPreviewPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <CVPreviewPage />
+                    </Suspense>
+                  }
                 />
                 <Route
                   path="/templates"
-                  element={<Suspense fallback={<PageLoader />}><TemplatesPage /></Suspense>}
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <TemplatesPage />
+                    </Suspense>
+                  }
                 />
               </Route>
             </Route>
@@ -1309,53 +1431,123 @@ mkdir -p apps/frontend/src/pages/{dashboard,staff,projects,cv,templates}
 ```
 
 Create `apps/frontend/src/pages/dashboard/DashboardPage.tsx`:
+
 ```tsx
-export default function DashboardPage() { return <div className="text-foreground"><h2 className="text-2xl font-bold">Dashboard</h2></div>; }
+export default function DashboardPage() {
+  return (
+    <div className="text-foreground">
+      <h2 className="text-2xl font-bold">Dashboard</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/staff/StaffListPage.tsx`:
+
 ```tsx
-export default function StaffListPage() { return <div><h2 className="text-2xl font-bold text-foreground">Staff</h2></div>; }
+export default function StaffListPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Staff</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/staff/StaffDetailPage.tsx`:
+
 ```tsx
-export default function StaffDetailPage() { return <div><h2 className="text-2xl font-bold text-foreground">Staff Detail</h2></div>; }
+export default function StaffDetailPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Staff Detail</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/staff/StaffFormPage.tsx`:
+
 ```tsx
-export default function StaffFormPage() { return <div><h2 className="text-2xl font-bold text-foreground">Staff Form</h2></div>; }
+export default function StaffFormPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Staff Form</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/projects/ProjectListPage.tsx`:
+
 ```tsx
-export default function ProjectListPage() { return <div><h2 className="text-2xl font-bold text-foreground">Projects</h2></div>; }
+export default function ProjectListPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Projects</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/projects/ProjectDetailPage.tsx`:
+
 ```tsx
-export default function ProjectDetailPage() { return <div><h2 className="text-2xl font-bold text-foreground">Project Detail</h2></div>; }
+export default function ProjectDetailPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Project Detail</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/projects/ProjectFormPage.tsx`:
+
 ```tsx
-export default function ProjectFormPage() { return <div><h2 className="text-2xl font-bold text-foreground">Project Form</h2></div>; }
+export default function ProjectFormPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Project Form</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/cv/CVGeneratorPage.tsx`:
+
 ```tsx
-export default function CVGeneratorPage() { return <div><h2 className="text-2xl font-bold text-foreground">CV Generator</h2></div>; }
+export default function CVGeneratorPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">CV Generator</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/cv/CVPreviewPage.tsx`:
+
 ```tsx
-export default function CVPreviewPage() { return <div><h2 className="text-2xl font-bold text-foreground">CV Preview</h2></div>; }
+export default function CVPreviewPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">CV Preview</h2>
+    </div>
+  );
+}
 ```
 
 Create `apps/frontend/src/pages/templates/TemplatesPage.tsx`:
+
 ```tsx
-export default function TemplatesPage() { return <div><h2 className="text-2xl font-bold text-foreground">Templates</h2></div>; }
+export default function TemplatesPage() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Templates</h2>
+    </div>
+  );
+}
 ```
 
 - [ ] **Step 9: Verify app compiles and runs**

@@ -23,6 +23,7 @@
 ### Task 1: Root Monorepo Setup
 
 **Files:**
+
 - Create: `package.json`
 - Create: `pnpm-workspace.yaml`
 - Create: `turbo.json`
@@ -35,14 +36,15 @@
 - Create: `.vscode/extensions.json`
 
 **Interfaces:**
+
 - Produces: root workspace that `apps/*` and `packages/*` can be added to; `pnpm install` at root installs all workspace deps
 
 - [ ] **Step 1: Create `pnpm-workspace.yaml`**
 
 ```yaml
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 ```
 
 - [ ] **Step 2: Create root `package.json`**
@@ -214,12 +216,7 @@ pnpm-lock.yaml
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
     "**/node_modules": true,
@@ -268,11 +265,13 @@ git commit -m "chore: initialize monorepo root with Turborepo + pnpm workspaces"
 ### Task 2: Shared ESLint Config Package (`packages/config`)
 
 **Files:**
+
 - Create: `packages/config/package.json`
 - Create: `packages/config/eslint-config.js`
 - Create: `packages/config/tsconfig.json`
 
 **Interfaces:**
+
 - Produces: `@cv-generator/config` package exporting `eslintConfig` — a flat ESLint config array. Consumed by `apps/frontend/eslint.config.js` and `apps/backend/eslint.config.js` as: `import { eslintConfig } from '@cv-generator/config'`
 
 - [ ] **Step 1: Create `packages/config/package.json`**
@@ -371,6 +370,7 @@ git commit -m "chore: add shared ESLint flat config package"
 ### Task 3: Shared Zod Schemas Package (`packages/shared`)
 
 **Files:**
+
 - Create: `packages/shared/package.json`
 - Create: `packages/shared/tsconfig.json`
 - Create: `packages/shared/src/schemas/user.ts`
@@ -384,7 +384,9 @@ git commit -m "chore: add shared ESLint flat config package"
 - Create: `packages/shared/src/index.ts`
 
 **Interfaces:**
+
 - Produces: `@cv-generator/shared` package. Consumers import as:
+
   ```ts
   import type { Staff, CreateStaffInput } from '@cv-generator/shared';
   import { CreateStaffSchema } from '@cv-generator/shared';
@@ -717,11 +719,13 @@ git commit -m "feat: add shared Zod schemas and TypeScript types package"
 ### Task 4: Create `apps/backend` and `apps/frontend` placeholder packages
 
 **Files:**
+
 - Create: `apps/backend/package.json`
 - Create: `apps/frontend/package.json`
 - Create: `apps/backend/uploads/.gitkeep`
 
 **Interfaces:**
+
 - Produces: Both apps registered in pnpm workspace; `pnpm install` installs their deps; both appear in `turbo run` pipelines.
 
 - [ ] **Step 1: Create `apps/backend/package.json`** (minimal, full setup in Plan 2)

@@ -48,159 +48,174 @@ staff-cv-generator/                 ← monorepo root
 
 ### Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18, TypeScript, Vite, shadcn/ui, Tailwind CSS v4 |
-| Backend | Node.js, Express, TypeScript |
-| Database | PostgreSQL |
-| ORM/Query | Knex.js (SQL query builder with migrations) |
-| Validation | Zod (shared between FE and BE via `packages/shared`) |
-| Auth | JWT (access + refresh tokens), bcrypt |
-| Monorepo | Turborepo + pnpm workspaces |
-| Linting | ESLint (shared config in `packages/config`) |
-| Code Quality | Prettier, TypeScript strict mode |
+| Layer        | Technology                                             |
+| ------------ | ------------------------------------------------------ |
+| Frontend     | React 18, TypeScript, Vite, shadcn/ui, Tailwind CSS v4 |
+| Backend      | Node.js, Express, TypeScript                           |
+| Database     | PostgreSQL                                             |
+| ORM/Query    | Knex.js (SQL query builder with migrations)            |
+| Validation   | Zod (shared between FE and BE via `packages/shared`)   |
+| Auth         | JWT (access + refresh tokens), bcrypt                  |
+| Monorepo     | Turborepo + pnpm workspaces                            |
+| Linting      | ESLint (shared config in `packages/config`)            |
+| Code Quality | Prettier, TypeScript strict mode                       |
 
 ---
 
 ## Database Schema
 
 ### `users`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| email | VARCHAR UNIQUE | Login credential |
-| password_hash | VARCHAR | bcrypt hash |
-| role | ENUM('admin','staff') | |
-| created_at | TIMESTAMP | |
-| updated_at | TIMESTAMP | |
+
+| Column        | Type                  | Notes            |
+| ------------- | --------------------- | ---------------- |
+| id            | UUID PK               |                  |
+| email         | VARCHAR UNIQUE        | Login credential |
+| password_hash | VARCHAR               | bcrypt hash      |
+| role          | ENUM('admin','staff') |                  |
+| created_at    | TIMESTAMP             |                  |
+| updated_at    | TIMESTAMP             |                  |
 
 ### `staff`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| user_id | UUID FK → users.id | One-to-one, nullable (staff without login) |
-| name | VARCHAR | Full name |
-| job_title | VARCHAR | e.g. "Senior Software Engineer" |
-| years_experience | INTEGER | |
-| summary | TEXT | Profile summary paragraph |
-| photo_url | VARCHAR | Relative path to uploaded photo |
-| created_at | TIMESTAMP | |
-| updated_at | TIMESTAMP | |
+
+| Column           | Type               | Notes                                      |
+| ---------------- | ------------------ | ------------------------------------------ |
+| id               | UUID PK            |                                            |
+| user_id          | UUID FK → users.id | One-to-one, nullable (staff without login) |
+| name             | VARCHAR            | Full name                                  |
+| job_title        | VARCHAR            | e.g. "Senior Software Engineer"            |
+| years_experience | INTEGER            |                                            |
+| summary          | TEXT               | Profile summary paragraph                  |
+| photo_url        | VARCHAR            | Relative path to uploaded photo            |
+| created_at       | TIMESTAMP          |                                            |
+| updated_at       | TIMESTAMP          |                                            |
 
 ### `skills`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| staff_id | UUID FK → staff.id | |
-| name | VARCHAR | e.g. "React", "PostgreSQL" |
-| level | ENUM('beginner','intermediate','advanced','expert') | |
+
+| Column   | Type                                                | Notes                      |
+| -------- | --------------------------------------------------- | -------------------------- |
+| id       | UUID PK                                             |                            |
+| staff_id | UUID FK → staff.id                                  |                            |
+| name     | VARCHAR                                             | e.g. "React", "PostgreSQL" |
+| level    | ENUM('beginner','intermediate','advanced','expert') |                            |
 
 ### `projects`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| name | VARCHAR | |
-| description | TEXT | |
-| client | VARCHAR | |
-| location | VARCHAR | |
-| start_date | DATE | |
-| end_date | DATE | Nullable (ongoing) |
-| technologies | TEXT[] | PostgreSQL array of tech names |
-| created_at | TIMESTAMP | |
-| updated_at | TIMESTAMP | |
+
+| Column       | Type      | Notes                          |
+| ------------ | --------- | ------------------------------ |
+| id           | UUID PK   |                                |
+| name         | VARCHAR   |                                |
+| description  | TEXT      |                                |
+| client       | VARCHAR   |                                |
+| location     | VARCHAR   |                                |
+| start_date   | DATE      |                                |
+| end_date     | DATE      | Nullable (ongoing)             |
+| technologies | TEXT[]    | PostgreSQL array of tech names |
+| created_at   | TIMESTAMP |                                |
+| updated_at   | TIMESTAMP |                                |
 
 ### `project_participations`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| staff_id | UUID FK → staff.id | |
-| project_id | UUID FK → projects.id | |
-| role | VARCHAR | e.g. "Lead Developer" |
-| responsibilities | TEXT | Description of contributions |
+
+| Column           | Type                  | Notes                        |
+| ---------------- | --------------------- | ---------------------------- |
+| id               | UUID PK               |                              |
+| staff_id         | UUID FK → staff.id    |                              |
+| project_id       | UUID FK → projects.id |                              |
+| role             | VARCHAR               | e.g. "Lead Developer"        |
+| responsibilities | TEXT                  | Description of contributions |
 
 ### `cv_templates`
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| name | VARCHAR | Display name |
-| layout_key | ENUM('classic','modern','compact') | Frontend component key |
-| description | TEXT | Short description of the layout |
-| is_active | BOOLEAN | Soft-disable templates |
-| created_at | TIMESTAMP | |
+
+| Column      | Type                               | Notes                           |
+| ----------- | ---------------------------------- | ------------------------------- |
+| id          | UUID PK                            |                                 |
+| name        | VARCHAR                            | Display name                    |
+| layout_key  | ENUM('classic','modern','compact') | Frontend component key          |
+| description | TEXT                               | Short description of the layout |
+| is_active   | BOOLEAN                            | Soft-disable templates          |
+| created_at  | TIMESTAMP                          |                                 |
 
 ### `generated_cvs` (audit log)
-| Column | Type | Notes |
-|--------|------|-------|
-| id | UUID PK | |
-| staff_id | UUID FK → staff.id | |
-| template_id | UUID FK → cv_templates.id | |
-| generated_by | UUID FK → users.id | Who triggered generation |
-| generated_at | TIMESTAMP | |
+
+| Column       | Type                      | Notes                    |
+| ------------ | ------------------------- | ------------------------ |
+| id           | UUID PK                   |                          |
+| staff_id     | UUID FK → staff.id        |                          |
+| template_id  | UUID FK → cv_templates.id |                          |
+| generated_by | UUID FK → users.id        | Who triggered generation |
+| generated_at | TIMESTAMP                 |                          |
 
 ---
 
 ## Backend API
 
 ### Auth
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/login` | Returns access + refresh tokens |
-| POST | `/api/auth/refresh` | Exchange refresh token for new access token |
-| POST | `/api/auth/logout` | Invalidate refresh token |
+
+| Method | Path                | Description                                 |
+| ------ | ------------------- | ------------------------------------------- |
+| POST   | `/api/auth/login`   | Returns access + refresh tokens             |
+| POST   | `/api/auth/refresh` | Exchange refresh token for new access token |
+| POST   | `/api/auth/logout`  | Invalidate refresh token                    |
 
 ### Users (admin only)
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/users` | List all users |
-| POST | `/api/users` | Create user (and optionally link to staff) |
-| PATCH | `/api/users/:id` | Update role or email |
-| DELETE | `/api/users/:id` | Deactivate user |
+
+| Method | Path             | Description                                |
+| ------ | ---------------- | ------------------------------------------ |
+| GET    | `/api/users`     | List all users                             |
+| POST   | `/api/users`     | Create user (and optionally link to staff) |
+| PATCH  | `/api/users/:id` | Update role or email                       |
+| DELETE | `/api/users/:id` | Deactivate user                            |
 
 ### Staff
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/staff` | List all staff (with skills count) |
-| GET | `/api/staff/:id` | Full staff profile |
-| POST | `/api/staff` | Create staff member |
-| PATCH | `/api/staff/:id` | Update profile |
-| DELETE | `/api/staff/:id` | Remove staff member |
-| POST | `/api/staff/:id/photo` | Upload photo (multipart) |
+
+| Method | Path                   | Description                        |
+| ------ | ---------------------- | ---------------------------------- |
+| GET    | `/api/staff`           | List all staff (with skills count) |
+| GET    | `/api/staff/:id`       | Full staff profile                 |
+| POST   | `/api/staff`           | Create staff member                |
+| PATCH  | `/api/staff/:id`       | Update profile                     |
+| DELETE | `/api/staff/:id`       | Remove staff member                |
+| POST   | `/api/staff/:id/photo` | Upload photo (multipart)           |
 
 ### Skills
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/staff/:id/skills` | Get staff skills |
-| POST | `/api/staff/:id/skills` | Add skill |
-| PATCH | `/api/skills/:id` | Update skill |
-| DELETE | `/api/skills/:id` | Remove skill |
+
+| Method | Path                    | Description      |
+| ------ | ----------------------- | ---------------- |
+| GET    | `/api/staff/:id/skills` | Get staff skills |
+| POST   | `/api/staff/:id/skills` | Add skill        |
+| PATCH  | `/api/skills/:id`       | Update skill     |
+| DELETE | `/api/skills/:id`       | Remove skill     |
 
 ### Projects
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/projects` | List all projects |
-| GET | `/api/projects/:id` | Project detail with participations |
-| POST | `/api/projects` | Create project |
-| PATCH | `/api/projects/:id` | Update project |
-| DELETE | `/api/projects/:id` | Remove project |
+
+| Method | Path                | Description                        |
+| ------ | ------------------- | ---------------------------------- |
+| GET    | `/api/projects`     | List all projects                  |
+| GET    | `/api/projects/:id` | Project detail with participations |
+| POST   | `/api/projects`     | Create project                     |
+| PATCH  | `/api/projects/:id` | Update project                     |
+| DELETE | `/api/projects/:id` | Remove project                     |
 
 ### Project Participations
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/staff/:id/participations` | Staff's project history |
-| POST | `/api/participations` | Assign staff to project |
-| PATCH | `/api/participations/:id` | Update role/responsibilities |
-| DELETE | `/api/participations/:id` | Remove assignment |
+
+| Method | Path                            | Description                  |
+| ------ | ------------------------------- | ---------------------------- |
+| GET    | `/api/staff/:id/participations` | Staff's project history      |
+| POST   | `/api/participations`           | Assign staff to project      |
+| PATCH  | `/api/participations/:id`       | Update role/responsibilities |
+| DELETE | `/api/participations/:id`       | Remove assignment            |
 
 ### CV Templates
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/templates` | List all active templates |
-| GET | `/api/templates/:id` | Template detail |
+
+| Method | Path                 | Description               |
+| ------ | -------------------- | ------------------------- |
+| GET    | `/api/templates`     | List all active templates |
+| GET    | `/api/templates/:id` | Template detail           |
 
 ### CV Generation
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/cv/:staffId/:templateId` | Returns assembled CV data (JSON) + logs to generated_cvs |
+
+| Method | Path                           | Description                                              |
+| ------ | ------------------------------ | -------------------------------------------------------- |
+| GET    | `/api/cv/:staffId/:templateId` | Returns assembled CV data (JSON) + logs to generated_cvs |
 
 ---
 
@@ -253,19 +268,19 @@ apps/frontend/src/
 
 ### Pages Summary
 
-| Page | Route | Description |
-|------|-------|-------------|
-| Login | `/login` | JWT login form |
-| Dashboard | `/` | Stats cards, recent activity |
-| Staff List | `/staff` | Searchable staff table |
-| Staff Detail | `/staff/:id` | Profile view with skills + projects |
-| Staff Form | `/staff/new`, `/staff/:id/edit` | Create/edit form with photo upload |
-| Projects List | `/projects` | Searchable projects table |
-| Project Detail | `/projects/:id` | Project info + assigned staff |
-| Project Form | `/projects/new`, `/projects/:id/edit` | Create/edit form |
-| CV Generator | `/cv` | Staff + template picker |
-| CV Preview | `/cv/preview/:staffId/:templateId` | Print-ready rendered CV |
-| Templates | `/templates` | Browse available templates |
+| Page           | Route                                 | Description                         |
+| -------------- | ------------------------------------- | ----------------------------------- |
+| Login          | `/login`                              | JWT login form                      |
+| Dashboard      | `/`                                   | Stats cards, recent activity        |
+| Staff List     | `/staff`                              | Searchable staff table              |
+| Staff Detail   | `/staff/:id`                          | Profile view with skills + projects |
+| Staff Form     | `/staff/new`, `/staff/:id/edit`       | Create/edit form with photo upload  |
+| Projects List  | `/projects`                           | Searchable projects table           |
+| Project Detail | `/projects/:id`                       | Project info + assigned staff       |
+| Project Form   | `/projects/new`, `/projects/:id/edit` | Create/edit form                    |
+| CV Generator   | `/cv`                                 | Staff + template picker             |
+| CV Preview     | `/cv/preview/:staffId/:templateId`    | Print-ready rendered CV             |
+| Templates      | `/templates`                          | Browse available templates          |
 
 ---
 
@@ -297,11 +312,11 @@ Zod schemas and inferred types, zero framework dependencies:
 
 ## CV Templates
 
-| Key | Name | Description |
-|-----|------|-------------|
+| Key       | Name    | Description                                                                                                          |
+| --------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
 | `classic` | Classic | Traditional two-column layout. Header with photo + name, then skills sidebar, main content with experience timeline. |
-| `modern` | Modern | Full-width, card-based layout. Accent color header, skills as tag pills, projects as cards. |
-| `compact` | Compact | Single-column, dense layout optimized for one page. Minimal decoration, max information density. |
+| `modern`  | Modern  | Full-width, card-based layout. Accent color header, skills as tag pills, projects as cards.                          |
+| `compact` | Compact | Single-column, dense layout optimized for one page. Minimal decoration, max information density.                     |
 
 All three templates render the same `CVData` shape, differ only in visual presentation.
 
@@ -345,4 +360,3 @@ All three templates render the same `CVData` shape, differ only in visual presen
 - Multi-language CV generation
 - CV versioning / history beyond the audit log
 - Role-based field-level permissions
-
