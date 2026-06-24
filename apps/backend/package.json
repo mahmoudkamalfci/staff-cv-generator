@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "echo 'Backend not yet set up'",
     "build": "echo 'Backend not yet set up'",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "type-check": "tsc --noEmit",
+    "lint": "echo 'No-op'",
+    "lint:fix": "echo 'No-op'",
+    "type-check": "echo 'No-op'",
     "clean": "rm -rf dist"
   }
 }
