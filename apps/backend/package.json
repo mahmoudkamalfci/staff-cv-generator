@@ -1,0 +1,14 @@
+{
+  "name": "@cv-generator/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Backend not yet set up'",
+    "build": "echo 'Backend not yet set up'",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  }
+}
