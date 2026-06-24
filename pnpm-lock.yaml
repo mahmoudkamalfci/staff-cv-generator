@@ -30,6 +30,22 @@ importers:
         specifier: ^9.0.0
         version: 9.39.4
 
+  packages/shared:
+    dependencies:
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@cv-generator/config':
+        specifier: workspace:*
+        version: link:../config
+      eslint:
+        specifier: ^9.0.0
+        version: 9.39.4
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+
 packages:
 
   '@eslint-community/eslint-utils@4.9.1':
@@ -520,6 +536,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
 snapshots:
 
   '@eslint-community/eslint-utils@4.9.1(eslint@9.39.4)':
@@ -1000,3 +1019,5 @@ snapshots:
   word-wrap@1.2.5: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.25.76: {}
