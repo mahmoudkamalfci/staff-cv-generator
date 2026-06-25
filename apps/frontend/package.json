@@ -40,13 +40,14 @@
   },
   "devDependencies": {
     "@cv-generator/config": "workspace:*",
+    "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0",
     "eslint": "^9.0.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "tailwindcss": "^4.0.0",
-    "@tailwindcss/vite": "^4.0.0",
     "typescript": "^5.5.0",
     "vite": "^5.3.0"
   }
