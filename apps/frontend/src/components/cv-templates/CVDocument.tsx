@@ -1,13 +1,6 @@
 // IMPORTANT: @react-pdf/renderer is ONLY imported in this file.
 // All other files that need PDF rendering must lazy-load this component.
-import {
-  Document,
-  Page,
-  View,
-  Text,
-  Image,
-  StyleSheet,
-} from '@react-pdf/renderer';
+import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer';
 import type { CVData, TemplateConfig, SectionConfig } from '@cv-generator/shared';
 
 interface Props {
@@ -103,19 +96,27 @@ function HeaderSection({ data, styles }: { data: CVData; styles: ReturnType<type
   const { staff } = data;
   return (
     <View style={styles.headerBox}>
-      {staff.photoUrl && (
-        <Image style={styles.headerPhoto} src={staff.photoUrl} />
-      )}
+      {staff.photoUrl && <Image style={styles.headerPhoto} src={staff.photoUrl} />}
       <View>
         <Text style={styles.headerName}>{staff.name || ''}</Text>
         <Text style={styles.headerTitle}>{staff.jobTitle || ''}</Text>
-        <Text style={styles.headerYears}>{(staff.yearsExperience ?? 0) + ' years of experience'}</Text>
+        <Text style={styles.headerYears}>
+          {(staff.yearsExperience ?? 0) + ' years of experience'}
+        </Text>
       </View>
     </View>
   );
 }
 
-function SummarySection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
+function SummarySection({
+  data,
+  label,
+  styles,
+}: {
+  data: CVData;
+  label: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View>
       <Text style={styles.sectionHeading}>{label || ''}</Text>
@@ -124,7 +125,15 @@ function SummarySection({ data, label, styles }: { data: CVData; label: string; 
   );
 }
 
-function SkillsSection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
+function SkillsSection({
+  data,
+  label,
+  styles,
+}: {
+  data: CVData;
+  label: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View>
       <Text style={styles.sectionHeading}>{label || ''}</Text>
@@ -143,35 +152,60 @@ function SkillsSection({ data, label, styles }: { data: CVData; label: string; s
   );
 }
 
-function ExperienceSection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
+function ExperienceSection({
+  data,
+  label,
+  styles,
+}: {
+  data: CVData;
+  label: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const formatDate = (d: string | null | undefined) => {
     if (!d) return 'Present';
-    return new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
   };
 
   return (
     <View>
       <Text style={styles.sectionHeading}>{label || ''}</Text>
-      {data.participations.map((p) => (
-        <View key={p.id} style={styles.expCard}>
-          <Text style={styles.expProject}>{p.project.name || ''}</Text>
-          <Text style={styles.expMeta}>
-            {`${p.project.client || ''} · ${p.project.location || ''} · ${formatDate(p.project.startDate)} — ${formatDate(p.project.endDate)}`}
-          </Text>
-          <Text style={styles.expRole}>{p.role || ''}</Text>
-          <Text style={styles.expDesc}>{p.responsibilities || ''}</Text>
-          <View style={styles.techWrap}>
-            {((p.project.technologies || []) as string[]).map((t) => (
-              <Text key={t} style={styles.techChip}>{t || ''}</Text>
-            ))}
+      {data.participations.map((p) => {
+        const startDateStr = formatDate(p.project.startDate);
+        const endDateStr = formatDate(p.project.endDate);
+        const dateRangeStr =
+          startDateStr || endDateStr ? `${startDateStr || ''} — ${endDateStr || ''}` : '';
+        const metaParts = [p.project.client, p.project.location, dateRangeStr].filter(Boolean);
+        const metaString = metaParts.join(' · ');
+
+        return (
+          <View key={p.id} style={styles.expCard} wrap={false}>
+            <Text style={styles.expProject}>{p.project.name || ''}</Text>
+            <Text style={styles.expMeta}>{metaString}</Text>
+            <Text style={styles.expRole}>{p.role || ''}</Text>
+            <Text style={styles.expDesc}>{p.responsibilities || ''}</Text>
+            <View style={styles.techWrap}>
+              {((p.project.technologies || []) as string[]).map((t) => (
+                <Text key={t} style={styles.techChip}>
+                  {t || ''}
+                </Text>
+              ))}
+            </View>
           </View>
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 }
 
-function CustomSection({ section, styles }: { section: SectionConfig; styles: ReturnType<typeof makeStyles> }) {
+function CustomSection({
+  section,
+  styles,
+}: {
+  section: SectionConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View>
       <Text style={styles.sectionHeading}>{section.label || ''}</Text>
@@ -181,14 +215,20 @@ function CustomSection({ section, styles }: { section: SectionConfig; styles: Re
 }
 
 // --- Layout renderers ---
-function renderSection(section: SectionConfig, data: CVData, styles: ReturnType<typeof makeStyles>) {
+function renderSection(
+  section: SectionConfig,
+  data: CVData,
+  styles: ReturnType<typeof makeStyles>,
+) {
   switch (section.id) {
     case 'summary':
       return <SummarySection key={section.id} data={data} label={section.label} styles={styles} />;
     case 'skills':
       return <SkillsSection key={section.id} data={data} label={section.label} styles={styles} />;
     case 'experience':
-      return <ExperienceSection key={section.id} data={data} label={section.label} styles={styles} />;
+      return (
+        <ExperienceSection key={section.id} data={data} label={section.label} styles={styles} />
+      );
     case 'custom':
       return <CustomSection key={`custom-${section.order}`} section={section} styles={styles} />;
     default:
@@ -196,19 +236,31 @@ function renderSection(section: SectionConfig, data: CVData, styles: ReturnType<
   }
 }
 
-function OneColumnLayout({ data, config, styles }: { data: CVData; config: TemplateConfig; styles: ReturnType<typeof makeStyles> }) {
+function OneColumnLayout({
+  data,
+  config,
+  styles,
+}: {
+  data: CVData;
+  config: TemplateConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const sections = config.sections
     .filter((s) => s.visible && s.id !== 'header')
     .sort((a, b) => a.order - b.order);
 
-  return (
-    <View style={styles.fullCol}>
-      {sections.map((s) => renderSection(s, data, styles))}
-    </View>
-  );
+  return <View style={styles.fullCol}>{sections.map((s) => renderSection(s, data, styles))}</View>;
 }
 
-function TwoColumnLayout({ data, config, styles }: { data: CVData; config: TemplateConfig; styles: ReturnType<typeof makeStyles> }) {
+function TwoColumnLayout({
+  data,
+  config,
+  styles,
+}: {
+  data: CVData;
+  config: TemplateConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const sections = config.sections
     .filter((s) => s.visible && s.id !== 'header')
     .sort((a, b) => a.order - b.order);
@@ -218,17 +270,29 @@ function TwoColumnLayout({ data, config, styles }: { data: CVData; config: Templ
 
   return (
     <View style={styles.body}>
-      <View style={styles.sideCol}>
-        {sidebarSections.map((s) => renderSection(s, data, styles))}
-      </View>
-      <View style={styles.mainCol}>
-        {mainSections.map((s) => renderSection(s, data, styles))}
-      </View>
+      {sidebarSections.length > 0 && (
+        <View style={styles.sideCol}>
+          {sidebarSections.map((s) => renderSection(s, data, styles))}
+        </View>
+      )}
+      {mainSections.length > 0 && (
+        <View style={styles.mainCol}>
+          {mainSections.map((s) => renderSection(s, data, styles))}
+        </View>
+      )}
     </View>
   );
 }
 
-function ThreeColumnLayout({ data, config, styles }: { data: CVData; config: TemplateConfig; styles: ReturnType<typeof makeStyles> }) {
+function ThreeColumnLayout({
+  data,
+  config,
+  styles,
+}: {
+  data: CVData;
+  config: TemplateConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const sections = config.sections
     .filter((s) => s.visible && s.id !== 'header')
     .sort((a, b) => a.order - b.order);
@@ -239,15 +303,15 @@ function ThreeColumnLayout({ data, config, styles }: { data: CVData; config: Tem
 
   return (
     <View style={styles.threeColBody}>
-      <View style={styles.threeColSide}>
-        {col1.map((s) => renderSection(s, data, styles))}
-      </View>
-      <View style={styles.threeColMain}>
-        {col2.map((s) => renderSection(s, data, styles))}
-      </View>
-      <View style={styles.threeColSide}>
-        {col3.map((s) => renderSection(s, data, styles))}
-      </View>
+      {col1.length > 0 && (
+        <View style={styles.threeColSide}>{col1.map((s) => renderSection(s, data, styles))}</View>
+      )}
+      {col2.length > 0 && (
+        <View style={styles.threeColMain}>{col2.map((s) => renderSection(s, data, styles))}</View>
+      )}
+      {col3.length > 0 && (
+        <View style={styles.threeColSide}>{col3.map((s) => renderSection(s, data, styles))}</View>
+      )}
     </View>
   );
 }
