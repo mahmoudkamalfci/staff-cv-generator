@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Bootstrap the Turborepo + pnpm monorepo with shared ESLint config and shared Zod schemas/types used by both frontend and backend.
+**Goal:** Bootstrap the Turborepo + pnpm monorepo with shared ESLint config, shared Zod schemas/types, and shared Jest testing infrastructure used by both frontend and backend.
 
-**Architecture:** pnpm workspaces declare `apps/*` and `packages/*`. Turborepo orchestrates build/lint/dev pipelines. `packages/config` exports a flat ESLint config. `packages/shared` exports Zod schemas and inferred TypeScript types. Both app packages depend on these shared packages via `workspace:*`.
+**Architecture:** pnpm workspaces declare `apps/*` and `packages/*`. Turborepo orchestrates build/lint/dev/test pipelines. `packages/config` exports a flat ESLint config **and** a shared Jest config. `packages/shared` exports Zod schemas and inferred TypeScript types. Both app packages depend on these shared packages via `workspace:*`.
 
-**Tech Stack:** pnpm 9+, Turborepo 2+, TypeScript 5+, Zod 3+, ESLint 9 (flat config), Prettier 3+
+**Tech Stack:** pnpm 9+, Turborepo 2+, TypeScript 5+, Zod 3+, ESLint 9 (flat config), Prettier 3+, Jest 29+ (with ts-jest)
 
 ## Global Constraints
 
@@ -798,6 +798,270 @@ git commit -m "chore: scaffold apps/backend and apps/frontend workspace packages
 
 ---
 
+### Task 5: Shared Jest Testing Infrastructure
+
+**Files:**
+- Modify: `packages/config/package.json` (add jest-config export)
+- Create: `packages/config/jest-config.js`
+- Create: `packages/shared/jest.config.js`
+- Modify: `packages/shared/package.json` (add test script + jest devDeps)
+- Modify: `turbo.json` (add `test` task)
+- Modify: root `package.json` (add `test` script)
+- Create: `packages/shared/src/__tests__/schemas.test.ts` (smoke test)
+
+**Interfaces:**
+- Produces: `@cv-generator/config` also exports a shared Jest preset consumed by any workspace as:
+  ```js
+  // jest.config.js in any app/package
+  import baseConfig from '@cv-generator/config/jest-config';
+  export default { ...baseConfig };
+  ```
+- `packages/shared` has a working `pnpm test` that runs via `turbo test`.
+
+- [ ] **Step 1: Add jest-config export to `packages/config/package.json`**
+
+Replace the existing content with:
+
+```json
+{
+  "name": "@cv-generator/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./eslint-config.js",
+  "exports": {
+    ".": "./eslint-config.js",
+    "./jest-config": "./jest-config.js"
+  },
+  "scripts": {
+    "lint": "echo 'No lint for config package'",
+    "type-check": "echo 'No type-check for config package'",
+    "test": "echo 'No tests for config package'"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  }
+}
+```
+
+- [ ] **Step 2: Create `packages/config/jest-config.js`**
+
+```js
+/** @type {import('jest').Config} */
+const config = {
+  preset: 'ts-jest/presets/default-esm',
+  testEnvironment: 'node',
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleNameMapper: {
+    '^(\\./|\\.\\./.*)\\.js$': '$1',
+  },
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+        tsconfig: {
+          module: 'ESNext',
+          moduleResolution: 'bundler',
+        },
+      },
+    ],
+  },
+  clearMocks: true,
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
+};
+
+export default config;
+```
+
+- [ ] **Step 3: Install jest + ts-jest as root devDependencies**
+
+```bash
+pnpm add -Dw jest@^29 ts-jest@^29 @types/jest@^29
+```
+
+Expected: Added to root `node_modules/`; available to all workspaces via hoisting.
+
+- [ ] **Step 4: Add `test` task to `turbo.json`**
+
+Add inside `"tasks"` (alongside existing tasks):
+
+```json
+"test": {
+  "dependsOn": ["^build"],
+  "outputs": ["coverage/**"]
+},
+"test:watch": {
+  "cache": false,
+  "persistent": true
+}
+```
+
+- [ ] **Step 5: Add `test` script to root `package.json`**
+
+Add `"test": "turbo run test"` to the `scripts` block.
+
+- [ ] **Step 6: Create `packages/shared/jest.config.js`**
+
+```js
+import baseConfig from '@cv-generator/config/jest-config';
+
+/** @type {import('jest').Config} */
+export default {
+  ...baseConfig,
+  rootDir: '.',
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.test.ts'],
+  collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!<rootDir>/src/**/*.d.ts'],
+};
+```
+
+- [ ] **Step 7: Add test script + jest devDeps to `packages/shared/package.json`**
+
+Add to `scripts`:
+```json
+"test": "node --experimental-vm-modules ../../node_modules/.bin/jest",
+"test:watch": "node --experimental-vm-modules ../../node_modules/.bin/jest --watch",
+"test:coverage": "node --experimental-vm-modules ../../node_modules/.bin/jest --coverage"
+```
+
+Add to `devDependencies`:
+```json
+"@cv-generator/config": "workspace:*",
+"@types/jest": "^29.0.0",
+"jest": "^29.0.0",
+"ts-jest": "^29.0.0"
+```
+
+- [ ] **Step 8: Create smoke test `packages/shared/src/__tests__/schemas.test.ts`**
+
+```ts
+import { describe, expect, it } from '@jest/globals';
+import {
+  LoginSchema,
+  CreateStaffSchema,
+  CreateSkillSchema,
+  CreateProjectSchema,
+  LayoutKeyEnum,
+} from '../index.js';
+
+describe('Auth schemas', () => {
+  it('validates a correct login payload', () => {
+    const result = LoginSchema.safeParse({ email: 'a@b.com', password: 'secret123' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an invalid email', () => {
+    const result = LoginSchema.safeParse({ email: 'not-an-email', password: 'secret123' });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a short password', () => {
+    const result = LoginSchema.safeParse({ email: 'a@b.com', password: '123' });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('Staff schemas', () => {
+  it('validates a correct staff payload', () => {
+    const result = CreateStaffSchema.safeParse({
+      name: 'Alice Smith',
+      jobTitle: 'Senior Engineer',
+      yearsExperience: 5,
+      summary: 'Experienced engineer with broad expertise.',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects missing required fields', () => {
+    const result = CreateStaffSchema.safeParse({ name: 'Alice' });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('Skill schemas', () => {
+  it('validates a correct skill payload', () => {
+    const result = CreateSkillSchema.safeParse({ name: 'TypeScript', level: 'expert' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an invalid skill level', () => {
+    const result = CreateSkillSchema.safeParse({ name: 'TypeScript', level: 'ninja' });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('Project schemas', () => {
+  it('validates a correct project payload', () => {
+    const result = CreateProjectSchema.safeParse({
+      name: 'CV Platform',
+      description: 'A platform for generating CVs.',
+      client: 'GISCON',
+      location: 'Cairo',
+      startDate: '2024-01-01',
+      technologies: ['React', 'Node.js'],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects missing technologies', () => {
+    const result = CreateProjectSchema.safeParse({
+      name: 'CV Platform',
+      description: 'A platform for generating CVs.',
+      client: 'GISCON',
+      location: 'Cairo',
+      startDate: '2024-01-01',
+      technologies: [],
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('Layout key enum', () => {
+  it('accepts valid layout keys', () => {
+    const r1 = LayoutKeyEnum.safeParse('classic');
+    const r2 = LayoutKeyEnum.safeParse('modern');
+    const r3 = LayoutKeyEnum.safeParse('compact');
+    expect(r1.success && r2.success && r3.success).toBe(true);
+  });
+
+  it('rejects unknown layout key', () => {
+    const result = LayoutKeyEnum.safeParse('fancy');
+    expect(result.success).toBe(false);
+  });
+});
+```
+
+- [ ] **Step 9: Install deps and run tests**
+
+```bash
+pnpm install
+pnpm --filter @cv-generator/shared test
+```
+
+Expected: All smoke tests pass with no errors.
+
+- [ ] **Step 10: Verify turbo test pipeline works from root**
+
+```bash
+pnpm test
+```
+
+Expected: Turborepo runs `test` across all packages; shared passes, config/frontend/backend echo no-op.
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add .
+git commit -m "chore: add shared Jest testing infrastructure"
+```
+
+---
+
 ## Plan 1 Complete ✅
 
-**Deliverable:** A working pnpm monorepo with Turborepo pipelines, shared ESLint flat config, and shared Zod schemas/types — ready for backend (Plan 2) and frontend (Plan 3) implementation.
+**Deliverable:** A working pnpm monorepo with Turborepo pipelines, shared ESLint flat config, shared Zod schemas/types, and shared Jest testing infrastructure — ready for backend (Plan 2) and frontend (Plan 3) implementation.
