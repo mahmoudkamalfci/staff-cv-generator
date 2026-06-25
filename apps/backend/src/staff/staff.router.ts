@@ -19,15 +19,17 @@ staffRouter.use('/:staffId/skills', skillsRouter);
 
 // GET /api/staff
 staffRouter.get('/', asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 20;
+  let page = parseInt(req.query.page as string, 10);
+  if (isNaN(page) || page < 1) page = 1;
+  let limit = parseInt(req.query.limit as string, 10);
+  if (isNaN(limit) || limit < 1) limit = 20;
+  limit = Math.min(limit, 100);
 
   const [staff, total] = await Promise.all([
     prisma.staff.findMany({
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: { name: 'asc' },
-      include: { skills: true } // might be useful or not, let's omit if not requested but wait... pagination doesn't necessarily need skills, but let's stick to brief
+      orderBy: { name: 'asc' }
     }),
     prisma.staff.count()
   ]);
@@ -70,15 +72,18 @@ staffRouter.delete('/:id', requireAuth, requireAdmin, asyncHandler(async (req, r
   const staff = await prisma.staff.findUnique({ where: { id: req.params.id } });
   if (!staff) throw new AppError(404, 'Staff not found');
 
+  await prisma.staff.delete({ where: { id: req.params.id } });
+
   // If there's a photo, delete it
   if (staff.photoUrl) {
     const photoPath = path.join(__dirname, '..', '..', 'uploads', path.basename(staff.photoUrl));
-    if (fs.existsSync(photoPath)) {
+    try {
       fs.unlinkSync(photoPath);
+    } catch (e: any) {
+      if (e.code !== 'ENOENT') console.error('Failed to delete photo:', e);
     }
   }
 
-  await prisma.staff.delete({ where: { id: req.params.id } });
   res.status(204).send();
 }));
 
@@ -93,19 +98,27 @@ staffRouter.post('/:id/photo', requireAuth, requireAdmin, upload.single('photo')
 
   if (!req.file) throw new AppError(400, 'No photo provided');
 
+  const photoUrl = `/uploads/${req.file.filename}`;
+  let updatedStaff;
+  try {
+    updatedStaff = await prisma.staff.update({
+      where: { id: req.params.id },
+      data: { photoUrl }
+    });
+  } catch (error) {
+    fs.unlinkSync(req.file.path);
+    throw error;
+  }
+
   // Delete old photo if exists
   if (staff.photoUrl) {
     const oldPhotoPath = path.join(__dirname, '..', '..', 'uploads', path.basename(staff.photoUrl));
-    if (fs.existsSync(oldPhotoPath)) {
+    try {
       fs.unlinkSync(oldPhotoPath);
+    } catch (e: any) {
+      if (e.code !== 'ENOENT') console.error('Failed to delete old photo:', e);
     }
   }
-
-  const photoUrl = `/uploads/${req.file.filename}`;
-  const updatedStaff = await prisma.staff.update({
-    where: { id: req.params.id },
-    data: { photoUrl }
-  });
 
   res.json({ data: updatedStaff });
 }));
