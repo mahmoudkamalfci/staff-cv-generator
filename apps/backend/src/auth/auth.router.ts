@@ -10,25 +10,10 @@ const loginSchema = z.object({
   password: z.string().min(6)
 });
 
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  role: z.enum(['staff', 'admin']).optional()
-});
-
-authRouter.post('/register', asyncHandler(async (req, res) => {
-  const { email, password, role } = registerSchema.parse(req.body);
-  try {
-    const user = await AuthService.register(email, password, role);
-    res.status(201).json({ user });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
-}));
 
 authRouter.post('/login', asyncHandler(async (req, res) => {
-  const { email, password } = loginSchema.parse(req.body);
   try {
+    const { email, password } = loginSchema.parse(req.body);
     const { user, accessToken, refreshToken } = await AuthService.login(email, password);
     
     // Set refresh token in HttpOnly cookie

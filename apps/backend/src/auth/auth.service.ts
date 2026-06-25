@@ -4,22 +4,6 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 
 export class AuthService {
-  static async register(email: string, passwordRaw: string, role = 'staff') {
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      throw new Error('User already exists');
-    }
-    const passwordHash = await bcrypt.hash(passwordRaw, 10);
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        role
-      }
-    });
-    return { id: user.id, email: user.email, role: user.role };
-  }
-
   static async login(email: string, passwordRaw: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -34,13 +18,13 @@ export class AuthService {
     const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       config.jwtSecret,
-      { expiresIn: config.accessTokenExpiresIn as any }
+      { expiresIn: config.accessTokenExpiresIn as jwt.SignOptions['expiresIn'] }
     );
 
     const refreshToken = jwt.sign(
       { userId: user.id, role: user.role },
       config.jwtRefreshSecret,
-      { expiresIn: config.refreshTokenExpiresIn as any }
+      { expiresIn: config.refreshTokenExpiresIn as jwt.SignOptions['expiresIn'] }
     );
 
     return {
@@ -62,7 +46,7 @@ export class AuthService {
       const newAccessToken = jwt.sign(
         { userId: user.id, role: user.role },
         config.jwtSecret,
-        { expiresIn: config.accessTokenExpiresIn as any }
+        { expiresIn: config.accessTokenExpiresIn as jwt.SignOptions['expiresIn'] }
       );
 
       return { accessToken: newAccessToken };
