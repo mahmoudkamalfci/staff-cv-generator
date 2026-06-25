@@ -8,6 +8,7 @@ import { config } from './config.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { logger } from './middleware/logger.js';
 import { authRouter } from './auth/auth.router.js';
+import { staffRouter } from './staff/staff.router.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,6 +28,7 @@ export function createApp(): express.Express {
 
   // Routes
   app.use('/api/auth', authRouter);
+  app.use('/api/staff', staffRouter);
 
   app.use(errorHandler);
   return app;
