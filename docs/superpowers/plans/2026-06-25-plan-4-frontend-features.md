@@ -1,5 +1,12 @@
 # CV Generator — Plan 4: Frontend Feature Pages & CV Templates
 
+## ⚡ Best Practice Updates (Applied from Vercel React Review)
+
+- Fix 1 (P0): `bundle-dynamic-imports` — CV templates lazy-loaded with React.lazy
+- Fix 2 (P0): `bundle-dynamic-imports` — @react-pdf/renderer loaded on-demand only
+- Fix 3 (P1): `async-suspense-boundaries` — CVPreviewPage split into static shell + Suspense data zone
+- Fix 4 (P1): `rerender-derived-state-no-effect` — Form hydration replaced with defaultValues + key prop
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implement all feature pages (Dashboard, Staff, Projects, CV Generator) and the three CV template components (Classic, Modern, Compact) with full CRUD forms and print-ready CV preview.
@@ -888,7 +895,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 export default function StaffFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -905,20 +912,18 @@ export default function StaffFormPage() {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
-  } = useForm<CreateStaffInput>({ resolver: zodResolver(CreateStaffSchema) });
-
-  useEffect(() => {
-    if (existing) {
-      reset({
-        name: existing.name,
-        jobTitle: existing.jobTitle,
-        yearsExperience: existing.yearsExperience,
-        summary: existing.summary,
-      });
-    }
-  }, [existing, reset]);
+  } = useForm<CreateStaffInput>({
+    resolver: zodResolver(CreateStaffSchema),
+    defaultValues: existing
+      ? {
+          name: existing.name,
+          jobTitle: existing.jobTitle,
+          yearsExperience: existing.yearsExperience,
+          summary: existing.summary,
+        }
+      : undefined,
+  });
 
   const onSubmit = async (data: CreateStaffInput) => {
     if (isEdit) {
@@ -948,7 +953,7 @@ export default function StaffFormPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-6 animate-fade-in">
+    <div className="max-w-2xl space-y-6 animate-fade-in" key={id ?? 'new'}>
       <div className="flex items-center gap-4">
         <Link to={isEdit ? `/staff/${id}` : '/staff'}>
           <Button variant="ghost" size="sm">
@@ -1246,7 +1251,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function ProjectFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -1258,29 +1263,37 @@ export default function ProjectFormPage() {
   const updateProject = useUpdateProject(id ?? '');
 
   const [techInput, setTechInput] = useState('');
-  const [technologies, setTechnologies] = useState<string[]>([]);
+
+  // Fix 4 (P1): rerender-derived-state-no-effect
+  // CORRECT: Use defaultValues from the query result. Never use useEffect + reset() to hydrate
+  // form fields — it causes an extra render cycle. Use a key={projectId} prop on the form
+  // component (or wrapping Card) to trigger a clean remount when the entity ID changes.
+  //
+  // The parent route should render: <ProjectFormPage key={id ?? 'new'} />
+  // so that switching between create and edit modes unmounts and remounts the form.
+  const existingTechs = (existing?.technologies as string[] | undefined) ?? [];
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
-  } = useForm<CreateProjectInput>({ resolver: zodResolver(CreateProjectSchema) });
+  } = useForm<CreateProjectInput>({
+    resolver: zodResolver(CreateProjectSchema),
+    defaultValues: existing
+      ? {
+          name: existing.name,
+          description: existing.description,
+          client: existing.client,
+          location: existing.location,
+          startDate: String(existing.startDate),
+          endDate: existing.endDate ? String(existing.endDate) : null,
+          technologies: existingTechs,
+        }
+      : undefined,
+  });
 
-  useEffect(() => {
-    if (existing) {
-      reset({
-        name: existing.name,
-        description: existing.description,
-        client: existing.client,
-        location: existing.location,
-        startDate: String(existing.startDate),
-        endDate: existing.endDate ? String(existing.endDate) : null,
-        technologies: existing.technologies as string[],
-      });
-      setTechnologies(existing.technologies as string[]);
-    }
-  }, [existing, reset]);
+  // Sync technologies local state from query data on first load (create mode starts empty)
+  const [technologies, setTechnologies] = useState<string[]>(existingTechs);
 
   const addTech = () => {
     const t = techInput.trim();
@@ -2131,40 +2144,83 @@ export function CompactTemplate({ data }: Props) {
 
 - [ ] **Step 4: Replace `apps/frontend/src/pages/cv/CVPreviewPage.tsx`**
 
+> **Fix 1 (P0) — `bundle-dynamic-imports`:** Templates are lazy-loaded so users only download the template they select, not all three. Each `React.lazy` import uses a statically analyzable string literal so Vite can split each template into its own chunk.
+>
+> **Fix 2 (P0) — `bundle-dynamic-imports` (@react-pdf/renderer):** `@react-pdf/renderer` is a heavy package (~500KB). It must only be loaded on-demand when the user clicks 'Generate PDF', **never** as part of the initial page load. If a PDF download button is added in future, use dynamic import gated behind the user action:
+> ```tsx
+> // Load PDF renderer only when user triggers PDF generation
+> const handleGeneratePDF = async () => {
+>   const { pdf } = await import('@react-pdf/renderer');
+>   // ... use pdf()
+> };
+> ```
+> Do NOT add `import ... from '@react-pdf/renderer'` as a static top-level import.
+>
+> **Fix 3 (P1) — `async-suspense-boundaries`:** CVPreviewPage is split into a **static shell** (toolbar renders immediately with zero data) and a **data-driven inner component** (`CVContent`) wrapped in `<Suspense>`. This means the Print and Back buttons are always visible — even while CV data is loading.
+>
+> **Component architecture:**
+> ```tsx
+> // CVPreviewPage renders the toolbar immediately
+> export default function CVPreviewPage() {
+>   return (
+>     <div>
+>       <CVToolbar /> {/* Static — renders with zero data */}
+>       <Suspense fallback={<CVSkeleton />}>
+>         <CVContent /> {/* Data-driven — suspends while loading */}
+>       </Suspense>
+>     </div>
+>   );
+> }
+> ```
+
 ```tsx
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Printer, Loader2 } from 'lucide-react';
-import { useCVData } from '@/hooks/useCVData';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { ClassicTemplate } from '@/components/cv-templates/ClassicTemplate';
-import { ModernTemplate } from '@/components/cv-templates/ModernTemplate';
-import { CompactTemplate } from '@/components/cv-templates/CompactTemplate';
-import type { LayoutKey } from '@cv-generator/shared';
+import { Suspense, lazy } from 'react';
+import type { CVData, LayoutKey } from '@cv-generator/shared';
 
-const templateComponents: Record<
-  LayoutKey,
-  React.ComponentType<{ data: NonNullable<ReturnType<typeof useCVData>['data']> }>
-> = {
+// Fix 1 (P0): bundle-dynamic-imports
+// Each template is lazy-loaded so only the selected template's code is downloaded.
+// String literals are statically analyzable by Vite for chunk splitting.
+const ClassicTemplate = lazy(() =>
+  import('@/components/cv-templates/ClassicTemplate').then(m => ({ default: m.ClassicTemplate }))
+);
+const ModernTemplate = lazy(() =>
+  import('@/components/cv-templates/ModernTemplate').then(m => ({ default: m.ModernTemplate }))
+);
+const CompactTemplate = lazy(() =>
+  import('@/components/cv-templates/CompactTemplate').then(m => ({ default: m.CompactTemplate }))
+);
+
+const templateComponents = {
   classic: ClassicTemplate,
   modern: ModernTemplate,
   compact: CompactTemplate,
-};
+} satisfies Record<LayoutKey, ReturnType<typeof lazy>>;
 
-export default function CVPreviewPage() {
-  const { staffId, templateId } = useParams<{ staffId: string; templateId: string }>();
-  const { data, isLoading, error } = useCVData(staffId!, templateId!);
+// Fix 2 (P0): @react-pdf/renderer must NEVER be imported statically.
+// If a PDF download button is added, load it on-demand only:
+//   const handleGeneratePDF = async () => {
+//     const { pdf } = await import('@react-pdf/renderer');
+//     // ... use pdf()
+//   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
-      </div>
-    );
-  }
+// Fix 3 (P1): async-suspense-boundaries
+// CVContent is a separate component so the Suspense boundary only covers the data-driven area.
+// The toolbar (Back + Print) renders immediately with zero data.
+function CVContent({ staffId, templateId }: { staffId: string; templateId: string }) {
+  // useSuspenseQuery integrates cleanly with the <Suspense> boundary above
+  const { data, error } = useSuspenseQuery<CVData>({
+    queryKey: ['cv', staffId, templateId],
+    queryFn: () => api.get<CVData>(`/cv/${staffId}/${templateId}`).then(r => r.data),
+  });
 
   if (error || !data) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+      <div className="flex flex-col items-center justify-center mt-20 gap-4">
         <p className="text-destructive">Failed to load CV data.</p>
         <Link to="/cv">
           <Button variant="outline">
@@ -2179,8 +2235,25 @@ export default function CVPreviewPage() {
   const TemplateComponent = templateComponents[data.template.layoutKey as LayoutKey];
 
   return (
+    // Wrap template in Suspense so only the selected template chunk is awaited
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      }
+    >
+      <TemplateComponent data={data} />
+    </Suspense>
+  );
+}
+
+export default function CVPreviewPage() {
+  const { staffId, templateId } = useParams<{ staffId: string; templateId: string }>();
+
+  return (
     <div className="min-h-screen bg-gray-100">
-      {/* Print Toolbar — hidden when printing */}
+      {/* Static shell: Print Toolbar renders IMMEDIATELY — no data needed */}
       <div className="no-print sticky top-0 z-20 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <Link to="/cv">
@@ -2189,9 +2262,6 @@ export default function CVPreviewPage() {
               Back
             </Button>
           </Link>
-          <span className="text-sm font-medium text-gray-700">
-            {data.staff.name} · {data.template.name} Template
-          </span>
         </div>
         <Button onClick={() => window.print()} variant="accent" size="sm">
           <Printer className="w-4 h-4 mr-2" />
@@ -2199,9 +2269,17 @@ export default function CVPreviewPage() {
         </Button>
       </div>
 
-      {/* CV Content */}
+      {/* Data-driven zone: suspends while CV data loads */}
       <div className="py-8 px-4 flex justify-center">
-        {TemplateComponent && <TemplateComponent data={data} />}
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            </div>
+          }
+        >
+          <CVContent staffId={staffId!} templateId={templateId!} />
+        </Suspense>
       </div>
     </div>
   );

@@ -1,5 +1,11 @@
 # CV Generator — Plan 3: Frontend Scaffold, Design System & Auth
 
+## ⚡ Best Practice Updates (Applied from Vercel React Review)
+- Fix 1 (P0): `bundle-barrel-imports` — Added `optimizeDeps.include` for lucide-react in vite.config.ts
+- Fix 2 (P0): `rendering-hoist-jsx` — PageLoader fallback hoisted to module-level constant `PAGE_FALLBACK`
+- Fix 3 (P1): `client-localstorage-schema` — Dark mode persisted to versioned `localStorage` key
+- Fix 4 (P1): `rendering-animate-svg-wrapper` — Spinner animation moved to wrapper div for GPU compositing
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Scaffold the React + Vite + TypeScript frontend with Tailwind v4 design system, shadcn/ui components, Axios API client with JWT interceptors, auth context, and the full app shell (sidebar + topbar layout).
@@ -170,6 +176,10 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  optimizeDeps: {
+    // Pre-bundle lucide-react to avoid barrel import cost (~2.8s cold start hit)
+    include: ['lucide-react'],
   },
 });
 ```
@@ -1065,11 +1075,24 @@ import { Moon, Sun } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
+const THEME_KEY = 'theme:v1';
+
 export function Topbar({ title }: { title?: string }) {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
+  const [dark, setDark] = useState(() => {
+    try {
+      return localStorage.getItem(THEME_KEY) === 'dark';
+    } catch {
+      return document.documentElement.classList.contains('dark');
+    }
+  });
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
+    try {
+      localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+    } catch {
+      // localStorage unavailable (private mode, quota exceeded)
+    }
   }, [dark]);
 
   return (
@@ -1238,7 +1261,9 @@ export function ProtectedRoute() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        <div className="animate-spin">
+          <Loader2 className="w-8 h-8 text-accent" />
+        </div>
       </div>
     );
   }
@@ -1282,9 +1307,12 @@ const queryClient = new QueryClient({
   },
 });
 
-const PageLoader = () => (
+// Hoist fallback JSX outside App — static reference, never recreated on App renders
+const PAGE_FALLBACK = (
   <div className="flex items-center justify-center h-64">
-    <Loader2 className="w-8 h-8 animate-spin text-accent" />
+    <div className="animate-spin">
+      <Loader2 className="w-8 h-8 text-accent" />
+    </div>
   </div>
 );
 
@@ -1301,7 +1329,7 @@ export default function App() {
                 <Route
                   path="/"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <DashboardPage />
                     </Suspense>
                   }
@@ -1309,7 +1337,7 @@ export default function App() {
                 <Route
                   path="/staff"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <StaffListPage />
                     </Suspense>
                   }
@@ -1317,7 +1345,7 @@ export default function App() {
                 <Route
                   path="/staff/new"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <StaffFormPage />
                     </Suspense>
                   }
@@ -1325,7 +1353,7 @@ export default function App() {
                 <Route
                   path="/staff/:id"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <StaffDetailPage />
                     </Suspense>
                   }
@@ -1333,7 +1361,7 @@ export default function App() {
                 <Route
                   path="/staff/:id/edit"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <StaffFormPage />
                     </Suspense>
                   }
@@ -1341,7 +1369,7 @@ export default function App() {
                 <Route
                   path="/projects"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <ProjectListPage />
                     </Suspense>
                   }
@@ -1349,7 +1377,7 @@ export default function App() {
                 <Route
                   path="/projects/new"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <ProjectFormPage />
                     </Suspense>
                   }
@@ -1357,7 +1385,7 @@ export default function App() {
                 <Route
                   path="/projects/:id"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <ProjectDetailPage />
                     </Suspense>
                   }
@@ -1365,7 +1393,7 @@ export default function App() {
                 <Route
                   path="/projects/:id/edit"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <ProjectFormPage />
                     </Suspense>
                   }
@@ -1373,7 +1401,7 @@ export default function App() {
                 <Route
                   path="/cv"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <CVGeneratorPage />
                     </Suspense>
                   }
@@ -1381,7 +1409,7 @@ export default function App() {
                 <Route
                   path="/cv/preview/:staffId/:templateId"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <CVPreviewPage />
                     </Suspense>
                   }
@@ -1389,7 +1417,7 @@ export default function App() {
                 <Route
                   path="/templates"
                   element={
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={PAGE_FALLBACK}>
                       <TemplatesPage />
                     </Suspense>
                   }
