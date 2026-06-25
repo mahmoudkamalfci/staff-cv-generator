@@ -11,6 +11,7 @@ export const participationsRouter: Router = Router({ mergeParams: true });
 // POST /api/projects/:projectId/participations (admin only)
 participationsRouter.post('/', requireAuth, requireAdmin, (req, res, next) => {
   // Inject projectId from params into body so validation passes
+  if (!req.body) req.body = {};
   if (req.params.projectId) req.body.projectId = req.params.projectId;
   next();
 }, validate(CreateParticipationSchema), asyncHandler(async (req, res) => {
