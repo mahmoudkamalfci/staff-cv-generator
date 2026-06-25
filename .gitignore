@@ -35,3 +35,5 @@ coverage/
 # Uploads (runtime)
 apps/backend/uploads/*
 !apps/backend/uploads/.gitkeep
+
+.agents/*
