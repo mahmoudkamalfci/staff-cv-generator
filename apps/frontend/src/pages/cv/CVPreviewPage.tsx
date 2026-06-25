@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Download, Loader2 } from 'lucide-react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Suspense, lazy, useState } from 'react';
@@ -41,13 +41,17 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
 
 function DownloadButton({ staffId, templateId }: { staffId: string; templateId: string }) {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const cvResponse = await api
-        .get<{ data: CVData }>(`/cv/${staffId}/${templateId}`)
-        .then((r) => r.data.data);
+      const cachedData = queryClient.getQueryData<CVData>(['cv', staffId, templateId]);
+      const cvResponse =
+        cachedData ||
+        (await api
+          .get<{ data: CVData }>(`/cv/${staffId}/${templateId}`)
+          .then((r) => r.data.data));
 
       const { pdf } = await import('@react-pdf/renderer');
       const CVDocumentMod = await import('@/components/cv-templates/CVDocument');
@@ -63,7 +67,7 @@ function DownloadButton({ staffId, templateId }: { staffId: string; templateId: 
       a.href = url;
       a.download = `${cvResponse.staff.name.replace(/\s+/g, '_')}-CV.pdf`;
       a.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error('PDF generation failed:', err);
       alert('PDF generation failed. Please try again.');

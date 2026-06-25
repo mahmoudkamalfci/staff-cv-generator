@@ -161,8 +161,8 @@ function ExperienceSection({
   label: string;
   styles: ReturnType<typeof makeStyles>;
 }) {
-  const formatDate = (d: string | null | undefined) => {
-    if (!d) return 'Present';
+  const formatDate = (d: string | null | undefined, fallback = 'Present') => {
+    if (!d) return fallback;
     const date = new Date(d);
     if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
@@ -172,10 +172,10 @@ function ExperienceSection({
     <View>
       <Text style={styles.sectionHeading}>{label || ''}</Text>
       {data.participations.map((p) => {
-        const startDateStr = formatDate(p.project.startDate);
-        const endDateStr = formatDate(p.project.endDate);
+        const startDateStr = formatDate(p.project.startDate, '');
+        const endDateStr = formatDate(p.project.endDate, 'Present');
         const dateRangeStr =
-          startDateStr || endDateStr ? `${startDateStr || ''} — ${endDateStr || ''}` : '';
+          startDateStr && endDateStr ? `${startDateStr} — ${endDateStr}` : startDateStr || endDateStr || '';
         const metaParts = [p.project.client, p.project.location, dateRangeStr].filter(Boolean);
         const metaString = metaParts.join(' · ');
 
