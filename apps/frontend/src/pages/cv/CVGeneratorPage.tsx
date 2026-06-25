@@ -59,7 +59,7 @@ export default function CVGeneratorPage() {
       a.href = url;
       a.download = `${cvResponse.staff.name.replace(/\s+/g, '_')}-CV.pdf`;
       a.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error('PDF generation failed:', err);
       alert('PDF generation failed. Please try again.');
