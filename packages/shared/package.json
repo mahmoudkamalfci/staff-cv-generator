@@ -24,11 +24,12 @@
   },
   "devDependencies": {
     "@cv-generator/config": "workspace:*",
+    "@jest/globals": "^30.4.1",
     "@types/jest": "^29.0.0",
+    "eslint": "^9.0.0",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0",
-    "typescript": "^5.5.0",
-    "eslint": "^9.0.0"
+    "typescript": "^5.5.0"
   },
   "dependencies": {
     "zod": "^3.23.0"
