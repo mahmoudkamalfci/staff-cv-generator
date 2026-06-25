@@ -10,5 +10,8 @@
     "lint:fix": "echo 'No-op'",
     "type-check": "echo 'No-op'",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "^4.5.1"
   }
 }
