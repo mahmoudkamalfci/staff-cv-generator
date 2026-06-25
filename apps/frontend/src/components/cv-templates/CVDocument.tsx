@@ -29,6 +29,9 @@ function makeStyles(primaryColor: string, accentColor: string) {
     mainCol: { flex: 1, padding: '20pt 24pt' },
     sideCol: { width: '160pt', backgroundColor: '#f1f5f9', padding: '20pt 14pt' },
     fullCol: { flex: 1, padding: '20pt 32pt' },
+    threeColBody: { flexDirection: 'row', flex: 1 },
+    threeColSide: { width: '120pt', backgroundColor: '#f8fafc', padding: '14pt 10pt' },
+    threeColMain: { flex: 1, padding: '14pt 16pt' },
     // Header
     headerBox: {
       backgroundColor: primaryColor,
@@ -153,7 +156,7 @@ function ExperienceSection({ data, label, styles }: { data: CVData; label: strin
         <View key={p.id} style={styles.expCard}>
           <Text style={styles.expProject}>{p.project.name || ''}</Text>
           <Text style={styles.expMeta}>
-            {p.project.client || ''} · {p.project.location || ''} · {formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}
+            {`${p.project.client || ''} · ${p.project.location || ''} · ${formatDate(p.project.startDate)} — ${formatDate(p.project.endDate)}`}
           </Text>
           <Text style={styles.expRole}>{p.role || ''}</Text>
           <Text style={styles.expDesc}>{p.responsibilities || ''}</Text>
@@ -235,14 +238,14 @@ function ThreeColumnLayout({ data, config, styles }: { data: CVData; config: Tem
   const col3 = sections.filter((s) => s.id === 'custom');
 
   return (
-    <View style={{ flexDirection: 'row', flex: 1 }}>
-      <View style={{ width: '120pt', backgroundColor: '#f8fafc', padding: '14pt 10pt' }}>
+    <View style={styles.threeColBody}>
+      <View style={styles.threeColSide}>
         {col1.map((s) => renderSection(s, data, styles))}
       </View>
-      <View style={{ flex: 1, padding: '14pt 16pt' }}>
+      <View style={styles.threeColMain}>
         {col2.map((s) => renderSection(s, data, styles))}
       </View>
-      <View style={{ width: '120pt', backgroundColor: '#f8fafc', padding: '14pt 10pt' }}>
+      <View style={styles.threeColSide}>
         {col3.map((s) => renderSection(s, data, styles))}
       </View>
     </View>
