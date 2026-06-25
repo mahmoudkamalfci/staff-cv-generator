@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { config } from './config.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { logger } from './middleware/logger.js';
+import { authRouter } from './auth/auth.router.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,7 +25,9 @@ export function createApp(): express.Express {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // Routes mounted later
+  // Routes
+  app.use('/api/auth', authRouter);
+
   app.use(errorHandler);
   return app;
 }
