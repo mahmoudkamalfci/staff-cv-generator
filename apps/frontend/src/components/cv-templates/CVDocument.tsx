@@ -7,16 +7,8 @@ import {
   Text,
   Image,
   StyleSheet,
-  Font,
 } from '@react-pdf/renderer';
 import type { CVData, TemplateConfig, SectionConfig } from '@cv-generator/shared';
-
-// Register a clean sans-serif font (built into react-pdf — no network request)
-Font.register({
-  family: 'Helvetica',
-  src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
-  // Fallback: react-pdf bundles Helvetica-like font by default if this URL is unavailable
-});
 
 interface Props {
   data: CVData;
@@ -151,7 +143,7 @@ function SkillsSection({ data, label, styles }: { data: CVData; label: string; s
 function ExperienceSection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
   const formatDate = (d: string | null | undefined) => {
     if (!d) return 'Present';
-    return new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
   };
 
   return (
