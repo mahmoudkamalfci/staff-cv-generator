@@ -5,14 +5,21 @@ import type { AnyZodObject } from 'zod';
 export const validate = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const parsed = await schema.parseAsync({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-      });
-      req.body = parsed.body;
-      req.query = parsed.query;
-      req.params = parsed.params;
+      // Check if schema expects body/query/params structure
+      if ('body' in schema.shape || 'query' in schema.shape || 'params' in schema.shape) {
+        const parsed = await schema.parseAsync({
+          body: req.body,
+          query: req.query,
+          params: req.params,
+        });
+        req.body = parsed.body || req.body;
+        req.query = parsed.query || req.query;
+        req.params = parsed.params || req.params;
+      } else {
+        // Fallback: assume schema is just for req.body
+        const parsedBody = await schema.parseAsync(req.body);
+        req.body = parsedBody;
+      }
       next();
     } catch (error) {
       if (error instanceof ZodError) {

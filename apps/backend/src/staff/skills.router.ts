@@ -6,7 +6,7 @@ import { validate } from '../middleware/validate.js';
 import { requireAuth, requireAdmin } from '../middleware/requireAuth.js';
 import { CreateSkillSchema, UpdateSkillSchema } from '@cv-generator/shared';
 
-export const skillsRouter = Router({ mergeParams: true });
+export const skillsRouter: Router = Router({ mergeParams: true });
 
 // GET /api/staff/:staffId/skills
 skillsRouter.get('/', asyncHandler(async (req, res) => {

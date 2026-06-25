@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const staffRouter = Router();
+export const staffRouter: Router = Router();
 
 staffRouter.use('/:staffId/skills', skillsRouter);
 
