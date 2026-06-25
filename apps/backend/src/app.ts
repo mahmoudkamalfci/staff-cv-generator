@@ -10,6 +10,8 @@ import { logger } from './middleware/logger.js';
 import { authRouter } from './auth/auth.router.js';
 import { staffRouter } from './staff/staff.router.js';
 import { projectsRouter } from './projects/projects.router.js';
+import { cvRouter } from './cv/cv.router.js';
+import { templatesRouter } from './cv/templates.router.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,6 +33,8 @@ export function createApp(): express.Express {
   app.use('/api/auth', authRouter);
   app.use('/api/staff', staffRouter);
   app.use('/api/projects', projectsRouter);
+  app.use('/api/cv', cvRouter);
+  app.use('/api/templates', templatesRouter);
 
   app.use(errorHandler);
   return app;
