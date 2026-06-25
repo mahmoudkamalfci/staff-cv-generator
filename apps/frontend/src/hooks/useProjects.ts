@@ -71,9 +71,12 @@ export function useCreateParticipation() {
 export function useDeleteParticipation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/participations/${id}`),
-    onSuccess: () => {
+    mutationFn: ({ id }: { id: string; projectId: string; staffId: string }) =>
+      api.delete(`/participations/${id}`),
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) });
+      qc.invalidateQueries({ queryKey: ['staff', variables.staffId, 'participations'] });
     },
   });
 }

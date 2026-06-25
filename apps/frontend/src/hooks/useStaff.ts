@@ -69,7 +69,10 @@ export function useUploadStaffPhoto(staffId: string) {
         })
         .then((r) => r.data);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) });
+      qc.invalidateQueries({ queryKey: staffKeys.all });
+    },
   });
 }
 
