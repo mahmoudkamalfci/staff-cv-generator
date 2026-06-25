@@ -5,9 +5,18 @@ import { AppError } from '../middleware/errorHandler.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 
 export const cvRouter: Router = Router();
+import { z } from 'zod';
+import { validate } from '../middleware/validate.js';
+
+const paramSchema = z.object({
+  params: z.object({
+    staffId: z.string().uuid(),
+    templateId: z.string().uuid()
+  })
+});
 
 // GET /api/cv/:staffId/:templateId
-cvRouter.get('/:staffId/:templateId', requireAuth, asyncHandler(async (req, res) => {
+cvRouter.get('/:staffId/:templateId', requireAuth, validate(paramSchema), asyncHandler(async (req, res) => {
   const { staffId, templateId } = req.params;
   const userId = req.user!.userId;
 
