@@ -73,6 +73,8 @@ model Template {
   layoutKey    String        @unique
   description  String        @default("")
   isActive     Boolean       @default(true)
+  isBuiltIn    Boolean       @default(false)
+  config       Json          @default("{}")
   generatedCvs GeneratedCV[]
   createdAt    DateTime      @default(now())
 }
