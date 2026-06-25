@@ -9,6 +9,10 @@ import type { CVData } from '@cv-generator/shared';
 // CVDocument is its own Vite chunk — only loaded when this page renders
 const CVDocument = lazy(() => import('@/components/cv-templates/CVDocument'));
 
+const PDFViewer = lazy(() =>
+  import('@react-pdf/renderer').then((mod) => ({ default: mod.PDFViewer }))
+);
+
 // CVContent suspends while CV data loads — toolbar renders immediately
 function CVContent({ staffId, templateId }: { staffId: string; templateId: string }) {
   const { data } = useSuspenseQuery<CVData>({
@@ -19,25 +23,6 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
         .then((r) => r.data.data),
   });
 
-  const [PDFViewer, setPDFViewer] = useState<React.ComponentType<React.PropsWithChildren<{
-    width: string;
-    height: string;
-    style?: React.CSSProperties;
-  }>> | null>(null);
-
-  // Lazy-load PDFViewer on mount (only after data is ready)
-  if (!PDFViewer) {
-    import('@react-pdf/renderer').then((mod) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setPDFViewer(() => (mod as any).PDFViewer);
-    });
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
-      </div>
-    );
-  }
-
   return (
     <Suspense
       fallback={
@@ -46,6 +31,7 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
         </div>
       }
     >
+      {/* @ts-expect-error - PDFViewer styling and custom types */}
       <PDFViewer width="100%" height="100%" style={{ minHeight: '80vh', border: 'none' }}>
         <CVDocument data={data} config={data.template.config} />
       </PDFViewer>
