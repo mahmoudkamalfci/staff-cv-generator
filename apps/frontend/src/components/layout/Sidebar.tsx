@@ -76,6 +76,7 @@ export function Sidebar() {
           </div>
         </div>
         <Button
+          id="sign-out-button"
           variant="ghost"
           size="sm"
           className="w-full justify-start text-sidebar-muted hover:text-sidebar-foreground hover:bg-white/10"

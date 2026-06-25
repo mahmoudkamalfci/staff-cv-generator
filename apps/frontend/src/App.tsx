@@ -7,8 +7,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import LoginPage from '@/pages/auth/LoginPage';
 
 // Lazy page imports
-import { lazy, Suspense } from 'react';
-import { Loader2 } from 'lucide-react';
+import { lazy } from 'react';
 
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 const StaffListPage = lazy(() => import('@/pages/staff/StaffListPage'));
@@ -30,15 +29,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Hoist fallback JSX outside App — static reference, never recreated on App renders
-const PAGE_FALLBACK = (
-  <div className="flex items-center justify-center h-64">
-    <div className="animate-spin">
-      <Loader2 className="w-8 h-8 text-accent" />
-    </div>
-  </div>
-);
-
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -49,102 +39,18 @@ export default function App() {
 
             <Route element={<ProtectedRoute />}>
               <Route element={<AppShell />}>
-                <Route
-                  path="/"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <DashboardPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/staff"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <StaffListPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/staff/new"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <StaffFormPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/staff/:id"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <StaffDetailPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/staff/:id/edit"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <StaffFormPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/projects"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <ProjectListPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/projects/new"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <ProjectFormPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/projects/:id"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <ProjectDetailPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/projects/:id/edit"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <ProjectFormPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/cv"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <CVGeneratorPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/cv/preview/:staffId/:templateId"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <CVPreviewPage />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/templates"
-                  element={
-                    <Suspense fallback={PAGE_FALLBACK}>
-                      <TemplatesPage />
-                    </Suspense>
-                  }
-                />
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/staff" element={<StaffListPage />} />
+                <Route path="/staff/new" element={<StaffFormPage />} />
+                <Route path="/staff/:id" element={<StaffDetailPage />} />
+                <Route path="/staff/:id/edit" element={<StaffFormPage />} />
+                <Route path="/projects" element={<ProjectListPage />} />
+                <Route path="/projects/new" element={<ProjectFormPage />} />
+                <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                <Route path="/projects/:id/edit" element={<ProjectFormPage />} />
+                <Route path="/cv" element={<CVGeneratorPage />} />
+                <Route path="/cv/preview/:staffId/:templateId" element={<CVPreviewPage />} />
+                <Route path="/templates" element={<TemplatesPage />} />
               </Route>
             </Route>
 

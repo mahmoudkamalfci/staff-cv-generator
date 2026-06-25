@@ -8,12 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isLoading, isAuthenticated, navigate]);
 
   const {
     register,
@@ -31,6 +37,14 @@ export default function LoginPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       {/* Background gradient decoration */}
@@ -44,7 +58,11 @@ export default function LoginPage() {
           <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center mx-auto mb-4">
             <BriefcaseBusiness className="w-7 h-7 text-accent-foreground" />
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
+          <CardTitle className="text-2xl">
+            <h1 id="login-title" className="text-2xl font-bold leading-none tracking-tight">
+              Welcome back
+            </h1>
+          </CardTitle>
           <CardDescription>Sign in to GISCON CV Generator</CardDescription>
         </CardHeader>
 
@@ -93,7 +111,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button id="login-submit-button" type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" /> Signing in…
