@@ -4,7 +4,12 @@ import {
   CreateStaffSchema,
   CreateSkillSchema,
   CreateProjectSchema,
-  LayoutKeyEnum,
+  LayoutKeySchema,
+  SectionConfigSchema,
+  TemplateConfigSchema,
+  CVTemplateSchema,
+  CreateTemplateInputSchema,
+  UpdateTemplateInputSchema,
 } from '../index.js';
 
 describe('Auth schemas', () => {
@@ -79,16 +84,103 @@ describe('Project schemas', () => {
   });
 });
 
-describe('Layout key enum', () => {
-  it('accepts valid layout keys', () => {
-    const r1 = LayoutKeyEnum.safeParse('classic');
-    const r2 = LayoutKeyEnum.safeParse('modern');
-    const r3 = LayoutKeyEnum.safeParse('compact');
-    expect(r1.success && r2.success && r3.success).toBe(true);
+describe('Layout key schema', () => {
+  it('accepts non-empty strings', () => {
+    expect(LayoutKeySchema.safeParse('classic').success).toBe(true);
+    expect(LayoutKeySchema.safeParse('modern').success).toBe(true);
+    expect(LayoutKeySchema.safeParse('compact').success).toBe(true);
+    expect(LayoutKeySchema.safeParse('custom-uuid-string').success).toBe(true);
   });
 
-  it('rejects unknown layout key', () => {
-    const result = LayoutKeyEnum.safeParse('fancy');
+  it('rejects empty layout key', () => {
+    expect(LayoutKeySchema.safeParse('').success).toBe(false);
+  });
+});
+
+describe('Template schemas', () => {
+  const validConfig = {
+    baseLayout: 'two-column',
+    primaryColor: '#0055ff',
+    accentColor: '#ff5500',
+    sections: [
+      { id: 'header', label: 'Header Info', visible: true, order: 0 },
+      { id: 'summary', label: 'Summary Info', visible: true, order: 1 },
+    ],
+  };
+
+  it('validates a correct section config', () => {
+    const result = SectionConfigSchema.safeParse({
+      id: 'custom',
+      label: 'My Custom Section',
+      visible: false,
+      order: 4,
+      content: 'Some template content text',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('validates a correct template config', () => {
+    const result = TemplateConfigSchema.safeParse(validConfig);
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects config when primary color is not valid hex', () => {
+    const result = TemplateConfigSchema.safeParse({
+      ...validConfig,
+      primaryColor: '0055ff', // missing #
+    });
     expect(result.success).toBe(false);
+  });
+
+  it('rejects config when header section is invisible', () => {
+    const result = TemplateConfigSchema.safeParse({
+      ...validConfig,
+      sections: [
+        { id: 'header', label: 'Header Info', visible: false, order: 0 },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects config when header section is missing', () => {
+    const result = TemplateConfigSchema.safeParse({
+      ...validConfig,
+      sections: [
+        { id: 'summary', label: 'Summary Info', visible: true, order: 0 },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('validates a correct CV template payload', () => {
+    const result = CVTemplateSchema.safeParse({
+      id: 'd9b0a1d4-8d96-48c0-81cd-7a3bb4fa047c',
+      name: 'Modern Compact',
+      layoutKey: 'compact',
+      description: 'A very compact layout for dense CVs',
+      isActive: true,
+      isBuiltIn: true,
+      config: validConfig,
+      createdAt: '2026-06-25T12:00:00Z',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('validates CreateTemplateInput schema and provides default description', () => {
+    const result = CreateTemplateInputSchema.safeParse({
+      name: 'Custom Template',
+      config: validConfig,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.description).toBe('');
+    }
+  });
+
+  it('validates UpdateTemplateInput schema', () => {
+    const result = UpdateTemplateInputSchema.safeParse({
+      name: 'Updated Name',
+    });
+    expect(result.success).toBe(true);
   });
 });
