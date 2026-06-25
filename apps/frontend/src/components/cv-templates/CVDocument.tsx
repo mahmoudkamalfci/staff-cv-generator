@@ -104,9 +104,9 @@ function HeaderSection({ data, styles }: { data: CVData; styles: ReturnType<type
         <Image style={styles.headerPhoto} src={staff.photoUrl} />
       )}
       <View>
-        <Text style={styles.headerName}>{staff.name}</Text>
-        <Text style={styles.headerTitle}>{staff.jobTitle}</Text>
-        <Text style={styles.headerYears}>{staff.yearsExperience} years of experience</Text>
+        <Text style={styles.headerName}>{staff.name || ''}</Text>
+        <Text style={styles.headerTitle}>{staff.jobTitle || ''}</Text>
+        <Text style={styles.headerYears}>{(staff.yearsExperience ?? 0) + ' years of experience'}</Text>
       </View>
     </View>
   );
@@ -115,8 +115,8 @@ function HeaderSection({ data, styles }: { data: CVData; styles: ReturnType<type
 function SummarySection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
   return (
     <View>
-      <Text style={styles.sectionHeading}>{label}</Text>
-      <Text style={styles.summaryText}>{data.staff.summary}</Text>
+      <Text style={styles.sectionHeading}>{label || ''}</Text>
+      <Text style={styles.summaryText}>{data.staff.summary || ''}</Text>
     </View>
   );
 }
@@ -124,12 +124,12 @@ function SummarySection({ data, label, styles }: { data: CVData; label: string; 
 function SkillsSection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
   return (
     <View>
-      <Text style={styles.sectionHeading}>{label}</Text>
+      <Text style={styles.sectionHeading}>{label || ''}</Text>
       {data.skills.map((skill) => (
         <View key={skill.id}>
           <View style={styles.skillRow}>
-            <Text style={styles.skillName}>{skill.name}</Text>
-            <Text style={styles.skillLevel}>{skill.level}</Text>
+            <Text style={styles.skillName}>{skill.name || ''}</Text>
+            <Text style={styles.skillLevel}>{skill.level || ''}</Text>
           </View>
           <View style={styles.skillBar}>
             <View style={[styles.skillFill, { width: LEVEL_WIDTH[skill.level] ?? '50%' }]} />
@@ -148,18 +148,18 @@ function ExperienceSection({ data, label, styles }: { data: CVData; label: strin
 
   return (
     <View>
-      <Text style={styles.sectionHeading}>{label}</Text>
+      <Text style={styles.sectionHeading}>{label || ''}</Text>
       {data.participations.map((p) => (
         <View key={p.id} style={styles.expCard}>
-          <Text style={styles.expProject}>{p.project.name}</Text>
+          <Text style={styles.expProject}>{p.project.name || ''}</Text>
           <Text style={styles.expMeta}>
-            {p.project.client} · {p.project.location} · {formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}
+            {p.project.client || ''} · {p.project.location || ''} · {formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}
           </Text>
-          <Text style={styles.expRole}>{p.role}</Text>
-          <Text style={styles.expDesc}>{p.responsibilities}</Text>
+          <Text style={styles.expRole}>{p.role || ''}</Text>
+          <Text style={styles.expDesc}>{p.responsibilities || ''}</Text>
           <View style={styles.techWrap}>
-            {(p.project.technologies as string[]).map((t) => (
-              <Text key={t} style={styles.techChip}>{t}</Text>
+            {((p.project.technologies || []) as string[]).map((t) => (
+              <Text key={t} style={styles.techChip}>{t || ''}</Text>
             ))}
           </View>
         </View>
@@ -171,8 +171,8 @@ function ExperienceSection({ data, label, styles }: { data: CVData; label: strin
 function CustomSection({ section, styles }: { section: SectionConfig; styles: ReturnType<typeof makeStyles> }) {
   return (
     <View>
-      <Text style={styles.sectionHeading}>{section.label}</Text>
-      {section.content && <Text style={styles.customText}>{section.content}</Text>}
+      <Text style={styles.sectionHeading}>{section.label || ''}</Text>
+      {section.content && <Text style={styles.customText}>{section.content || ''}</Text>}
     </View>
   );
 }
