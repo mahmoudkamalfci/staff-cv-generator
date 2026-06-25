@@ -12,6 +12,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["src/pages"]
+  "include": ["src"]
 }

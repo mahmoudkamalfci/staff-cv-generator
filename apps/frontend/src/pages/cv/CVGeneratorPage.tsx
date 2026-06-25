@@ -50,8 +50,8 @@ export default function CVGeneratorPage() {
       const CVDocumentComponent = CVDocumentMod.default;
 
       const blob = await pdf(
-        // @ts-expect-error — JSX in dynamic import context
-        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />
+        // @ts-ignore — JSX in dynamic import context
+        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />,
       ).toBlob();
 
       const url = URL.createObjectURL(blob);

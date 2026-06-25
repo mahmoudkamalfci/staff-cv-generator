@@ -175,7 +175,9 @@ function ExperienceSection({
         const startDateStr = formatDate(p.project.startDate, '');
         const endDateStr = formatDate(p.project.endDate, 'Present');
         const dateRangeStr =
-          startDateStr && endDateStr ? `${startDateStr} — ${endDateStr}` : startDateStr || endDateStr || '';
+          startDateStr && endDateStr
+            ? `${startDateStr} — ${endDateStr}`
+            : startDateStr || endDateStr || '';
         const metaParts = [p.project.client, p.project.location, dateRangeStr].filter(Boolean);
         const metaString = metaParts.join(' · ');
 

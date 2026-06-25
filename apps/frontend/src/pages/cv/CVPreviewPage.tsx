@@ -10,7 +10,7 @@ import type { CVData } from '@cv-generator/shared';
 const CVDocument = lazy(() => import('@/components/cv-templates/CVDocument'));
 
 const PDFViewer = lazy(() =>
-  import('@react-pdf/renderer').then((mod) => ({ default: mod.PDFViewer }))
+  import('@react-pdf/renderer').then((mod) => ({ default: mod.PDFViewer })),
 );
 
 // CVContent suspends while CV data loads — toolbar renders immediately
@@ -18,9 +18,7 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
   const { data } = useSuspenseQuery<CVData>({
     queryKey: ['cv', staffId, templateId],
     queryFn: () =>
-      api
-        .get<{ data: CVData }>(`/cv/${staffId}/${templateId}`)
-        .then((r) => r.data.data),
+      api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data),
   });
 
   return (
@@ -31,7 +29,7 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
         </div>
       }
     >
-      {/* @ts-expect-error - PDFViewer styling and custom types */}
+      {/* @ts-ignore - PDFViewer styling and custom types */}
       <PDFViewer width="100%" height="100%" style={{ minHeight: '80vh', border: 'none' }}>
         <CVDocument data={data} config={data.template.config} />
       </PDFViewer>
@@ -49,17 +47,19 @@ function DownloadButton({ staffId, templateId }: { staffId: string; templateId: 
       const cachedData = queryClient.getQueryData<CVData>(['cv', staffId, templateId]);
       const cvResponse =
         cachedData ||
-        (await api
-          .get<{ data: CVData }>(`/cv/${staffId}/${templateId}`)
-          .then((r) => r.data.data));
+        (await api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data));
+
+      if (!cvResponse) {
+        throw new Error('Failed to retrieve CV data');
+      }
 
       const { pdf } = await import('@react-pdf/renderer');
       const CVDocumentMod = await import('@/components/cv-templates/CVDocument');
       const CVDocumentComponent = CVDocumentMod.default;
 
       const blob = await pdf(
-        // @ts-expect-error — dynamic import renders fine at runtime
-        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />
+        // @ts-ignore — dynamic import renders fine at runtime
+        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />,
       ).toBlob();
 
       const url = URL.createObjectURL(blob);
