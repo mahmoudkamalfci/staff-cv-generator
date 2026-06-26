@@ -40,15 +40,33 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
   });
 
   const onSubmit = async (data: CreateSkillInput) => {
-    await addSkill.mutateAsync(data);
-    toast({ title: 'Skill added' });
-    reset();
-    setAdding(false);
+    try {
+      await addSkill.mutateAsync(data);
+      toast({ title: 'Skill added' });
+      reset();
+      setAdding(false);
+    } catch (error) {
+      console.error('Failed to add skill:', error);
+      toast({
+        title: 'Error adding skill',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await deleteSkill.mutateAsync(id);
-    toast({ title: 'Skill removed' });
+    try {
+      await deleteSkill.mutateAsync(id);
+      toast({ title: 'Skill removed' });
+    } catch (error) {
+      console.error('Failed to delete skill:', error);
+      toast({
+        title: 'Error removing skill',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -83,9 +101,11 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
             {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Level</Label>
-            <Select onValueChange={(v) => setValue('level', v as CreateSkillInput['level'])}>
-              <SelectTrigger className="h-8 w-36">
+            <Label htmlFor="skill-level" className="text-xs">
+              Level
+            </Label>
+            <Select onValueChange={(v) => setValue('level', v as CreateSkillInput['level'], { shouldValidate: true })}>
+              <SelectTrigger id="skill-level" className="h-8 w-36">
                 <SelectValue placeholder="Level" />
               </SelectTrigger>
               <SelectContent>
@@ -96,6 +116,7 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
                 ))}
               </SelectContent>
             </Select>
+            {errors.level && <p className="text-destructive text-xs mt-1">{errors.level.message}</p>}
           </div>
           <Button type="submit" size="sm" disabled={addSkill.isPending}>
             {addSkill.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add'}

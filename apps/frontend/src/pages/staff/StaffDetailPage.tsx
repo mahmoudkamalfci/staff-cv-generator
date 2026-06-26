@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { SkillsManager } from '@/components/staff/SkillsManager';
 import { getInitials } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -102,9 +103,10 @@ export default function StaffDetailPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex gap-3 items-end flex-wrap">
-          <div className="flex-1 min-w-48">
+          <div className="flex-1 min-w-48 space-y-1">
+            <Label htmlFor="template-select" className="text-xs">Template</Label>
             <Select onValueChange={setSelectedTemplate}>
-              <SelectTrigger>
+              <SelectTrigger id="template-select">
                 <SelectValue placeholder="Select a template…" />
               </SelectTrigger>
               <SelectContent>

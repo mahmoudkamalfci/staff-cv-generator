@@ -14,7 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function StaffFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,17 @@ export default function StaffFormPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && user.role !== 'admin') {
+      toast({
+        title: 'Access denied',
+        variant: 'destructive',
+      });
+      navigate('/staff', { replace: true });
+    }
+  }, [user, navigate, toast]);
 
   const { data: existing, isLoading } = useStaffDetail(id ?? '');
   const createStaff = useCreateStaff();
@@ -62,6 +74,10 @@ export default function StaffFormPage() {
     await uploadPhoto.mutateAsync(file);
     toast({ title: 'Photo updated' });
   };
+
+  if (!user || user.role !== 'admin') {
+    return null;
+  }
 
   if (isEdit && isLoading) {
     return (
@@ -154,6 +170,11 @@ export default function StaffFormPage() {
             <CardTitle className="text-base">Profile Photo</CardTitle>
           </CardHeader>
           <CardContent>
+            {existing?.photoUrl && (
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border border-border mb-4">
+                <img src={existing.photoUrl} alt={existing.name} className="w-full h-full object-cover" />
+              </div>
+            )}
             <input
               ref={fileRef}
               type="file"
