@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ import { Step2Sections } from './wizard/Step2Sections';
 import { Step3Colors } from './wizard/Step3Colors';
 import { Step4Preview } from './wizard/Step4Preview';
 import type { TemplateConfig, SectionConfig } from '@cv-generator/shared';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const STEPS = [
   { number: 1, title: 'Base Template', description: 'Choose starting layout and name' },
@@ -26,26 +28,40 @@ export default function TemplateWizardPage() {
   const createTemplate = useCreateTemplate();
   const updateTemplate = useUpdateTemplate();
 
-  const [step, setStep] = useState(1);
-  const [templateName, setTemplateName] = useState(existingTemplate?.name ?? '');
-  const [templateDescription, setTemplateDescription] = useState(
-    existingTemplate?.description ?? '',
-  );
-  const [selectedBase, setSelectedBase] = useState('Classic');
-  const [draftConfig, setDraftConfig] = useState<TemplateConfig>(
-    (existingTemplate?.config as TemplateConfig | undefined) ?? {
-      baseLayout: 'two-column',
-      primaryColor: '#1e293b',
-      accentColor: '#475569',
-      sections: DEFAULT_SECTIONS,
-    },
-  );
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  // Sync from fetched template when editing (async load)
-  if (isEditing && existingTemplate && !templateName) {
-    setTemplateName(existingTemplate.name);
-    setTemplateDescription(existingTemplate.description);
-    setDraftConfig(existingTemplate.config as TemplateConfig);
+  const [step, setStep] = useState(1);
+  const [templateName, setTemplateName] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
+  const [selectedBase, setSelectedBase] = useState('Classic');
+  const [draftConfig, setDraftConfig] = useState<TemplateConfig>({
+    baseLayout: 'two-column',
+    primaryColor: '#1e293b',
+    accentColor: '#475569',
+    sections: DEFAULT_SECTIONS,
+  });
+
+  useEffect(() => {
+    if (user && user.role !== 'admin') {
+      toast({
+        title: 'Access denied',
+        variant: 'destructive',
+      });
+      navigate('/templates', { replace: true });
+    }
+  }, [user, navigate, toast]);
+
+  useEffect(() => {
+    if (existingTemplate) {
+      setTemplateName(existingTemplate.name);
+      setTemplateDescription(existingTemplate.description ?? '');
+      setDraftConfig(existingTemplate.config as TemplateConfig);
+    }
+  }, [existingTemplate]);
+
+  if (!user || user.role !== 'admin') {
+    return null;
   }
 
   const handleSelectBase = (preset: (typeof BUILT_IN_PRESETS)[number]) => {
@@ -85,7 +101,10 @@ export default function TemplateWizardPage() {
       navigate('/templates');
     } catch (err) {
       console.error('Save failed:', err);
-      alert('Failed to save template. Please try again.');
+      toast({
+        title: 'Failed to save template',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -96,14 +115,14 @@ export default function TemplateWizardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">
+          <h1 id="wizard-title" className="text-2xl font-bold text-foreground">
             {isEditing ? 'Edit Template' : 'New Template'}
-          </h2>
+          </h1>
           <p className="text-muted-foreground text-sm mt-1">
             Step {step} of {STEPS.length} — {STEPS[step - 1]?.title}
           </p>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate('/templates')}>
+        <Button id="cancel-btn" variant="ghost" size="sm" onClick={() => navigate('/templates')}>
           Cancel
         </Button>
       </div>
@@ -156,6 +175,7 @@ export default function TemplateWizardPage() {
       {/* Navigation */}
       <div className="flex justify-between">
         <Button
+          id="back-btn"
           variant="outline"
           onClick={() => setStep((s) => Math.max(1, s - 1))}
           disabled={step === 1}
@@ -165,12 +185,12 @@ export default function TemplateWizardPage() {
         </Button>
 
         {step < 4 ? (
-          <Button onClick={() => setStep((s) => s + 1)} disabled={!canAdvance()}>
+          <Button id="next-btn" onClick={() => setStep((s) => s + 1)} disabled={!canAdvance()}>
             Next
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         ) : (
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button id="save-btn" onClick={handleSave} disabled={isSaving}>
             {isSaving ? 'Saving…' : isEditing ? 'Save Changes' : 'Save Template'}
           </Button>
         )}
