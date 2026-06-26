@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { ProjectsController } from './projects.controller.js';
 import { ProjectsService } from './projects.service.js';
 import { Request, Response } from 'express';
 
-vi.mock('./projects.service.js');
 
 describe('ProjectsController', () => {
   it('should get projects', async () => {
@@ -12,10 +11,10 @@ describe('ProjectsController', () => {
     } as unknown as Request;
 
     const res = {
-      json: vi.fn(),
+      json: jest.fn(),
     } as unknown as Response;
 
-    vi.mocked(ProjectsService.getProjects).mockResolvedValue({ projects: [{ id: '1' }] as any, total: 1 });
+    jest.spyOn(ProjectsService, 'getProjects').mockResolvedValue({ projects: [{ id: '1' }] as any, total: 1 });
 
     await ProjectsController.getProjects(req, res);
 

@@ -1,26 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { StaffService } from './staff.service.js';
 import { prisma } from '../db/prisma.js';
 
-vi.mock('../db/prisma.js', () => ({
-  prisma: {
-    staff: {
-      findMany: vi.fn(),
-      count: vi.fn(),
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    },
-  },
-}));
 
 describe('StaffService', () => {
   describe('getStaff', () => {
     it('should return paginated staff list', async () => {
       const mockStaff = [{ id: '1', name: 'John Doe', email: 'john@doe.com' }];
-      vi.mocked(prisma.staff.findMany).mockResolvedValue(mockStaff as any);
-      vi.mocked(prisma.staff.count).mockResolvedValue(1);
+      jest.spyOn(prisma.staff, 'findMany').mockResolvedValue(mockStaff as any);
+      jest.spyOn(prisma.staff, 'count').mockResolvedValue(1);
 
       const result = await StaffService.getStaff(1, 10);
 
@@ -35,13 +23,13 @@ describe('StaffService', () => {
 
   describe('getStaffById', () => {
     it('should throw error if staff not found', async () => {
-      vi.mocked(prisma.staff.findUnique).mockResolvedValue(null);
+      jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(null);
       await expect(StaffService.getStaffById('invalid')).rejects.toThrow('Staff not found');
     });
 
     it('should return staff by id', async () => {
       const mockStaff = { id: '1', name: 'John Doe', email: 'john@doe.com' };
-      vi.mocked(prisma.staff.findUnique).mockResolvedValue(mockStaff as any);
+      jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(mockStaff as any);
 
       const result = await StaffService.getStaffById('1');
       expect(result).toEqual(mockStaff);

@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { StaffController } from './staff.controller.js';
 import { StaffService } from './staff.service.js';
 import { Request, Response } from 'express';
 
-vi.mock('./staff.service.js');
 
 describe('StaffController', () => {
   it('should get staff list with pagination', async () => {
@@ -12,11 +11,11 @@ describe('StaffController', () => {
     } as unknown as Request;
 
     const res = {
-      json: vi.fn(),
+      json: jest.fn(),
     } as unknown as Response;
 
     const mockStaff = [{ id: '1', name: 'John Doe', email: 'john@doe.com' }];
-    vi.mocked(StaffService.getStaff).mockResolvedValue({ staff: mockStaff as any, total: 1 });
+    jest.spyOn(StaffService, 'getStaff').mockResolvedValue({ staff: mockStaff as any, total: 1 });
 
     await StaffController.getStaff(req, res);
 
@@ -33,11 +32,11 @@ describe('StaffController', () => {
     } as unknown as Request;
 
     const res = {
-      json: vi.fn(),
+      json: jest.fn(),
     } as unknown as Response;
 
     const mockStaff = { id: '1', name: 'John Doe', email: 'john@doe.com' };
-    vi.mocked(StaffService.getStaffById).mockResolvedValue(mockStaff as any);
+    jest.spyOn(StaffService, 'getStaffById').mockResolvedValue(mockStaff as any);
 
     await StaffController.getStaffById(req, res);
 

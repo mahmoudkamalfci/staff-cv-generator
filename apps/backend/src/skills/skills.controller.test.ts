@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { SkillsController } from './skills.controller.js';
 import { SkillsService } from './skills.service.js';
 import { Request, Response } from 'express';
 
-vi.mock('./skills.service.js');
 
 describe('SkillsController', () => {
   it('should get skills by staff id', async () => {
@@ -12,11 +11,11 @@ describe('SkillsController', () => {
     } as unknown as Request;
 
     const res = {
-      json: vi.fn(),
+      json: jest.fn(),
     } as unknown as Response;
 
     const mockSkills = [{ id: '1', name: 'TypeScript', level: 'Expert', staffId: '1' }];
-    vi.mocked(SkillsService.getSkillsByStaffId).mockResolvedValue(mockSkills as any);
+    jest.spyOn(SkillsService, 'getSkillsByStaffId').mockResolvedValue(mockSkills as any);
 
     await SkillsController.getSkillsByStaffId(req, res);
 
@@ -31,12 +30,12 @@ describe('SkillsController', () => {
     } as unknown as Request;
 
     const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
     } as unknown as Response;
 
     const mockSkill = { id: '1', name: 'TypeScript', level: 'Expert', staffId: '1' };
-    vi.mocked(SkillsService.createSkill).mockResolvedValue(mockSkill as any);
+    jest.spyOn(SkillsService, 'createSkill').mockResolvedValue(mockSkill as any);
 
     await SkillsController.createSkill(req, res);
 
@@ -51,9 +50,11 @@ describe('SkillsController', () => {
     } as unknown as Request;
 
     const res = {
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn(),
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
     } as unknown as Response;
+
+    jest.spyOn(SkillsService, 'deleteSkill').mockResolvedValue(undefined as any);
 
     await SkillsController.deleteSkill(req, res);
 

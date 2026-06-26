@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { TemplatesController } from './templates.controller.js';
 import { TemplatesService } from './templates.service.js';
 import { Request, Response } from 'express';
 
-vi.mock('./templates.service.js');
 
 describe('TemplatesController', () => {
   it('should create template', async () => {
@@ -12,11 +11,11 @@ describe('TemplatesController', () => {
     } as unknown as Request;
 
     const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
     } as unknown as Response;
 
-    vi.mocked(TemplatesService.createTemplate).mockResolvedValue({ id: '1' } as any);
+    jest.spyOn(TemplatesService, 'createTemplate').mockResolvedValue({ id: '1' } as any);
 
     await TemplatesController.createTemplate(req, res);
 

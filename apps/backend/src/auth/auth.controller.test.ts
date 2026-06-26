@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
-vi.mock('./auth.service.js');
 
 describe('AuthController', () => {
   it('should login successfully', async () => {
@@ -12,12 +11,12 @@ describe('AuthController', () => {
     } as Request;
 
     const res = {
-      cookie: vi.fn(),
-      json: vi.fn(),
-      status: vi.fn().mockReturnThis(),
+      cookie: jest.fn(),
+      json: jest.fn(),
+      status: jest.fn().mockReturnThis(),
     } as unknown as Response;
 
-    vi.mocked(AuthService.login).mockResolvedValue({
+    jest.spyOn(AuthService, 'login').mockResolvedValue({
       user: { id: '1', email: 'test@example.com', role: 'ADMIN' },
       accessToken: 'access_token',
       refreshToken: 'refresh_token',

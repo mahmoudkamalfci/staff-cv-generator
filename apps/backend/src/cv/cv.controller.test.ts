@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { CvController } from './cv.controller.js';
 import { CvService } from './cv.service.js';
 import { Request, Response } from 'express';
 
-vi.mock('./cv.service.js');
 
 describe('CvController', () => {
   it('should generate cv', async () => {
@@ -13,10 +12,10 @@ describe('CvController', () => {
     } as unknown as Request;
 
     const res = {
-      json: vi.fn(),
+      json: jest.fn(),
     } as unknown as Response;
 
-    vi.mocked(CvService.generateCv).mockResolvedValue({ generatedCV: { id: '3' } } as any);
+    jest.spyOn(CvService, 'generateCv').mockResolvedValue({ generatedCV: { id: '3' } } as any);
 
     await CvController.generateCv(req, res);
 

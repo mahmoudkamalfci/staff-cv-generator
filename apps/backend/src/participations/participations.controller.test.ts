@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest, describe, it, expect } from '@jest/globals';
 import { ParticipationsController } from './participations.controller.js';
 import { ParticipationsService } from './participations.service.js';
 import { Request, Response } from 'express';
 
-vi.mock('./participations.service.js');
 
 describe('ParticipationsController', () => {
   it('should create participation', async () => {
@@ -13,11 +12,11 @@ describe('ParticipationsController', () => {
     } as unknown as Request;
 
     const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
     } as unknown as Response;
 
-    vi.mocked(ParticipationsService.createParticipation).mockResolvedValue({ id: '1' } as any);
+    jest.spyOn(ParticipationsService, 'createParticipation').mockResolvedValue({ id: '1' } as any);
 
     await ParticipationsController.createParticipation(req, res);
 
