@@ -34,15 +34,14 @@ function StatCard({ title, value, icon: Icon, color, to, isLoading }: StatCardPr
             <Icon className="w-6 h-6" />
           </div>
         </div>
-        <Link to={to}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-4 text-xs text-muted-foreground hover:text-foreground px-0"
-          >
-            View all →
-          </Button>
-        </Link>
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="mt-4 text-xs text-muted-foreground hover:text-foreground px-0"
+        >
+          <Link to={to}>View all →</Link>
+        </Button>
       </CardContent>
     </Card>
   );
@@ -105,9 +104,9 @@ export default function DashboardPage() {
             Select a staff member and a template to generate a professional CV for your next
             proposal.
           </p>
-          <Link to="/cv">
-            <Button variant="accent">Open CV Generator</Button>
-          </Link>
+          <Button asChild variant="accent">
+            <Link to="/cv">Open CV Generator</Link>
+          </Button>
         </CardContent>
       </Card>
     </div>
