@@ -37,3 +37,9 @@ staffRouter.post(
   upload.single('photo'),
   asyncHandler(StaffController.uploadPhoto),
 );
+staffRouter.post(
+  '/:id/reset-password',
+  requireAuth,
+  requireAdmin,
+  asyncHandler(StaffController.resetPassword),
+);

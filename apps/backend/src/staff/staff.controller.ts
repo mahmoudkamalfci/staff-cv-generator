@@ -46,4 +46,12 @@ export class StaffController {
       throw error;
     }
   }
+
+  static async resetPassword(req: Request, res: Response) {
+    const { password } = req.body;
+    if (!password) throw new AppError(400, 'Password is required');
+    
+    await StaffService.resetPassword(req.params.id as string, password);
+    res.json({ message: 'Password reset successfully' });
+  }
 }
