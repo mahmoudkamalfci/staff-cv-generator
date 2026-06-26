@@ -38,16 +38,46 @@ export class ProjectsService {
   }
 
   static async createProject(data: any) {
-    return prisma.project.create({ data });
+    const { participations, ...projectData } = data;
+    
+    return prisma.project.create({ 
+      data: {
+        ...projectData,
+        ...(participations && participations.length > 0 ? {
+          participations: {
+            create: participations
+          }
+        } : {})
+      }
+    });
   }
 
   static async updateProject(id: string, data: any) {
     const project = await prisma.project.findUnique({ where: { id } });
     if (!project) throw new AppError(404, 'Project not found');
 
+    const { participations, ...projectData } = data;
+
+    if (participations) {
+      // Use transaction to replace participations
+      const [updatedProject] = await prisma.$transaction([
+        prisma.project.update({
+          where: { id },
+          data: {
+            ...projectData,
+            participations: {
+              deleteMany: {}, // Delete existing
+              create: participations // Create new ones
+            }
+          }
+        })
+      ]);
+      return updatedProject;
+    }
+
     return prisma.project.update({
       where: { id },
-      data,
+      data: projectData,
     });
   }
 

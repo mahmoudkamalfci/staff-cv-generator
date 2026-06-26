@@ -26,4 +26,38 @@ describe('ProjectsService', () => {
       expect(result).toEqual({ id: '1' });
     });
   });
+
+  describe('createProject', () => {
+    it('creates a project with participations', async () => {
+      const data = {
+        name: 'New Project',
+        description: 'Test',
+        client: 'Client',
+        location: 'Location',
+        startDate: '2026-01-01',
+        technologies: ['React'],
+        participations: [
+          { staffId: '123e4567-e89b-12d3-a456-426614174000', role: 'Dev', responsibilities: 'Coding' }
+        ]
+      };
+      
+      // mock prisma.project.create
+      jest.spyOn(prisma.project, 'create').mockResolvedValue({ id: 'proj-1', ...data } as any);
+      
+      const result = await ProjectsService.createProject(data);
+      expect(prisma.project.create).toHaveBeenCalledWith({
+        data: {
+          name: 'New Project',
+          description: 'Test',
+          client: 'Client',
+          location: 'Location',
+          startDate: '2026-01-01',
+          technologies: ['React'],
+          participations: {
+            create: data.participations
+          }
+        }
+      });
+    });
+  });
 });
