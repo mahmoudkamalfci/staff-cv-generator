@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import type { CVTemplate, Staff } from '@cv-generator/shared';
 
 export default function CVGeneratorPage() {
   const { data: staff, isLoading: staffLoading } = useStaffList();
@@ -24,8 +25,8 @@ export default function CVGeneratorPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const navigate = useNavigate();
 
-  const selectedStaff = staff?.find((s) => s.id === selectedStaffId);
-  const selectedTemplate = templates?.find((t) => t.id === selectedTemplateId);
+  const selectedStaff = staff?.find((s: Staff) => s.id === selectedStaffId);
+  const selectedTemplate = templates?.find((t: CVTemplate) => t.id === selectedTemplateId);
 
   const handleGenerate = () => {
     if (selectedStaffId && selectedTemplateId) {
@@ -53,13 +54,15 @@ export default function CVGeneratorPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Label htmlFor="staff-select" className="sr-only">Select Staff Member</Label>
+          <Label htmlFor="staff-select" className="sr-only">
+            Select Staff Member
+          </Label>
           <Select onValueChange={setSelectedStaffId} disabled={staffLoading}>
             <SelectTrigger id="staff-select">
               <SelectValue placeholder={staffLoading ? 'Loading…' : 'Choose a staff member'} />
             </SelectTrigger>
             <SelectContent>
-              {staff?.map((s) => (
+              {staff?.map((s: Staff) => (
                 <SelectItem key={s.id} value={s.id}>
                   <div className="flex items-center gap-2">
                     <span>{s.name}</span>
@@ -105,7 +108,7 @@ export default function CVGeneratorPage() {
             {templatesLoading ? (
               <p className="text-muted-foreground text-sm">Loading templates…</p>
             ) : (
-              templates?.map((template) => (
+              templates?.map((template: CVTemplate) => (
                 <button
                   key={template.id}
                   type="button"

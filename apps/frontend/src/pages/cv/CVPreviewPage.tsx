@@ -72,7 +72,6 @@ function DownloadButton({ staffId, templateId }: { staffId: string; templateId: 
       const CVDocumentComponent = CVDocumentMod.default;
 
       const blob = await pdf(
-        // @ts-ignore — dynamic import renders fine at runtime
         <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />,
       ).toBlob();
 
