@@ -1,15 +1,17 @@
 import { z } from 'zod';
-import { StaffSchema } from './staff.js';
-import { SkillSchema } from './skill.js';
-import { ParticipationWithProjectSchema } from './participation.js';
+import { StaffWithSkillsSchema } from './staff.js';
 import { CVTemplateSchema } from './template.js';
 
 export const CVDataSchema = z.object({
-  staff: StaffSchema,
-  skills: z.array(SkillSchema),
-  participations: z.array(ParticipationWithProjectSchema),
+  staff: StaffWithSkillsSchema,
   template: CVTemplateSchema,
-  generatedAt: z.string().datetime(),
+  generatedCV: z.object({
+    id: z.string().uuid(),
+    staffId: z.string().uuid(),
+    templateId: z.string().uuid(),
+    generatedBy: z.string().uuid(),
+    generatedAt: z.string().datetime(),
+  }),
 });
 
 export type CVData = z.infer<typeof CVDataSchema>;

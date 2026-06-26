@@ -2,6 +2,7 @@
 // All other files that need PDF rendering must lazy-load this component.
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer';
 import type { CVData, TemplateConfig, SectionConfig } from '@cv-generator/shared';
+import { useMemo } from 'react';
 
 interface Props {
   data: CVData;
@@ -96,7 +97,7 @@ function HeaderSection({ data, styles }: { data: CVData; styles: ReturnType<type
   const { staff } = data;
   return (
     <View style={styles.headerBox}>
-      {staff.photoUrl && <Image style={styles.headerPhoto} src={staff.photoUrl} />}
+      {staff.photoUrl ? <Image style={styles.headerPhoto} src={staff.photoUrl} /> : null}
       <View>
         <Text style={styles.headerName}>{staff.name || ''}</Text>
         <Text style={styles.headerTitle}>{staff.jobTitle || ''}</Text>
@@ -134,7 +135,7 @@ function SkillsSection({
   label: string;
   styles: ReturnType<typeof makeStyles>;
 }) {
-  const skills = data.skills || [];
+  const skills = data.staff.skills || [];
   return (
     <View>
       <Text style={styles.sectionHeading}>{label || ''}</Text>
@@ -153,6 +154,13 @@ function SkillsSection({
   );
 }
 
+const formatDate = (d: string | null | undefined, fallback = 'Present') => {
+  if (!d) return fallback;
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+};
+
 function ExperienceSection({
   data,
   label,
@@ -162,14 +170,7 @@ function ExperienceSection({
   label: string;
   styles: ReturnType<typeof makeStyles>;
 }) {
-  const formatDate = (d: string | null | undefined, fallback = 'Present') => {
-    if (!d) return fallback;
-    const date = new Date(d);
-    if (isNaN(date.getTime())) return '';
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
-  };
-
-  const participations = data.participations || [];
+  const participations = data.staff.participations || [];
 
   return (
     <View>
@@ -214,7 +215,7 @@ function CustomSection({
   return (
     <View>
       <Text style={styles.sectionHeading}>{section.label || ''}</Text>
-      {section.content && <Text style={styles.customText}>{section.content || ''}</Text>}
+      {section.content ? <Text style={styles.customText}>{section.content || ''}</Text> : null}
     </View>
   );
 }
@@ -275,16 +276,16 @@ function TwoColumnLayout({
 
   return (
     <View style={styles.body}>
-      {sidebarSections.length > 0 && (
+      {sidebarSections.length > 0 ? (
         <View style={styles.sideCol}>
           {sidebarSections.map((s) => renderSection(s, data, styles))}
         </View>
-      )}
-      {mainSections.length > 0 && (
+      ) : null}
+      {mainSections.length > 0 ? (
         <View style={styles.mainCol}>
           {mainSections.map((s) => renderSection(s, data, styles))}
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -308,36 +309,39 @@ function ThreeColumnLayout({
 
   return (
     <View style={styles.threeColBody}>
-      {col1.length > 0 && (
+      {col1.length > 0 ? (
         <View style={styles.threeColSide}>{col1.map((s) => renderSection(s, data, styles))}</View>
-      )}
-      {col2.length > 0 && (
+      ) : null}
+      {col2.length > 0 ? (
         <View style={styles.threeColMain}>{col2.map((s) => renderSection(s, data, styles))}</View>
-      )}
-      {col3.length > 0 && (
+      ) : null}
+      {col3.length > 0 ? (
         <View style={styles.threeColSide}>{col3.map((s) => renderSection(s, data, styles))}</View>
-      )}
+      ) : null}
     </View>
   );
 }
 
 // --- Main CVDocument export ---
 export default function CVDocument({ data, config }: Props) {
-  const styles = makeStyles(config.primaryColor, config.accentColor);
+  const styles = useMemo(
+    () => makeStyles(config.primaryColor, config.accentColor),
+    [config.primaryColor, config.accentColor]
+  );
 
   return (
     <Document title={`${data.staff.name} — CV`} author="CV Generator">
       <Page size="A4" style={styles.page}>
         <HeaderSection data={data} styles={styles} />
-        {config.baseLayout === 'one-column' && (
+        {config.baseLayout === 'one-column' ? (
           <OneColumnLayout data={data} config={config} styles={styles} />
-        )}
-        {config.baseLayout === 'two-column' && (
+        ) : null}
+        {config.baseLayout === 'two-column' ? (
           <TwoColumnLayout data={data} config={config} styles={styles} />
-        )}
-        {config.baseLayout === 'three-column' && (
+        ) : null}
+        {config.baseLayout === 'three-column' ? (
           <ThreeColumnLayout data={data} config={config} styles={styles} />
-        )}
+        ) : null}
       </Page>
     </Document>
   );

@@ -1,55 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Download, Loader2 } from 'lucide-react';
-import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, lazy } from 'react';
 import type { CVData } from '@cv-generator/shared';
-import { usePDF } from '@react-pdf/renderer';
 
-import CVDocument from '@/components/cv-templates/CVDocument';
+const CVContent = lazy(() => import('@/components/cv-templates/CVContent'));
 
-// CVContent suspends while CV data loads — toolbar renders immediately
-function CVContent({ staffId, templateId }: { staffId: string; templateId: string }) {
-  const { data } = useSuspenseQuery<CVData>({
-    queryKey: ['cv', staffId, templateId],
-    queryFn: () =>
-      api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data),
-  });
-
-  const [instance, updateInstance] = usePDF({
-    document: <CVDocument data={data} config={data.template.config} />,
-  });
-
-  useEffect(() => {
-    updateInstance();
-  }, [data, updateInstance]);
-
-  if (instance.loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
-      </div>
-    );
-  }
-
-  if (instance.error) {
-    return (
-      <div className="flex items-center justify-center py-20 text-red-500">
-        Error generating PDF: {String(instance.error)}
-      </div>
-    );
-  }
-
-  return (
-    <iframe
-      src={instance.url || undefined}
-      width="100%"
-      height="100%"
-      style={{ minHeight: '80vh', border: 'none' }}
-    />
-  );
-}
+const SPACES_REGEX = /\s+/g;
 
 function DownloadButton({ staffId, templateId }: { staffId: string; templateId: string }) {
   const [loading, setLoading] = useState(false);
@@ -67,9 +26,10 @@ function DownloadButton({ staffId, templateId }: { staffId: string; templateId: 
         throw new Error('Failed to retrieve CV data');
       }
 
-      const { pdf } = await import('@react-pdf/renderer');
-      const CVDocumentMod = await import('@/components/cv-templates/CVDocument');
-      const CVDocumentComponent = CVDocumentMod.default;
+      const [{ pdf }, { default: CVDocumentComponent }] = await Promise.all([
+        import('@react-pdf/renderer'),
+        import('@/components/cv-templates/CVDocument'),
+      ]);
 
       const blob = await pdf(
         <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />,
@@ -78,7 +38,7 @@ function DownloadButton({ staffId, templateId }: { staffId: string; templateId: 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${cvResponse.staff.name.replace(/\s+/g, '_')}-CV.pdf`;
+      a.download = `${cvResponse.staff.name.replace(SPACES_REGEX, '_')}-CV.pdf`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {

@@ -20,36 +20,36 @@ const SAMPLE_DATA: CVData = {
     userId: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  },
-  skills: [
-    { id: '1', staffId: 'sample', name: 'React', level: 'expert' },
-    { id: '2', staffId: 'sample', name: 'TypeScript', level: 'advanced' },
-    { id: '3', staffId: 'sample', name: 'Node.js', level: 'advanced' },
-    { id: '4', staffId: 'sample', name: 'PostgreSQL', level: 'intermediate' },
-    { id: '5', staffId: 'sample', name: 'Docker', level: 'intermediate' },
-  ],
-  participations: [
-    {
-      id: '1',
-      staffId: 'sample',
-      projectId: 'p1',
-      role: 'Lead Frontend Engineer',
-      responsibilities:
-        'Led the migration from a legacy monolith to a React microfrontend architecture. Defined component standards and improved page load times by 40%.',
-      project: {
-        id: 'p1',
-        name: 'E-Commerce Platform Relaunch',
-        description: 'Full relaunch of core platform',
-        client: 'RetailCorp GmbH',
-        location: 'Berlin, Germany',
-        startDate: '2023-01-01T00:00:00Z',
-        endDate: '2023-12-31T00:00:00Z',
-        technologies: ['React', 'TypeScript', 'GraphQL', 'AWS'],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+    skills: [
+      { id: '1', staffId: 'sample', name: 'React', level: 'expert' },
+      { id: '2', staffId: 'sample', name: 'TypeScript', level: 'advanced' },
+      { id: '3', staffId: 'sample', name: 'Node.js', level: 'advanced' },
+      { id: '4', staffId: 'sample', name: 'PostgreSQL', level: 'intermediate' },
+      { id: '5', staffId: 'sample', name: 'Docker', level: 'intermediate' },
+    ],
+    participations: [
+      {
+        id: '1',
+        staffId: 'sample',
+        projectId: 'p1',
+        role: 'Lead Frontend Engineer',
+        responsibilities:
+          'Led the migration from a legacy monolith to a React microfrontend architecture. Defined component standards and improved page load times by 40%.',
+        project: {
+          id: 'p1',
+          name: 'E-Commerce Platform Relaunch',
+          description: 'Full relaunch of core platform',
+          client: 'RetailCorp GmbH',
+          location: 'Berlin, Germany',
+          startDate: '2023-01-01T00:00:00Z',
+          endDate: '2023-12-31T00:00:00Z',
+          technologies: ['React', 'TypeScript', 'GraphQL', 'AWS'],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
       },
-    },
-  ],
+    ],
+  },
   template: {
     id: 'preview',
     name: 'Preview',
@@ -60,7 +60,13 @@ const SAMPLE_DATA: CVData = {
     config: {} as TemplateConfig, // overridden by prop
     createdAt: new Date().toISOString(),
   },
-  generatedAt: new Date().toISOString(),
+  generatedCV: {
+    id: 'sample',
+    staffId: 'sample',
+    templateId: 'preview',
+    generatedBy: 'sample',
+    generatedAt: new Date().toISOString(),
+  }
 };
 
 interface Props {
