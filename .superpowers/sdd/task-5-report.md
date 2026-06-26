@@ -44,3 +44,4 @@
 - Replaced standard browser `alert()` with `useToast` notifications on save failure.
 - Updated main header to `<h1>` with `id="wizard-title"`.
 - Added unique action button IDs: `id="cancel-btn"`, `id="back-btn"`, `id="next-btn"`, and `id="save-btn"`.
+- Fixed background query refetch reset issue by introducing an `isInitialized` state variable that blocks subsequent React Query updates from overwriting user changes in the form.

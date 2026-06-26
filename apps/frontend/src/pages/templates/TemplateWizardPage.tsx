@@ -41,6 +41,7 @@ export default function TemplateWizardPage() {
     accentColor: '#475569',
     sections: DEFAULT_SECTIONS,
   });
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
@@ -53,12 +54,13 @@ export default function TemplateWizardPage() {
   }, [user, navigate, toast]);
 
   useEffect(() => {
-    if (existingTemplate) {
+    if (existingTemplate && !isInitialized) {
       setTemplateName(existingTemplate.name);
       setTemplateDescription(existingTemplate.description ?? '');
       setDraftConfig(existingTemplate.config as TemplateConfig);
+      setIsInitialized(true);
     }
-  }, [existingTemplate]);
+  }, [existingTemplate, isInitialized]);
 
   if (!user || user.role !== 'admin') {
     return null;
