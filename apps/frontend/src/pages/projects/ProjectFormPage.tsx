@@ -231,7 +231,7 @@ export default function ProjectFormPage() {
             {/* Participations */}
             <div className="space-y-4 pt-4 border-t border-border">
               <div className="flex justify-between items-center">
-                <Label className="text-base">Assigned Staff</Label>
+                <h3 className="text-lg font-medium">Assigned Staff</h3>
                 <Button
                   type="button"
                   variant="outline"

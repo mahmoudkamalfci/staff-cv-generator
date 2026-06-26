@@ -1,5 +1,6 @@
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../middleware/errorHandler.js';
+import { CreateProjectInput, UpdateProjectInput } from '@cv-generator/shared';
 
 export class ProjectsService {
   static async getProjects(page: number, limit: number) {
@@ -37,7 +38,7 @@ export class ProjectsService {
     return project;
   }
 
-  static async createProject(data: any) {
+  static async createProject(data: CreateProjectInput) {
     const { participations, ...projectData } = data;
     
     return prisma.project.create({ 
@@ -52,27 +53,24 @@ export class ProjectsService {
     });
   }
 
-  static async updateProject(id: string, data: any) {
+  static async updateProject(id: string, data: UpdateProjectInput) {
     const project = await prisma.project.findUnique({ where: { id } });
     if (!project) throw new AppError(404, 'Project not found');
 
     const { participations, ...projectData } = data;
 
     if (participations) {
-      // Use transaction to replace participations
-      const [updatedProject] = await prisma.$transaction([
-        prisma.project.update({
-          where: { id },
-          data: {
-            ...projectData,
-            participations: {
-              deleteMany: {}, // Delete existing
-              create: participations // Create new ones
-            }
+      // Use nested writes to replace participations
+      return prisma.project.update({
+        where: { id },
+        data: {
+          ...projectData,
+          participations: {
+            deleteMany: {}, // Delete existing
+            create: participations // Create new ones
           }
-        })
-      ]);
-      return updatedProject;
+        }
+      });
     }
 
     return prisma.project.update({

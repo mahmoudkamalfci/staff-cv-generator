@@ -60,4 +60,29 @@ describe('ProjectsService', () => {
       });
     });
   });
+  describe('updateProject', () => {
+    it('updates a project with participations', async () => {
+      const data = {
+        name: 'Updated Project',
+        participations: [
+          { staffId: '123e4567-e89b-12d3-a456-426614174000', role: 'Dev', responsibilities: 'Coding' }
+        ]
+      };
+      
+      jest.spyOn(prisma.project, 'findUnique').mockResolvedValue({ id: 'proj-1' } as any);
+      jest.spyOn(prisma.project, 'update').mockResolvedValue({ id: 'proj-1', ...data } as any);
+      
+      await ProjectsService.updateProject('proj-1', data);
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: 'proj-1' },
+        data: {
+          name: 'Updated Project',
+          participations: {
+            deleteMany: {},
+            create: data.participations
+          }
+        }
+      });
+    });
+  });
 });
