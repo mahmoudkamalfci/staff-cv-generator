@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Loader2, LayoutTemplate } from 'lucide-react';
+import { FileText, LayoutTemplate } from 'lucide-react';
 import { useStaffList } from '@/hooks/useStaff';
 import { useTemplateList } from '@/hooks/useTemplates';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -108,6 +108,7 @@ export default function CVGeneratorPage() {
               templates?.map((template) => (
                 <button
                   key={template.id}
+                  type="button"
                   onClick={() => setSelectedTemplateId(template.id)}
                   role="radio"
                   aria-checked={selectedTemplateId === template.id}
