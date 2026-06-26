@@ -55,6 +55,8 @@ export default function StaffFormPage() {
     resolver: zodResolver(CreateStaffSchema),
     values: existing
       ? {
+          email: '',
+          password: '',
           name: existing.name,
           jobTitle: existing.jobTitle,
           yearsExperience: existing.yearsExperience,
@@ -68,6 +70,8 @@ export default function StaffFormPage() {
             })) || [],
         }
       : {
+          email: '',
+          password: '',
           name: '',
           jobTitle: '',
           yearsExperience: 0,

@@ -6,6 +6,7 @@ import type {
   CreateStaffInput,
   UpdateStaffInput,
   CreateSkillInput,
+  ResetPasswordInput,
 } from '@cv-generator/shared';
 
 export const staffKeys = {
@@ -98,5 +99,14 @@ export function useStaffParticipations(staffId: string) {
     queryKey: ['staff', staffId, 'participations'],
     queryFn: () => api.get(`/staff/${staffId}/participations`).then((r) => r.data),
     enabled: !!staffId,
+  });
+}
+
+export function useResetPassword(id: string) {
+  return useMutation({
+    mutationFn: async (data: ResetPasswordInput) => {
+      const response = await api.post(`/staff/${id}/reset-password`, data);
+      return response.data;
+    },
   });
 }

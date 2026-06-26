@@ -34,7 +34,8 @@ export default function ProjectFormPage() {
   const [techInput, setTechInput] = useState('');
 
   const existingTechs = (existing?.technologies as string[] | undefined) ?? [];
-  const existingParticipations = (existing as unknown as { participations?: Participation[] })?.participations ?? [];
+  const existingParticipations =
+    (existing as unknown as { participations?: Participation[] })?.participations ?? [];
 
   const {
     register,
@@ -51,8 +52,8 @@ export default function ProjectFormPage() {
           description: existing.description,
           client: existing.client,
           location: existing.location,
-          startDate: String(existing.startDate).split('T')[0],
-          endDate: existing.endDate ? String(existing.endDate).split('T')[0] : null,
+          startDate: String(existing.startDate).split('T')[0] ?? '',
+          endDate: existing.endDate ? String(existing.endDate).split('T')[0] ?? null : null,
           technologies: existingTechs,
           participations: existingParticipations.map((p: Participation) => ({
             staffId: p.staffId,
