@@ -36,6 +36,7 @@
   "devDependencies": {
     "@cv-generator/config": "workspace:*",
     "@faker-js/faker": "^10.5.0",
+    "@jest/globals": "^30.4.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",

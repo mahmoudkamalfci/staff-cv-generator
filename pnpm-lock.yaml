@@ -75,6 +75,9 @@ importers:
       '@faker-js/faker':
         specifier: ^10.5.0
         version: 10.5.0
+      '@jest/globals':
+        specifier: ^30.4.1
+        version: 30.4.1
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
