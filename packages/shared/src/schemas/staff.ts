@@ -23,6 +23,15 @@ export const CreateStaffSchema = z.object({
   jobTitle: z.string().min(1, 'Job title is required').max(200),
   yearsExperience: z.number().int().min(0).max(60),
   summary: z.string().min(1, 'Summary is required').max(2000),
+  skills: z.array(z.object({
+    name: z.string().min(1),
+    level: z.enum(['beginner', 'intermediate', 'advanced', 'expert']),
+  })).optional(),
+  participations: z.array(z.object({
+    projectId: z.string().uuid(),
+    role: z.string().min(1),
+    responsibilities: z.string().min(1),
+  })).optional(),
 });
 
 export const UpdateStaffSchema = CreateStaffSchema.partial();
