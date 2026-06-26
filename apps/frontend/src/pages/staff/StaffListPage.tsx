@@ -27,8 +27,17 @@ export default function StaffListPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Remove ${name} from the system?`)) return;
-    await deleteStaff.mutateAsync(id);
-    toast({ title: `${name} removed` });
+    try {
+      await deleteStaff.mutateAsync(id);
+      toast({ title: `${name} removed` });
+    } catch (err) {
+      console.error('Failed to delete staff member:', err);
+      toast({
+        title: 'Delete failed',
+        description: 'An error occurred while deleting the staff member.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (

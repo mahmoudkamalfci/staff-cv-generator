@@ -57,22 +57,40 @@ export default function StaffFormPage() {
   });
 
   const onSubmit = async (data: CreateStaffInput) => {
-    if (isEdit) {
-      await updateStaff.mutateAsync(data);
-      toast({ title: 'Profile updated' });
-      navigate(`/staff/${id}`);
-    } else {
-      const created = await createStaff.mutateAsync(data);
-      toast({ title: 'Staff member added' });
-      navigate(`/staff/${created.id}`);
+    try {
+      if (isEdit) {
+        await updateStaff.mutateAsync(data);
+        toast({ title: 'Profile updated' });
+        navigate(`/staff/${id}`);
+      } else {
+        const created = await createStaff.mutateAsync(data);
+        toast({ title: 'Staff member added' });
+        navigate(`/staff/${created.id}`);
+      }
+    } catch (err) {
+      console.error('Failed to save staff profile:', err);
+      toast({
+        title: 'Failed to save profile',
+        description: 'Please check your inputs and try again.',
+        variant: 'destructive',
+      });
     }
   };
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !id) return;
-    await uploadPhoto.mutateAsync(file);
-    toast({ title: 'Photo updated' });
+    try {
+      await uploadPhoto.mutateAsync(file);
+      toast({ title: 'Photo updated' });
+    } catch (err) {
+      console.error('Failed to upload photo:', err);
+      toast({
+        title: 'Photo upload failed',
+        description: 'Make sure the image is under 5MB.',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (!user || user.role !== 'admin') {

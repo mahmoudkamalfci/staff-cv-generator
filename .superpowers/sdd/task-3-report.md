@@ -81,3 +81,9 @@
 4. **StaffDetailPage Template Select Accessibility:**
    - Imported and added `<Label htmlFor="template-select" className="text-xs">Template</Label>` above the template Select.
    - Associated it by setting `id="template-select"` on the `<SelectTrigger>`.
+
+5. **Mutation Error Handling and Controlled Select Component Fixes:**
+   - Wrapped `updateStaff.mutateAsync` and `createStaff.mutateAsync` in `onSubmit` in a `try/catch` block on `StaffFormPage.tsx`, displaying a destructive toast on failure.
+   - Wrapped `uploadPhoto.mutateAsync` in `handlePhotoChange` in a `try/catch` block on `StaffFormPage.tsx`, displaying a destructive toast on failure.
+   - Wrapped `deleteStaff.mutateAsync` in `handleDelete` in a `try/catch` block on `StaffListPage.tsx`, displaying a destructive toast on failure.
+   - Controlled the `<Select>` component in `SkillsManager.tsx` by binding `value` to `levelValue` (watched from `useForm`), so that it visually resets when `reset()` is called.

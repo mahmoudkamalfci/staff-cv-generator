@@ -33,11 +33,14 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<CreateSkillInput>({
     resolver: zodResolver(CreateSkillSchema),
   });
+
+  const levelValue = watch('level');
 
   const onSubmit = async (data: CreateSkillInput) => {
     try {
@@ -104,7 +107,10 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
             <Label htmlFor="skill-level" className="text-xs">
               Level
             </Label>
-            <Select onValueChange={(v) => setValue('level', v as CreateSkillInput['level'], { shouldValidate: true })}>
+            <Select
+              value={levelValue || ''}
+              onValueChange={(v) => setValue('level', v as CreateSkillInput['level'], { shouldValidate: true })}
+            >
               <SelectTrigger id="skill-level" className="h-8 w-36">
                 <SelectValue placeholder="Level" />
               </SelectTrigger>
