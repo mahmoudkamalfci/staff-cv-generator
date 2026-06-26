@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Download, Loader2, LayoutTemplate } from 'lucide-react';
+import { FileText, Loader2, LayoutTemplate } from 'lucide-react';
 import { useStaffList } from '@/hooks/useStaff';
 import { useTemplateList } from '@/hooks/useTemplates';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -15,56 +15,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
-import { api } from '@/lib/api';
-import type { CVData } from '@cv-generator/shared';
+import { Label } from '@/components/ui/label';
 
 export default function CVGeneratorPage() {
   const { data: staff, isLoading: staffLoading } = useStaffList();
   const { data: templates, isLoading: templatesLoading } = useTemplateList();
   const [selectedStaffId, setSelectedStaffId] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
-  const [downloading, setDownloading] = useState(false);
   const navigate = useNavigate();
 
   const selectedStaff = staff?.find((s) => s.id === selectedStaffId);
   const selectedTemplate = templates?.find((t) => t.id === selectedTemplateId);
 
-  const canGenerate = !!selectedStaffId && !!selectedTemplateId;
-
-  const handlePreview = () => {
-    if (canGenerate) {
+  const handleGenerate = () => {
+    if (selectedStaffId && selectedTemplateId) {
       navigate(`/cv/preview/${selectedStaffId}/${selectedTemplateId}`);
-    }
-  };
-
-  const handleDownload = async () => {
-    if (!canGenerate) return;
-    setDownloading(true);
-    try {
-      const cvResponse = await api
-        .get<{ data: CVData }>(`/cv/${selectedStaffId}/${selectedTemplateId}`)
-        .then((r) => r.data.data);
-
-      const { pdf } = await import('@react-pdf/renderer');
-      const CVDocumentMod = await import('@/components/cv-templates/CVDocument');
-      const CVDocumentComponent = CVDocumentMod.default;
-
-      const blob = await pdf(
-        // @ts-ignore — JSX in dynamic import context
-        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />,
-      ).toBlob();
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${cvResponse.staff.name.replace(/\s+/g, '_')}-CV.pdf`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 100);
-    } catch (err) {
-      console.error('PDF generation failed:', err);
-      alert('PDF generation failed. Please try again.');
-    } finally {
-      setDownloading(false);
     }
   };
 
@@ -88,8 +53,9 @@ export default function CVGeneratorPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <Label htmlFor="staff-select" className="sr-only">Select Staff Member</Label>
           <Select onValueChange={setSelectedStaffId} disabled={staffLoading}>
-            <SelectTrigger>
+            <SelectTrigger id="staff-select">
               <SelectValue placeholder={staffLoading ? 'Loading…' : 'Choose a staff member'} />
             </SelectTrigger>
             <SelectContent>
@@ -135,7 +101,7 @@ export default function CVGeneratorPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-3" role="radiogroup" aria-label="Select CV Template">
             {templatesLoading ? (
               <p className="text-muted-foreground text-sm">Loading templates…</p>
             ) : (
@@ -143,6 +109,8 @@ export default function CVGeneratorPage() {
                 <button
                   key={template.id}
                   onClick={() => setSelectedTemplateId(template.id)}
+                  role="radio"
+                  aria-checked={selectedTemplateId === template.id}
                   className={`text-left p-4 rounded-lg border-2 transition-all duration-150 ${
                     selectedTemplateId === template.id
                       ? 'border-accent bg-accent/5'
@@ -170,37 +138,19 @@ export default function CVGeneratorPage() {
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="flex gap-3">
-        <Button
-          variant="outline"
-          size="lg"
-          className="flex-1"
-          disabled={!canGenerate}
-          onClick={handlePreview}
-        >
-          <FileText className="w-5 h-5 mr-2" />
-          Preview CV
-        </Button>
-        <Button
-          variant="default"
-          size="lg"
-          className="flex-1"
-          disabled={!canGenerate || downloading}
-          onClick={handleDownload}
-        >
-          {downloading ? (
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-          ) : (
-            <Download className="w-5 h-5 mr-2" />
-          )}
-          {downloading
-            ? 'Generating…'
-            : selectedStaff && selectedTemplate
-              ? `Download ${selectedTemplate.name} CV`
-              : 'Download PDF'}
-        </Button>
-      </div>
+      {/* Generate */}
+      <Button
+        variant="accent"
+        size="lg"
+        className="w-full"
+        disabled={!selectedStaffId || !selectedTemplateId}
+        onClick={handleGenerate}
+      >
+        <FileText className="w-5 h-5 mr-2" />
+        {selectedStaff && selectedTemplate
+          ? `Generate ${selectedTemplate.name} CV for ${selectedStaff.name}`
+          : 'Generate CV'}
+      </Button>
     </div>
   );
 }
