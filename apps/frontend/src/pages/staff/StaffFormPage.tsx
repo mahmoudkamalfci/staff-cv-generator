@@ -9,13 +9,15 @@ import {
   useCreateStaff,
   useUpdateStaff,
   useUploadStaffPhoto,
+  useResetPassword,
 } from '@/hooks/useStaff';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectList } from '@/hooks/useProjects';
 import { Plus, Trash2 } from 'lucide-react';
@@ -47,6 +49,21 @@ export default function StaffFormPage() {
   const createStaff = useCreateStaff();
   const updateStaff = useUpdateStaff(id ?? '');
   const uploadPhoto = useUploadStaffPhoto(id ?? '');
+  const resetPasswordMutation = useResetPassword(id ?? '');
+
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+
+  const handleResetPassword = async () => {
+    try {
+      await resetPasswordMutation.mutateAsync({ password: newPassword });
+      toast({ title: 'Password reset successfully' });
+      setIsResetDialogOpen(false);
+      setNewPassword('');
+    } catch (error) {
+      toast({ title: 'Failed to reset password', variant: 'destructive' });
+    }
+  };
 
   const { data: projectsData } = useProjectList();
   const projects = projectsData || [];
@@ -60,6 +77,7 @@ export default function StaffFormPage() {
     resolver: zodResolver(isEdit ? UpdateStaffSchema : CreateStaffSchema),
     values: existing
       ? {
+          email: existing.user?.email || '',
           name: existing.name,
           jobTitle: existing.jobTitle,
           yearsExperience: existing.yearsExperience,
@@ -415,6 +433,44 @@ export default function StaffFormPage() {
               )}
             </Button>
             <p className="text-muted-foreground text-xs mt-2">JPG, PNG, or WebP. Max 5MB.</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {isEdit && (
+        <Card className="shadow-card mt-6 border-destructive/20">
+          <CardHeader>
+            <CardTitle className="text-base text-destructive">Security</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="destructive">Reset User Password</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Reset Password</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label>New Password</Label>
+                    <Input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleResetPassword}
+                    disabled={newPassword.length < 8 || resetPasswordMutation.isPending}
+                    className="w-full"
+                  >
+                    {resetPasswordMutation.isPending ? 'Resetting...' : 'Save New Password'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
       )}
