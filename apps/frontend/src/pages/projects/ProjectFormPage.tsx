@@ -1,9 +1,10 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Loader2, X, Plus } from 'lucide-react';
+import { ArrowLeft, Loader2, X, Plus, Trash2 } from 'lucide-react';
 import { CreateProjectSchema, type CreateProjectInput } from '@cv-generator/shared';
 import { useProjectDetail, useCreateProject, useUpdateProject } from '@/hooks/useProjects';
+import { useStaffList } from '@/hooks/useStaff';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,16 +20,19 @@ export default function ProjectFormPage() {
   const { data: existing, isLoading } = useProjectDetail(id ?? '');
   const createProject = useCreateProject();
   const updateProject = useUpdateProject(id ?? '');
+  const { data: staffList } = useStaffList();
 
   const [techInput, setTechInput] = useState('');
 
   const existingTechs = (existing?.technologies as string[] | undefined) ?? [];
+  const existingParticipations = existing?.participations ?? [];
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateProjectInput>({
     resolver: zodResolver(CreateProjectSchema),
@@ -41,6 +45,11 @@ export default function ProjectFormPage() {
           startDate: String(existing.startDate),
           endDate: existing.endDate ? String(existing.endDate) : null,
           technologies: existingTechs,
+          participations: existingParticipations.map(p => ({
+            staffId: p.staffId,
+            role: p.role,
+            responsibilities: p.responsibilities,
+          })),
         }
       : {
           name: '',
@@ -50,10 +59,16 @@ export default function ProjectFormPage() {
           startDate: '',
           endDate: null,
           technologies: [],
+          participations: [],
         },
   });
 
   const technologies = watch('technologies') || [];
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'participations',
+  });
 
   const addTech = () => {
     const t = techInput.trim();
@@ -203,6 +218,88 @@ export default function ProjectFormPage() {
               {errors.technologies && (
                 <p className="text-destructive text-xs">At least one technology is required</p>
               )}
+            </div>
+
+            {/* Participations */}
+            <div className="space-y-4 pt-4 border-t border-border">
+              <div className="flex justify-between items-center">
+                <Label className="text-base">Assigned Staff</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => append({ staffId: '', role: '', responsibilities: '' })}
+                >
+                  <Plus className="w-4 h-4 mr-2" /> Add Staff
+                </Button>
+              </div>
+
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex gap-4 items-start p-4 border border-border rounded-lg relative">
+                  <div className="flex-1 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor={`participations.${index}.staffId`}>Staff Member</Label>
+                      <select
+                        id={`participations.${index}.staffId`}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        {...register(`participations.${index}.staffId` as const)}
+                      >
+                        <option value="">Select Staff...</option>
+                        {staffList?.map((staff) => (
+                          <option key={staff.id} value={staff.id}>
+                            {staff.name} - {staff.jobTitle}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.participations?.[index]?.staffId && (
+                        <p className="text-destructive text-xs">
+                          {errors.participations[index]?.staffId?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor={`participations.${index}.role`}>Role</Label>
+                      <Input
+                        id={`participations.${index}.role`}
+                        placeholder="e.g. Lead Developer"
+                        {...register(`participations.${index}.role` as const)}
+                      />
+                      {errors.participations?.[index]?.role && (
+                        <p className="text-destructive text-xs">
+                          {errors.participations[index]?.role?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor={`participations.${index}.responsibilities`}>Responsibilities</Label>
+                      <textarea
+                        id={`participations.${index}.responsibilities`}
+                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="e.g. Architected the backend and managed deployments."
+                        {...register(`participations.${index}.responsibilities` as const)}
+                      />
+                      {errors.participations?.[index]?.responsibilities && (
+                        <p className="text-destructive text-xs">
+                          {errors.participations[index]?.responsibilities?.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive mt-6 hover:bg-destructive/10"
+                    onClick={() => remove(index)}
+                    aria-label="Remove staff assignment"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
