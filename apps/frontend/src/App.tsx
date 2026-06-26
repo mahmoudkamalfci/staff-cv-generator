@@ -19,6 +19,7 @@ const ProjectFormPage = lazy(() => import('@/pages/projects/ProjectFormPage'));
 const CVGeneratorPage = lazy(() => import('@/pages/cv/CVGeneratorPage'));
 const CVPreviewPage = lazy(() => import('@/pages/cv/CVPreviewPage'));
 const TemplatesPage = lazy(() => import('@/pages/templates/TemplatesPage'));
+const TemplateWizardPage = lazy(() => import('@/pages/templates/TemplateWizardPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,8 @@ export default function App() {
                 <Route path="/cv" element={<CVGeneratorPage />} />
                 <Route path="/cv/preview/:staffId/:templateId" element={<CVPreviewPage />} />
                 <Route path="/templates" element={<TemplatesPage />} />
+                <Route path="/templates/new" element={<TemplateWizardPage />} />
+                <Route path="/templates/:id/edit" element={<TemplateWizardPage />} />
               </Route>
             </Route>
 

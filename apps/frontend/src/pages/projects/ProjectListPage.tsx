@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { formatDate } from '@/lib/utils';
+import type { Project } from '@cv-generator/shared';
 
 export default function ProjectListPage() {
   const { data: projects, isLoading } = useProjectList();
@@ -19,7 +20,7 @@ export default function ProjectListPage() {
   const [search, setSearch] = useState('');
 
   const filtered = projects?.filter(
-    (p) =>
+    (p: Project) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.client.toLowerCase().includes(search.toLowerCase()),
   );
@@ -77,7 +78,7 @@ export default function ProjectListPage() {
                 </CardContent>
               </Card>
             ))
-          : filtered?.map((project) => (
+          : filtered?.map((project: Project) => (
               <Card
                 key={project.id}
                 className="shadow-card hover:shadow-elevated transition-shadow duration-200"
@@ -115,14 +116,26 @@ export default function ProjectListPage() {
                       </div>
                     </div>
                     <div className="flex gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" title="View" asChild aria-label={`View details of project ${project.name}`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="View"
+                        asChild
+                        aria-label={`View details of project ${project.name}`}
+                      >
                         <Link to={`/projects/${project.id}`}>
                           <Eye className="w-4 h-4" />
                         </Link>
                       </Button>
                       {user?.role === 'admin' && (
                         <>
-                          <Button variant="ghost" size="icon" title="Edit" asChild aria-label={`Edit project ${project.name}`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Edit"
+                            asChild
+                            aria-label={`Edit project ${project.name}`}
+                          >
                             <Link to={`/projects/${project.id}/edit`}>
                               <Pencil className="w-4 h-4" />
                             </Link>
