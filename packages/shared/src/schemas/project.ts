@@ -21,6 +21,13 @@ export const CreateProjectSchema = z.object({
   startDate: z.string().date('Invalid date format, use YYYY-MM-DD'),
   endDate: z.string().date().nullable().optional(),
   technologies: z.array(z.string().min(1)).min(1, 'At least one technology is required'),
+  participations: z.array(
+    z.object({
+      staffId: z.string().uuid('Invalid staff ID'),
+      role: z.string().min(1, 'Role is required').max(200),
+      responsibilities: z.string().min(1, 'Responsibilities are required'),
+    })
+  ).optional(),
 });
 
 export const UpdateProjectSchema = CreateProjectSchema.partial();
