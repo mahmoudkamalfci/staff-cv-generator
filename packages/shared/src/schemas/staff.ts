@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SkillSchema } from './skill.js';
+import { ParticipationWithProjectSchema } from './participation.js';
 
 export const StaffSchema = z.object({
   id: z.string().uuid(),
@@ -15,6 +16,7 @@ export const StaffSchema = z.object({
 
 export const StaffWithSkillsSchema = StaffSchema.extend({
   skills: z.array(SkillSchema),
+  participations: z.array(ParticipationWithProjectSchema).optional(),
 });
 
 export const CreateStaffSchema = z.object({
