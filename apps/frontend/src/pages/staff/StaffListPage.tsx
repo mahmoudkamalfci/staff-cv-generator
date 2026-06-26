@@ -62,6 +62,7 @@ export default function StaffListPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Search by name or job title…"
+          aria-label="Search staff members by name or job title"
           className="pl-9"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -106,14 +107,14 @@ export default function StaffListPage() {
                   </div>
 
                   <div className="flex gap-2 mt-4 justify-end">
-                    <Button variant="ghost" size="icon" title="View profile" asChild>
+                    <Button variant="ghost" size="icon" title="View profile" aria-label={`View profile of ${member.name}`} asChild>
                       <Link to={`/staff/${member.id}`}>
                         <Eye className="w-4 h-4" />
                       </Link>
                     </Button>
                     {user?.role === 'admin' && (
                       <>
-                        <Button variant="ghost" size="icon" title="Edit" asChild>
+                        <Button variant="ghost" size="icon" title="Edit" aria-label={`Edit profile of ${member.name}`} asChild>
                           <Link to={`/staff/${member.id}/edit`}>
                             <Pencil className="w-4 h-4" />
                           </Link>
@@ -122,6 +123,7 @@ export default function StaffListPage() {
                           variant="ghost"
                           size="icon"
                           title="Delete"
+                          aria-label={`Delete ${member.name}`}
                           className="text-destructive hover:bg-destructive/10"
                           onClick={() => handleDelete(member.id, member.name)}
                         >
