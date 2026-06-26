@@ -134,10 +134,11 @@ function SkillsSection({
   label: string;
   styles: ReturnType<typeof makeStyles>;
 }) {
+  const skills = data.skills || [];
   return (
     <View>
       <Text style={styles.sectionHeading}>{label || ''}</Text>
-      {data.skills.map((skill) => (
+      {skills.map((skill) => (
         <View key={skill.id}>
           <View style={styles.skillRow}>
             <Text style={styles.skillName}>{skill.name || ''}</Text>
@@ -168,10 +169,12 @@ function ExperienceSection({
     return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
   };
 
+  const participations = data.participations || [];
+
   return (
     <View>
       <Text style={styles.sectionHeading}>{label || ''}</Text>
-      {data.participations.map((p) => {
+      {participations.map((p) => {
         const startDateStr = formatDate(p.project.startDate, '');
         const endDateStr = formatDate(p.project.endDate, 'Present');
         const dateRangeStr =

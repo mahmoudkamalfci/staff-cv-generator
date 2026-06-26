@@ -7,11 +7,14 @@ import { fileURLToPath } from 'url';
 import { config } from './config.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { logger } from './middleware/logger.js';
+
 import { authRouter } from './auth/auth.router.js';
 import { staffRouter } from './staff/staff.router.js';
+import { skillsRouter } from './skills/skills.router.js';
 import { projectsRouter } from './projects/projects.router.js';
+import { participationsRouter } from './participations/participations.router.js';
 import { cvRouter } from './cv/cv.router.js';
-import { templatesRouter } from './cv/templates.router.js';
+import { templatesRouter } from './templates/templates.router.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,7 +35,9 @@ export function createApp(): express.Express {
   // Routes
   app.use('/api/auth', authRouter);
   app.use('/api/staff', staffRouter);
+  app.use('/api/staff/:staffId/skills', skillsRouter);
   app.use('/api/projects', projectsRouter);
+  app.use('/api/projects/:projectId/participations', participationsRouter);
   app.use('/api/cv', cvRouter);
   app.use('/api/templates', templatesRouter);
 

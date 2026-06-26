@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import { prisma } from '../db/prisma.js';
+import { CvController } from './cv.controller.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
-import { AppError } from '../middleware/errorHandler.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { validate } from '../middleware/validate.js';
+import { z } from 'zod';
 
 export const cvRouter: Router = Router();
-import { z } from 'zod';
-import { validate } from '../middleware/validate.js';
 
 const paramSchema = z.object({
   params: z.object({
@@ -15,53 +14,9 @@ const paramSchema = z.object({
   }),
 });
 
-// GET /api/cv/:staffId/:templateId
 cvRouter.get(
   '/:staffId/:templateId',
   requireAuth,
   validate(paramSchema),
-  asyncHandler(async (req, res) => {
-    const { staffId, templateId } = req.params;
-    const userId = req.user!.userId;
-
-    const staff = await prisma.staff.findUnique({
-      where: { id: staffId },
-      include: {
-        skills: true,
-        participations: {
-          include: {
-            project: true,
-          },
-        },
-      },
-    });
-
-    if (!staff) {
-      throw new AppError(404, 'Staff not found');
-    }
-
-    const template = await prisma.template.findUnique({
-      where: { id: templateId },
-    });
-
-    if (!template) {
-      throw new AppError(404, 'Template not found');
-    }
-
-    const generatedCV = await prisma.generatedCV.create({
-      data: {
-        staffId: staff.id,
-        templateId: template.id,
-        generatedBy: userId,
-      },
-    });
-
-    res.json({
-      data: {
-        staff,
-        template,
-        generatedCV,
-      },
-    });
-  }),
+  asyncHandler(CvController.generateCv),
 );

@@ -3,15 +3,11 @@ import { ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import type { CVData } from '@cv-generator/shared';
+import { usePDF } from '@react-pdf/renderer';
 
-// CVDocument is its own Vite chunk — only loaded when this page renders
-const CVDocument = lazy(() => import('@/components/cv-templates/CVDocument'));
-
-const PDFViewer = lazy(() =>
-  import('@react-pdf/renderer').then((mod) => ({ default: mod.PDFViewer })),
-);
+import CVDocument from '@/components/cv-templates/CVDocument';
 
 // CVContent suspends while CV data loads — toolbar renders immediately
 function CVContent({ staffId, templateId }: { staffId: string; templateId: string }) {
@@ -21,19 +17,37 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
       api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data),
   });
 
+  const [instance, updateInstance] = usePDF({
+    document: <CVDocument data={data} config={data.template.config} />,
+  });
+
+  useEffect(() => {
+    updateInstance();
+  }, [data, updateInstance]);
+
+  if (instance.loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (instance.error) {
+    return (
+      <div className="flex items-center justify-center py-20 text-red-500">
+        Error generating PDF: {String(instance.error)}
+      </div>
+    );
+  }
+
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-accent" />
-        </div>
-      }
-    >
-      {/* @ts-ignore - PDFViewer styling and custom types */}
-      <PDFViewer width="100%" height="100%" style={{ minHeight: '80vh', border: 'none' }}>
-        <CVDocument data={data} config={data.template.config} />
-      </PDFViewer>
-    </Suspense>
+    <iframe
+      src={instance.url || undefined}
+      width="100%"
+      height="100%"
+      style={{ minHeight: '80vh', border: 'none' }}
+    />
   );
 }
 
