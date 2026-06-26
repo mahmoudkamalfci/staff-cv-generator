@@ -1,6 +1,6 @@
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../middleware/errorHandler.js';
-import { CreateProjectInput, UpdateProjectInput } from '@cv-generator/shared';
+import type { CreateProjectInput, UpdateProjectInput } from '@cv-generator/shared';
 
 export class ProjectsService {
   static async getProjects(page: number, limit: number) {
@@ -39,17 +39,21 @@ export class ProjectsService {
   }
 
   static async createProject(data: CreateProjectInput) {
-    const { participations, ...projectData } = data;
-    
-    return prisma.project.create({ 
+    const { participations, startDate, endDate, ...projectData } = data;
+
+    return prisma.project.create({
       data: {
         ...projectData,
-        ...(participations && participations.length > 0 ? {
-          participations: {
-            create: participations
-          }
-        } : {})
-      }
+        startDate: new Date(startDate),
+        endDate: endDate ? new Date(endDate) : null,
+        ...(participations && participations.length > 0
+          ? {
+              participations: {
+                create: participations,
+              },
+            }
+          : {}),
+      },
     });
   }
 
@@ -57,25 +61,29 @@ export class ProjectsService {
     const project = await prisma.project.findUnique({ where: { id } });
     if (!project) throw new AppError(404, 'Project not found');
 
-    const { participations, ...projectData } = data;
+    const { participations, startDate, endDate, ...projectData } = data;
+
+    const updateData: any = { ...projectData };
+    if (startDate) updateData.startDate = new Date(startDate);
+    if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : null;
 
     if (participations) {
       // Use nested writes to replace participations
       return prisma.project.update({
         where: { id },
         data: {
-          ...projectData,
+          ...updateData,
           participations: {
             deleteMany: {}, // Delete existing
-            create: participations // Create new ones
-          }
-        }
+            create: participations, // Create new ones
+          },
+        },
       });
     }
 
     return prisma.project.update({
       where: { id },
-      data: projectData,
+      data: updateData,
     });
   }
 

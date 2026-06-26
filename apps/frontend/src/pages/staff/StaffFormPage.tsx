@@ -2,6 +2,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Upload } from 'lucide-react';
+import type { Participation, Project } from '@cv-generator/shared';
 import { CreateStaffSchema, type CreateStaffInput } from '@cv-generator/shared';
 import {
   useStaffDetail,
@@ -59,24 +60,37 @@ export default function StaffFormPage() {
           yearsExperience: existing.yearsExperience,
           summary: existing.summary,
           skills: existing.skills || [],
-          participations: existing.participations?.map(p => ({
-            projectId: p.projectId,
-            role: p.role,
-            responsibilities: p.responsibilities,
-          })) || [],
+          participations:
+            existing.participations?.map((p: Participation) => ({
+              projectId: p.projectId,
+              role: p.role,
+              responsibilities: p.responsibilities,
+            })) || [],
         }
       : {
+          name: '',
+          jobTitle: '',
+          yearsExperience: 0,
+          summary: '',
           skills: [],
           participations: [],
         },
   });
 
-  const { fields: skillFields, append: appendSkill, remove: removeSkill } = useFieldArray({
+  const {
+    fields: skillFields,
+    append: appendSkill,
+    remove: removeSkill,
+  } = useFieldArray({
     control,
     name: 'skills',
   });
 
-  const { fields: projectFields, append: appendProject, remove: removeProject } = useFieldArray({
+  const {
+    fields: projectFields,
+    append: appendProject,
+    remove: removeProject,
+  } = useFieldArray({
     control,
     name: 'participations',
   });
@@ -205,7 +219,10 @@ export default function StaffFormPage() {
                 </Button>
               </div>
               {skillFields.map((field, index) => (
-                <div key={field.id} className="flex items-start gap-4 p-4 border rounded-lg bg-card/50">
+                <div
+                  key={field.id}
+                  className="flex items-start gap-4 p-4 border rounded-lg bg-card/50"
+                >
                   <div className="flex-1 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -215,7 +232,9 @@ export default function StaffFormPage() {
                           placeholder="e.g. React"
                         />
                         {errors.skills?.[index]?.name && (
-                          <p className="text-destructive text-xs">{errors.skills[index]?.name?.message}</p>
+                          <p className="text-destructive text-xs">
+                            {errors.skills[index]?.name?.message}
+                          </p>
                         )}
                       </div>
                       <div className="space-y-2">
@@ -258,7 +277,10 @@ export default function StaffFormPage() {
                 </Button>
               </div>
               {projectFields.map((field, index) => (
-                <div key={field.id} className="flex items-start gap-4 p-4 border rounded-lg bg-card/50">
+                <div
+                  key={field.id}
+                  className="flex items-start gap-4 p-4 border rounded-lg bg-card/50"
+                >
                   <div className="flex-1 space-y-4">
                     <div className="space-y-2">
                       <Label>Project</Label>
@@ -267,12 +289,16 @@ export default function StaffFormPage() {
                         {...register(`participations.${index}.projectId` as const)}
                       >
                         <option value="">Select a project...</option>
-                        {projects.map(p => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
+                        {projects.map((p: Project) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
                         ))}
                       </select>
                       {errors.participations?.[index]?.projectId && (
-                        <p className="text-destructive text-xs">{errors.participations[index]?.projectId?.message}</p>
+                        <p className="text-destructive text-xs">
+                          {errors.participations[index]?.projectId?.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -282,7 +308,9 @@ export default function StaffFormPage() {
                         placeholder="e.g. Frontend Lead"
                       />
                       {errors.participations?.[index]?.role && (
-                        <p className="text-destructive text-xs">{errors.participations[index]?.role?.message}</p>
+                        <p className="text-destructive text-xs">
+                          {errors.participations[index]?.role?.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -294,7 +322,9 @@ export default function StaffFormPage() {
                         placeholder="Describe your contributions..."
                       />
                       {errors.participations?.[index]?.responsibilities && (
-                        <p className="text-destructive text-xs">{errors.participations[index]?.responsibilities?.message}</p>
+                        <p className="text-destructive text-xs">
+                          {errors.participations[index]?.responsibilities?.message}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -334,7 +364,11 @@ export default function StaffFormPage() {
           <CardContent>
             {existing?.photoUrl && (
               <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border border-border mb-4">
-                <img src={existing.photoUrl} alt={existing.name} className="w-full h-full object-cover" />
+                <img
+                  src={existing.photoUrl}
+                  alt={existing.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
             )}
             <input

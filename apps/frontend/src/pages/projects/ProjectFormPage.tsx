@@ -2,6 +2,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, X, Plus, Trash2 } from 'lucide-react';
+import type { Participation, Staff } from '@cv-generator/shared';
 import { CreateProjectSchema, type CreateProjectInput } from '@cv-generator/shared';
 import { useProjectDetail, useCreateProject, useUpdateProject } from '@/hooks/useProjects';
 import { useStaffList } from '@/hooks/useStaff';
@@ -33,7 +34,7 @@ export default function ProjectFormPage() {
   const [techInput, setTechInput] = useState('');
 
   const existingTechs = (existing?.technologies as string[] | undefined) ?? [];
-  const existingParticipations = existing?.participations ?? [];
+  const existingParticipations = (existing as unknown as { participations?: Participation[] })?.participations ?? [];
 
   const {
     register,
@@ -50,10 +51,10 @@ export default function ProjectFormPage() {
           description: existing.description,
           client: existing.client,
           location: existing.location,
-          startDate: String(existing.startDate),
-          endDate: existing.endDate ? String(existing.endDate) : null,
+          startDate: String(existing.startDate).split('T')[0],
+          endDate: existing.endDate ? String(existing.endDate).split('T')[0] : null,
           technologies: existingTechs,
-          participations: existingParticipations.map(p => ({
+          participations: existingParticipations.map((p: Participation) => ({
             staffId: p.staffId,
             role: p.role,
             responsibilities: p.responsibilities,
@@ -90,7 +91,7 @@ export default function ProjectFormPage() {
     setValue(
       'technologies',
       technologies.filter((t) => t !== tech),
-      { shouldValidate: true }
+      { shouldValidate: true },
     );
   };
 
@@ -201,7 +202,13 @@ export default function ProjectFormPage() {
                   placeholder="e.g. React, Node.js"
                   className="flex-1"
                 />
-                <Button type="button" variant="outline" size="icon" onClick={addTech} aria-label="Add technology">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={addTech}
+                  aria-label="Add technology"
+                >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
@@ -243,7 +250,10 @@ export default function ProjectFormPage() {
               </div>
 
               {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-4 items-start p-4 border border-border rounded-lg relative">
+                <div
+                  key={field.id}
+                  className="flex gap-4 items-start p-4 border border-border rounded-lg relative"
+                >
                   <div className="flex-1 space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor={`participations.${index}.staffId`}>Staff Member</Label>
@@ -251,12 +261,12 @@ export default function ProjectFormPage() {
                         control={control}
                         name={`participations.${index}.staffId` as const}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value || ""}>
+                          <Select onValueChange={field.onChange} value={field.value || ''}>
                             <SelectTrigger id={`participations.${index}.staffId`}>
                               <SelectValue placeholder="Select Staff..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {staffList?.map((staff) => (
+                              {staffList?.map((staff: Staff) => (
                                 <SelectItem key={staff.id} value={staff.id}>
                                   {staff.name} - {staff.jobTitle}
                                 </SelectItem>
@@ -287,7 +297,9 @@ export default function ProjectFormPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor={`participations.${index}.responsibilities`}>Responsibilities</Label>
+                      <Label htmlFor={`participations.${index}.responsibilities`}>
+                        Responsibilities
+                      </Label>
                       <Textarea
                         id={`participations.${index}.responsibilities`}
                         placeholder="e.g. Architected the backend and managed deployments."
