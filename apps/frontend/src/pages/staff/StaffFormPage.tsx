@@ -188,19 +188,18 @@ export default function StaffFormPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" {...register('email')} placeholder="john@example.com" />
+              {errors.email && <p className="text-destructive text-xs">{errors.email.message as string}</p>}
+            </div>
+
             {!isEdit && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" {...register('email')} placeholder="john@example.com" />
-                  {errors.email && <p className="text-destructive text-xs">{errors.email.message as string}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" {...register('password')} placeholder="••••••••" />
-                  {errors.password && <p className="text-destructive text-xs">{errors.password.message as string}</p>}
-                </div>
-              </>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" {...register('password')} placeholder="Secure password" />
+                {errors.password && <p className="text-destructive text-xs">{errors.password.message as string}</p>}
+              </div>
             )}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
