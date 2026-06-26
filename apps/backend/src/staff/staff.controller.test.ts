@@ -43,4 +43,40 @@ describe('StaffController', () => {
     expect(StaffService.getStaffById).toHaveBeenCalledWith('1');
     expect(res.json).toHaveBeenCalledWith({ data: mockStaff });
   });
+
+  describe('resetPassword', () => {
+    it('should reset password successfully', async () => {
+      const req = {
+        params: { id: '1' },
+        body: { password: 'newpassword123' },
+      } as unknown as Request;
+
+      const res = {
+        json: jest.fn(),
+      } as unknown as Response;
+
+      jest.spyOn(StaffService, 'resetPassword').mockResolvedValue(undefined);
+
+      await StaffController.resetPassword(req, res);
+
+      expect(StaffService.resetPassword).toHaveBeenCalledWith('1', 'newpassword123');
+      expect(res.json).toHaveBeenCalledWith({ message: 'Password reset successfully' });
+    });
+
+    it('should throw an error if password is missing', async () => {
+      const req = {
+        params: { id: '1' },
+        body: {},
+      } as unknown as Request;
+
+      const res = {
+        json: jest.fn(),
+      } as unknown as Response;
+
+      await expect(StaffController.resetPassword(req, res)).rejects.toMatchObject({
+        statusCode: 400,
+        message: 'Password is required'
+      });
+    });
+  });
 });
