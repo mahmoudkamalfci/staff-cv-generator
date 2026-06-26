@@ -18,8 +18,10 @@ export function Step2Sections({ sections, onChange }: Props) {
     if (!result.destination) return;
     const reordered = Array.from(sorted);
     const [moved] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, moved);
-    onChange(reordered.map((s, i) => ({ ...s, order: i })));
+    if (moved) {
+      reordered.splice(result.destination.index, 0, moved);
+      onChange(reordered.map((s, i) => ({ ...s, order: i })));
+    }
   };
 
   const toggleVisible = (id: string) => {
@@ -74,6 +76,7 @@ export function Step2Sections({ sections, onChange }: Props) {
                     <div
                       ref={drag.innerRef}
                       {...drag.draggableProps}
+                      style={drag.draggableProps.style as React.CSSProperties}
                       className={`rounded-lg border bg-card p-3 ${
                         snapshot.isDragging ? 'shadow-lg ring-2 ring-accent' : ''
                       }`}
