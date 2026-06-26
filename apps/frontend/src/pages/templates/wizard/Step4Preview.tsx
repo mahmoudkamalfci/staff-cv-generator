@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useStaffList } from '@/hooks/useStaff';
 import { api } from '@/lib/api';
@@ -69,7 +69,7 @@ interface Props {
 
 export function Step4Preview({ config }: Props) {
   const { data: staffList } = useStaffList();
-  const [cvData, setCvData] = useState<CVData | null>(null);
+  const [baseCvData, setBaseCvData] = useState<CVData | null>(null);
   const [PDFViewer, setPDFViewer] = useState<React.ComponentType<
     React.PropsWithChildren<{
       width: string;
@@ -78,21 +78,33 @@ export function Step4Preview({ config }: Props) {
     }>
   > | null>(null);
 
-  // Load first real staff member for preview; fall back to sample data
+  // Load first real staff member for preview; fall back to sample data (only dependent on staffList)
   useEffect(() => {
     const firstStaff = staffList?.[0];
     if (!firstStaff) {
-      setCvData({ ...SAMPLE_DATA, template: { ...SAMPLE_DATA.template, config } });
+      setBaseCvData(SAMPLE_DATA);
       return;
     }
     api
       .get<{ data: CVData }>(`/cv/${firstStaff.id}/preview-dummy`)
-      .then((r) => setCvData({ ...r.data.data, template: { ...r.data.data.template, config } }))
+      .then((r) => setBaseCvData(r.data.data))
       .catch(() => {
         // If the API call fails (e.g. no template yet), use sample data
-        setCvData({ ...SAMPLE_DATA, template: { ...SAMPLE_DATA.template, config } });
+        setBaseCvData(SAMPLE_DATA);
       });
-  }, [staffList, config]);
+  }, [staffList]);
+
+  // Merge config at the memo level to prevent redundant network requests on config updates
+  const cvData = useMemo(() => {
+    if (!baseCvData) return null;
+    return {
+      ...baseCvData,
+      template: {
+        ...baseCvData.template,
+        config,
+      },
+    };
+  }, [baseCvData, config]);
 
   // Lazy-load PDFViewer
   useEffect(() => {

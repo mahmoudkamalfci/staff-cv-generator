@@ -45,3 +45,9 @@
 - Updated main header to `<h1>` with `id="wizard-title"`.
 - Added unique action button IDs: `id="cancel-btn"`, `id="back-btn"`, `id="next-btn"`, and `id="save-btn"`.
 - Fixed background query refetch reset issue by introducing an `isInitialized` state variable that blocks subsequent React Query updates from overwriting user changes in the form.
+
+## Additional Performance & Security Fixes
+- Optimized Step 4 Preview API requests in `Step4Preview.tsx` by using `useMemo` to merge config dynamically, ensuring `preview-dummy` is only refetched when the `staffList` changes rather than on every config update.
+- Updated `TemplateWizardPage.tsx` to handle unauthenticated users, redirecting them to `/login` with an "Authentication required" toast notification once auth loading completes.
+- Updated the top rendering guard in `TemplateWizardPage.tsx` to include `authLoading` to prevent flash of content or premature redirects.
+

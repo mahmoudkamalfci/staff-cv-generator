@@ -28,7 +28,7 @@ export default function TemplateWizardPage() {
   const createTemplate = useCreateTemplate();
   const updateTemplate = useUpdateTemplate();
 
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const [step, setStep] = useState(1);
@@ -44,14 +44,22 @@ export default function TemplateWizardPage() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (user && user.role !== 'admin') {
-      toast({
-        title: 'Access denied',
-        variant: 'destructive',
-      });
-      navigate('/templates', { replace: true });
+    if (!authLoading) {
+      if (!user) {
+        toast({
+          title: 'Authentication required',
+          variant: 'destructive',
+        });
+        navigate('/login', { replace: true });
+      } else if (user.role !== 'admin') {
+        toast({
+          title: 'Access denied',
+          variant: 'destructive',
+        });
+        navigate('/templates', { replace: true });
+      }
     }
-  }, [user, navigate, toast]);
+  }, [user, authLoading, navigate, toast]);
 
   useEffect(() => {
     if (existingTemplate && !isInitialized) {
@@ -62,7 +70,7 @@ export default function TemplateWizardPage() {
     }
   }, [existingTemplate, isInitialized]);
 
-  if (!user || user.role !== 'admin') {
+  if (authLoading || !user || user.role !== 'admin') {
     return null;
   }
 
