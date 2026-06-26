@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, X, Plus, Trash2 } from 'lucide-react';
 import { CreateProjectSchema, type CreateProjectInput } from '@cv-generator/shared';
@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
@@ -169,11 +177,11 @@ export default function ProjectFormPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <textarea
+              <Textarea
                 id="description"
                 {...register('description')}
                 rows={4}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                className="resize-none"
                 placeholder="Project overview…"
               />
               {errors.description && (
@@ -239,18 +247,24 @@ export default function ProjectFormPage() {
                   <div className="flex-1 space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor={`participations.${index}.staffId`}>Staff Member</Label>
-                      <select
-                        id={`participations.${index}.staffId`}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        {...register(`participations.${index}.staffId` as const)}
-                      >
-                        <option value="">Select Staff...</option>
-                        {staffList?.map((staff) => (
-                          <option key={staff.id} value={staff.id}>
-                            {staff.name} - {staff.jobTitle}
-                          </option>
-                        ))}
-                      </select>
+                      <Controller
+                        control={control}
+                        name={`participations.${index}.staffId` as const}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
+                            <SelectTrigger id={`participations.${index}.staffId`}>
+                              <SelectValue placeholder="Select Staff..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {staffList?.map((staff) => (
+                                <SelectItem key={staff.id} value={staff.id}>
+                                  {staff.name} - {staff.jobTitle}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                       {errors.participations?.[index]?.staffId && (
                         <p className="text-destructive text-xs">
                           {errors.participations[index]?.staffId?.message}
@@ -274,9 +288,8 @@ export default function ProjectFormPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor={`participations.${index}.responsibilities`}>Responsibilities</Label>
-                      <textarea
+                      <Textarea
                         id={`participations.${index}.responsibilities`}
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="e.g. Architected the backend and managed deployments."
                         {...register(`participations.${index}.responsibilities` as const)}
                       />
