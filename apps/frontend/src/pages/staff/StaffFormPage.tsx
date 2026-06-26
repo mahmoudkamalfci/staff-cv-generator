@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Upload } from 'lucide-react';
 import { CreateStaffSchema, type CreateStaffInput } from '@cv-generator/shared';
@@ -16,6 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useProjectList } from '@/hooks/useProjects';
+import { Plus, Trash2 } from 'lucide-react';
 
 export default function StaffFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,8 +42,12 @@ export default function StaffFormPage() {
   const updateStaff = useUpdateStaff(id ?? '');
   const uploadPhoto = useUploadStaffPhoto(id ?? '');
 
+  const { data: projectsData } = useProjectList();
+  const projects = projectsData || [];
+
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<CreateStaffInput>({
@@ -52,8 +58,27 @@ export default function StaffFormPage() {
           jobTitle: existing.jobTitle,
           yearsExperience: existing.yearsExperience,
           summary: existing.summary,
+          skills: existing.skills || [],
+          participations: existing.participations?.map(p => ({
+            projectId: p.projectId,
+            role: p.role,
+            responsibilities: p.responsibilities,
+          })) || [],
         }
-      : undefined,
+      : {
+          skills: [],
+          participations: [],
+        },
+  });
+
+  const { fields: skillFields, append: appendSkill, remove: removeSkill } = useFieldArray({
+    control,
+    name: 'skills',
+  });
+
+  const { fields: projectFields, append: appendProject, remove: removeProject } = useFieldArray({
+    control,
+    name: 'participations',
   });
 
   const onSubmit = async (data: CreateStaffInput) => {
@@ -165,6 +190,125 @@ export default function StaffFormPage() {
               {errors.summary && (
                 <p className="text-destructive text-xs">{errors.summary.message}</p>
               )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base">Skills</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendSkill({ name: '', level: 'beginner' })}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Add Skill
+                </Button>
+              </div>
+              {skillFields.map((field, index) => (
+                <div key={field.id} className="flex items-start gap-4 p-4 border rounded-lg bg-card/50">
+                  <div className="flex-1 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Skill Name</Label>
+                        <Input
+                          {...register(`skills.${index}.name` as const)}
+                          placeholder="e.g. React"
+                        />
+                        {errors.skills?.[index]?.name && (
+                          <p className="text-destructive text-xs">{errors.skills[index]?.name?.message}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Level</Label>
+                        <select
+                          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                          {...register(`skills.${index}.level` as const)}
+                        >
+                          <option value="beginner">Beginner</option>
+                          <option value="intermediate">Intermediate</option>
+                          <option value="advanced">Advanced</option>
+                          <option value="expert">Expert</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive mt-6"
+                    onClick={() => removeSkill(index)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base">Previous Projects</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendProject({ projectId: '', role: '', responsibilities: '' })}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Add Project
+                </Button>
+              </div>
+              {projectFields.map((field, index) => (
+                <div key={field.id} className="flex items-start gap-4 p-4 border rounded-lg bg-card/50">
+                  <div className="flex-1 space-y-4">
+                    <div className="space-y-2">
+                      <Label>Project</Label>
+                      <select
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        {...register(`participations.${index}.projectId` as const)}
+                      >
+                        <option value="">Select a project...</option>
+                        {projects.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                      {errors.participations?.[index]?.projectId && (
+                        <p className="text-destructive text-xs">{errors.participations[index]?.projectId?.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Role</Label>
+                      <Input
+                        {...register(`participations.${index}.role` as const)}
+                        placeholder="e.g. Frontend Lead"
+                      />
+                      {errors.participations?.[index]?.role && (
+                        <p className="text-destructive text-xs">{errors.participations[index]?.role?.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Responsibilities</Label>
+                      <textarea
+                        {...register(`participations.${index}.responsibilities` as const)}
+                        rows={2}
+                        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none"
+                        placeholder="Describe your contributions..."
+                      />
+                      {errors.participations?.[index]?.responsibilities && (
+                        <p className="text-destructive text-xs">{errors.participations[index]?.responsibilities?.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive mt-6"
+                    onClick={() => removeProject(index)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
