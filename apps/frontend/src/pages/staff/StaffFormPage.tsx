@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Upload } from 'lucide-react';
 import type { Participation, Project } from '@cv-generator/shared';
-import { CreateStaffSchema, type CreateStaffInput } from '@cv-generator/shared';
+import { CreateStaffSchema, UpdateStaffSchema, type CreateStaffInput } from '@cv-generator/shared';
 import {
   useStaffDetail,
   useCreateStaff,
@@ -19,6 +19,11 @@ import { useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectList } from '@/hooks/useProjects';
 import { Plus, Trash2 } from 'lucide-react';
+
+type StaffFormValues = Omit<CreateStaffInput, 'email' | 'password'> & {
+  email?: string;
+  password?: string;
+};
 
 export default function StaffFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -51,12 +56,10 @@ export default function StaffFormPage() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<CreateStaffInput>({
-    resolver: zodResolver(CreateStaffSchema),
+  } = useForm<StaffFormValues>({
+    resolver: zodResolver(isEdit ? UpdateStaffSchema : CreateStaffSchema),
     values: existing
       ? {
-          email: '',
-          password: '',
           name: existing.name,
           jobTitle: existing.jobTitle,
           yearsExperience: existing.yearsExperience,
@@ -99,14 +102,14 @@ export default function StaffFormPage() {
     name: 'participations',
   });
 
-  const onSubmit = async (data: CreateStaffInput) => {
+  const onSubmit = async (data: StaffFormValues) => {
     try {
       if (isEdit) {
         await updateStaff.mutateAsync(data);
         toast({ title: 'Profile updated' });
         navigate(`/staff/${id}`);
       } else {
-        const created = await createStaff.mutateAsync(data);
+        const created = await createStaff.mutateAsync(data as CreateStaffInput);
         toast({ title: 'Staff member added' });
         navigate(`/staff/${created.id}`);
       }
@@ -167,6 +170,20 @@ export default function StaffFormPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+            {!isEdit && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" {...register('email')} placeholder="john@example.com" />
+                  {errors.email && <p className="text-destructive text-xs">{errors.email.message as string}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" type="password" {...register('password')} placeholder="••••••••" />
+                  {errors.password && <p className="text-destructive text-xs">{errors.password.message as string}</p>}
+                </div>
+              </>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input id="name" {...register('name')} placeholder="John Doe" />
