@@ -31,7 +31,7 @@ export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateProjectInput) =>
-      api.post<Project>('/projects', data).then((r) => r.data),
+      api.post<{ data: Project }>('/projects', data).then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: projectKeys.all }),
   });
 }
@@ -40,7 +40,7 @@ export function useUpdateProject(id: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: UpdateProjectInput) =>
-      api.patch<Project>(`/projects/${id}`, data).then((r) => r.data),
+      api.patch<{ data: Project }>(`/projects/${id}`, data).then((r) => r.data.data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: projectKeys.all });
       qc.invalidateQueries({ queryKey: projectKeys.detail(id) });

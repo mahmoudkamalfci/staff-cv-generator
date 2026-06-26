@@ -33,6 +33,8 @@ describe('Staff schemas', () => {
   it('validates a correct staff payload', () => {
     const result = CreateStaffSchema.safeParse({
       name: 'Alice Smith',
+      email: 'alice@example.com',
+      password: 'password123',
       jobTitle: 'Senior Engineer',
       yearsExperience: 5,
       summary: 'Experienced engineer with broad expertise.',

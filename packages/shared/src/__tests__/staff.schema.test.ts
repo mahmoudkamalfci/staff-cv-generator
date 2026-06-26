@@ -4,6 +4,8 @@ describe('CreateStaffSchema', () => {
   it('validates skills and participations arrays', () => {
     const data = {
       name: 'John Doe',
+      email: 'john@example.com',
+      password: 'password123',
       jobTitle: 'Developer',
       yearsExperience: 5,
       summary: 'Summary',
