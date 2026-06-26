@@ -1,6 +1,7 @@
 # CV Generator — Plan 3: Frontend Scaffold, Design System & Auth
 
 ## ⚡ Best Practice Updates (Applied from Vercel React Review)
+
 - Fix 1 (P0): `bundle-barrel-imports` — Added `optimizeDeps.include` for lucide-react in vite.config.ts
 - Fix 2 (P0): `rendering-hoist-jsx` — PageLoader fallback hoisted to module-level constant `PAGE_FALLBACK`
 - Fix 3 (P1): `client-localstorage-schema` — Dark mode persisted to versioned `localStorage` key

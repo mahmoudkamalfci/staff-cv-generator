@@ -17,14 +17,14 @@ export const staffKeys = {
 export function useStaffList() {
   return useQuery({
     queryKey: staffKeys.all,
-    queryFn: () => api.get<Staff[]>('/staff').then((r) => r.data),
+    queryFn: () => api.get<{ data: Staff[] }>('/staff').then((r) => r.data.data),
   });
 }
 
 export function useStaffDetail(id: string) {
   return useQuery({
     queryKey: staffKeys.detail(id),
-    queryFn: () => api.get<StaffWithSkills>(`/staff/${id}`).then((r) => r.data),
+    queryFn: () => api.get<{ data: StaffWithSkills }>(`/staff/${id}`).then((r) => r.data.data),
     enabled: !!id,
   });
 }

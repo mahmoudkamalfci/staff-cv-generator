@@ -23,10 +23,12 @@
 ### Task 1: Shared Schemas — TemplateConfig
 
 **Files:**
+
 - Modify: `packages/shared/src/schemas/template.ts`
 - Modify: `packages/shared/src/schemas/cv.ts`
 
 **Interfaces:**
+
 - Produces:
   - `SectionConfigSchema` → `SectionConfig` type
   - `TemplateConfigSchema` → `TemplateConfig` type
@@ -60,10 +62,9 @@ export const TemplateConfigSchema = z.object({
     .array(SectionConfigSchema)
     .min(1)
     .max(10)
-    .refine(
-      (sections) => sections.some((s) => s.id === 'header' && s.visible),
-      { message: 'Header section must always be visible' }
-    ),
+    .refine((sections) => sections.some((s) => s.id === 'header' && s.visible), {
+      message: 'Header section must always be visible',
+    }),
 });
 
 export const CVTemplateSchema = z.object({
@@ -140,10 +141,12 @@ git commit -m "feat(shared): add TemplateConfig, SectionConfig, CreateTemplateIn
 ### Task 2: Prisma Migration — Add config + isBuiltIn to Template
 
 **Files:**
+
 - Modify: `apps/backend/prisma/schema.prisma`
 - Modify: `apps/backend/prisma/seed.ts`
 
 **Interfaces:**
+
 - Consumes: `TemplateConfig` JSON shape from Task 1 (used in seed data)
 - Produces: Extended `Template` model with `isBuiltIn` and `config` columns. All existing rows get `isBuiltIn: false` and an empty config via the migration default.
 
@@ -269,10 +272,10 @@ const classicConfig = {
   primaryColor: '#1e293b',
   accentColor: '#475569',
   sections: [
-    { id: 'header',     label: 'Header',     visible: true,  order: 0 },
-    { id: 'skills',     label: 'Skills',     visible: true,  order: 1 },
-    { id: 'summary',    label: 'Profile',    visible: true,  order: 2 },
-    { id: 'experience', label: 'Experience', visible: true,  order: 3 },
+    { id: 'header', label: 'Header', visible: true, order: 0 },
+    { id: 'skills', label: 'Skills', visible: true, order: 1 },
+    { id: 'summary', label: 'Profile', visible: true, order: 2 },
+    { id: 'experience', label: 'Experience', visible: true, order: 3 },
   ],
 };
 
@@ -281,10 +284,10 @@ const modernConfig = {
   primaryColor: '#1d4ed8',
   accentColor: '#3b82f6',
   sections: [
-    { id: 'header',     label: 'Header',     visible: true,  order: 0 },
-    { id: 'summary',    label: 'About',      visible: true,  order: 1 },
-    { id: 'skills',     label: 'Skills',     visible: true,  order: 2 },
-    { id: 'experience', label: 'Experience', visible: true,  order: 3 },
+    { id: 'header', label: 'Header', visible: true, order: 0 },
+    { id: 'summary', label: 'About', visible: true, order: 1 },
+    { id: 'skills', label: 'Skills', visible: true, order: 2 },
+    { id: 'experience', label: 'Experience', visible: true, order: 3 },
   ],
 };
 
@@ -293,10 +296,10 @@ const compactConfig = {
   primaryColor: '#111827',
   accentColor: '#374151',
   sections: [
-    { id: 'header',     label: 'Header',     visible: true,  order: 0 },
-    { id: 'summary',    label: 'Summary',    visible: true,  order: 1 },
-    { id: 'skills',     label: 'Skills',     visible: true,  order: 2 },
-    { id: 'experience', label: 'Experience', visible: true,  order: 3 },
+    { id: 'header', label: 'Header', visible: true, order: 0 },
+    { id: 'summary', label: 'Summary', visible: true, order: 1 },
+    { id: 'skills', label: 'Skills', visible: true, order: 2 },
+    { id: 'experience', label: 'Experience', visible: true, order: 3 },
   ],
 };
 
@@ -370,9 +373,11 @@ git commit -m "feat(backend): add isBuiltIn and config columns to Template model
 ### Task 3: Template CRUD Routes
 
 **Files:**
+
 - Modify: `apps/backend/src/cv/templates.router.ts`
 
 **Interfaces:**
+
 - Consumes:
   - `requireAuth`, `requireAdmin` from `../middleware/requireAuth.js`
   - `asyncHandler` from `../middleware/asyncHandler.js`
@@ -403,13 +408,16 @@ import { CreateTemplateInputSchema, UpdateTemplateInputSchema } from '@cv-genera
 export const templatesRouter: Router = Router();
 
 // GET /api/templates — all active templates (public, auth not required)
-templatesRouter.get('/', asyncHandler(async (_req, res) => {
-  const templates = await prisma.template.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: 'asc' },
-  });
-  res.json({ data: templates });
-}));
+templatesRouter.get(
+  '/',
+  asyncHandler(async (_req, res) => {
+    const templates = await prisma.template.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    res.json({ data: templates });
+  }),
+);
 
 // GET /api/templates/:id — single template
 templatesRouter.get(
@@ -420,7 +428,7 @@ templatesRouter.get(
     const template = await prisma.template.findUnique({ where: { id: req.params.id } });
     if (!template) throw new AppError(404, 'Template not found');
     res.json({ data: template });
-  })
+  }),
 );
 
 // POST /api/templates — admin creates a new custom template
@@ -448,7 +456,7 @@ templatesRouter.post(
     });
 
     res.status(201).json({ data: template });
-  })
+  }),
 );
 
 // PATCH /api/templates/:id — admin updates a custom template (403 if built-in)
@@ -456,10 +464,12 @@ templatesRouter.patch(
   '/:id',
   requireAuth,
   requireAdmin,
-  validate(z.object({
-    params: z.object({ id: z.string().uuid() }),
-    body: UpdateTemplateInputSchema,
-  })),
+  validate(
+    z.object({
+      params: z.object({ id: z.string().uuid() }),
+      body: UpdateTemplateInputSchema,
+    }),
+  ),
   asyncHandler(async (req, res) => {
     const existing = await prisma.template.findUnique({ where: { id: req.params.id } });
     if (!existing) throw new AppError(404, 'Template not found');
@@ -481,7 +491,7 @@ templatesRouter.patch(
     });
 
     res.json({ data: updated });
-  })
+  }),
 );
 
 // DELETE /api/templates/:id — admin deletes a custom template (403 if built-in)
@@ -497,24 +507,27 @@ templatesRouter.delete(
 
     await prisma.template.delete({ where: { id: req.params.id } });
     res.status(204).send();
-  })
+  }),
 );
 ```
 
 - [ ] **Step 2: Verify the backend starts and all routes respond**
 
 Start the backend:
+
 ```bash
 cd /home/mahmoud/frontend-projects/practise-projects/staff-cv-generator
 pnpm --filter @cv-generator/backend dev
 ```
 
 In a second terminal, test the GET route (no token needed):
+
 ```bash
 curl -s http://localhost:3001/api/templates | jq '.data[0] | {name, isBuiltIn, layoutKey}'
 ```
 
 Expected:
+
 ```json
 {
   "name": "Classic",
@@ -526,6 +539,7 @@ Expected:
 - [ ] **Step 3: Verify built-in protection — attempt PATCH on a built-in template**
 
 First get an admin token (login):
+
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
@@ -533,11 +547,13 @@ TOKEN=$(curl -s -X POST http://localhost:3001/api/auth/login \
 ```
 
 Get the classic template ID:
+
 ```bash
 CLASSIC_ID=$(curl -s http://localhost:3001/api/templates | jq -r '.data[] | select(.layoutKey=="classic") | .id')
 ```
 
 Attempt PATCH:
+
 ```bash
 curl -s -X PATCH http://localhost:3001/api/templates/$CLASSIC_ID \
   -H "Authorization: Bearer $TOKEN" \
@@ -559,9 +575,11 @@ git commit -m "feat(backend): add CRUD endpoints for custom template management"
 ### Task 4: Verify CV Assembly Route Returns config
 
 **Files:**
+
 - Read only: `apps/backend/src/cv/cv.router.ts` (no changes expected)
 
 **Interfaces:**
+
 - Consumes: Extended `Template` model (from Task 2)
 - Produces: Confirmation that `GET /api/cv/:staffId/:templateId` response includes `template.config`
 

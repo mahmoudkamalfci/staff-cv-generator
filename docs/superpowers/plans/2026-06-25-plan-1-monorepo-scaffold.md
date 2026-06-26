@@ -801,6 +801,7 @@ git commit -m "chore: scaffold apps/backend and apps/frontend workspace packages
 ### Task 5: Shared Jest Testing Infrastructure
 
 **Files:**
+
 - Modify: `packages/config/package.json` (add jest-config export)
 - Create: `packages/config/jest-config.js`
 - Create: `packages/shared/jest.config.js`
@@ -810,6 +811,7 @@ git commit -m "chore: scaffold apps/backend and apps/frontend workspace packages
 - Create: `packages/shared/src/__tests__/schemas.test.ts` (smoke test)
 
 **Interfaces:**
+
 - Produces: `@cv-generator/config` also exports a shared Jest preset consumed by any workspace as:
   ```js
   // jest.config.js in any app/package
@@ -923,6 +925,7 @@ export default {
 - [ ] **Step 7: Add test script + jest devDeps to `packages/shared/package.json`**
 
 Add to `scripts`:
+
 ```json
 "test": "node --experimental-vm-modules ../../node_modules/.bin/jest",
 "test:watch": "node --experimental-vm-modules ../../node_modules/.bin/jest --watch",
@@ -930,6 +933,7 @@ Add to `scripts`:
 ```
 
 Add to `devDependencies`:
+
 ```json
 "@cv-generator/config": "workspace:*",
 "@types/jest": "^29.0.0",

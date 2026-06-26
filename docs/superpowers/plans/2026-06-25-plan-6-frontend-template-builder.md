@@ -23,9 +23,11 @@
 ### Task 1: Install @hello-pangea/dnd
 
 **Files:**
+
 - Modify: `apps/frontend/package.json`
 
 **Interfaces:**
+
 - Produces: `@hello-pangea/dnd` available for drag-and-drop in the wizard
 
 - [ ] **Step 1: Install the package**
@@ -50,9 +52,11 @@ git commit -m "feat(frontend): install @hello-pangea/dnd for wizard drag-and-dro
 ### Task 2: Extended useTemplates Hook
 
 **Files:**
+
 - Modify: `apps/frontend/src/hooks/useTemplates.ts`
 
 **Interfaces:**
+
 - Consumes:
   - `api` from `@/lib/api`
   - `useQuery`, `useMutation`, `useQueryClient` from `@tanstack/react-query`
@@ -80,16 +84,14 @@ export const templateKeys = {
 export function useTemplateList() {
   return useQuery({
     queryKey: templateKeys.all,
-    queryFn: () =>
-      api.get<{ data: CVTemplate[] }>('/templates').then((r) => r.data.data),
+    queryFn: () => api.get<{ data: CVTemplate[] }>('/templates').then((r) => r.data.data),
   });
 }
 
 export function useTemplateDetail(id: string) {
   return useQuery({
     queryKey: templateKeys.detail(id),
-    queryFn: () =>
-      api.get<{ data: CVTemplate }>(`/templates/${id}`).then((r) => r.data.data),
+    queryFn: () => api.get<{ data: CVTemplate }>(`/templates/${id}`).then((r) => r.data.data),
     enabled: !!id,
   });
 }
@@ -144,9 +146,11 @@ git commit -m "feat(frontend): extend useTemplates with CRUD mutation hooks"
 ### Task 3: Updated TemplatesPage — Admin Actions
 
 **Files:**
+
 - Modify: `apps/frontend/src/pages/templates/TemplatesPage.tsx`
 
 **Interfaces:**
+
 - Consumes:
   - `useTemplateList`, `useDeleteTemplate` from `@/hooks/useTemplates`
   - `useAuth` from `@/hooks/useAuth`
@@ -180,12 +184,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { CVTemplate } from '@cv-generator/shared';
 
 function DeleteDialog({
@@ -321,7 +320,11 @@ export default function TemplatesPage() {
                   <CardContent>
                     <div className="flex gap-2 flex-wrap">
                       <Badge variant="secondary" className="capitalize text-xs">
-                        {(template.config as { baseLayout?: string })?.baseLayout?.replace('-', ' ') ?? 'custom'} layout
+                        {(template.config as { baseLayout?: string })?.baseLayout?.replace(
+                          '-',
+                          ' ',
+                        ) ?? 'custom'}{' '}
+                        layout
                       </Badge>
                       {template.isBuiltIn && (
                         <Badge variant="outline" className="text-xs">
@@ -363,6 +366,7 @@ Check `apps/frontend/src/App.tsx` (or wherever routes are defined). Add the rout
 ```
 
 Import `TemplateWizardPage` lazily:
+
 ```tsx
 const TemplateWizardPage = lazy(() => import('./pages/templates/TemplateWizardPage'));
 ```
@@ -379,12 +383,14 @@ git commit -m "feat(frontend): update TemplatesPage with admin CRUD actions"
 ### Task 4: TemplateWizardPage — Steps 1, 2, 3
 
 **Files:**
+
 - Create: `apps/frontend/src/pages/templates/TemplateWizardPage.tsx`
 - Create: `apps/frontend/src/pages/templates/wizard/Step1Base.tsx`
 - Create: `apps/frontend/src/pages/templates/wizard/Step2Sections.tsx`
 - Create: `apps/frontend/src/pages/templates/wizard/Step3Colors.tsx`
 
 **Interfaces:**
+
 - Consumes:
   - `useTemplateDetail` from `@/hooks/useTemplates` (for edit mode pre-fill)
   - `useParams`, `useNavigate` from `react-router-dom`
@@ -437,10 +443,10 @@ const BUILT_IN_PRESETS: Array<{
 ];
 
 const DEFAULT_SECTIONS: TemplateConfig['sections'] = [
-  { id: 'header',     label: 'Header',     visible: true,  order: 0 },
-  { id: 'summary',    label: 'Summary',    visible: true,  order: 1 },
-  { id: 'skills',     label: 'Skills',     visible: true,  order: 2 },
-  { id: 'experience', label: 'Experience', visible: true,  order: 3 },
+  { id: 'header', label: 'Header', visible: true, order: 0 },
+  { id: 'summary', label: 'Summary', visible: true, order: 1 },
+  { id: 'skills', label: 'Skills', visible: true, order: 2 },
+  { id: 'experience', label: 'Experience', visible: true, order: 3 },
 ];
 
 interface Props {
@@ -449,7 +455,7 @@ interface Props {
   selectedBase: string;
   onNameChange: (v: string) => void;
   onDescriptionChange: (v: string) => void;
-  onSelectBase: (preset: typeof BUILT_IN_PRESETS[number]) => void;
+  onSelectBase: (preset: (typeof BUILT_IN_PRESETS)[number]) => void;
   isEditing: boolean;
 }
 
@@ -816,10 +822,12 @@ git commit -m "feat(frontend): add wizard step components (base, sections, color
 ### Task 5: TemplateWizardPage — Step 4 + Orchestrator
 
 **Files:**
+
 - Create: `apps/frontend/src/pages/templates/wizard/Step4Preview.tsx`
 - Create: `apps/frontend/src/pages/templates/TemplateWizardPage.tsx`
 
 **Interfaces:**
+
 - Consumes:
   - `Step1Base`, `Step2Sections`, `Step3Colors` from previous task
   - `useCreateTemplate`, `useUpdateTemplate`, `useTemplateDetail` from `@/hooks/useTemplates`
@@ -858,11 +866,11 @@ const SAMPLE_DATA: CVData = {
     updatedAt: new Date().toISOString(),
   },
   skills: [
-    { id: '1', staffId: 'sample', name: 'React',      level: 'expert' },
-    { id: '2', staffId: 'sample', name: 'TypeScript',  level: 'advanced' },
-    { id: '3', staffId: 'sample', name: 'Node.js',     level: 'advanced' },
-    { id: '4', staffId: 'sample', name: 'PostgreSQL',  level: 'intermediate' },
-    { id: '5', staffId: 'sample', name: 'Docker',      level: 'intermediate' },
+    { id: '1', staffId: 'sample', name: 'React', level: 'expert' },
+    { id: '2', staffId: 'sample', name: 'TypeScript', level: 'advanced' },
+    { id: '3', staffId: 'sample', name: 'Node.js', level: 'advanced' },
+    { id: '4', staffId: 'sample', name: 'PostgreSQL', level: 'intermediate' },
+    { id: '5', staffId: 'sample', name: 'Docker', level: 'intermediate' },
   ],
   participations: [
     {
@@ -906,11 +914,13 @@ interface Props {
 export function Step4Preview({ config }: Props) {
   const { data: staffList } = useStaffList();
   const [cvData, setCvData] = useState<CVData | null>(null);
-  const [PDFViewer, setPDFViewer] = useState<React.ComponentType<React.PropsWithChildren<{
-    width: string;
-    height: string;
-    style?: React.CSSProperties;
-  }>> | null>(null);
+  const [PDFViewer, setPDFViewer] = useState<React.ComponentType<
+    React.PropsWithChildren<{
+      width: string;
+      height: string;
+      style?: React.CSSProperties;
+    }>
+  > | null>(null);
 
   // Load first real staff member for preview; fall back to sample data
   useEffect(() => {
@@ -962,7 +972,11 @@ export function Step4Preview({ config }: Props) {
           </div>
         }
       >
-        <PDFViewer width="100%" height="700px" style={{ border: '1px solid #e5e7eb', borderRadius: 8 }}>
+        <PDFViewer
+          width="100%"
+          height="700px"
+          style={{ border: '1px solid #e5e7eb', borderRadius: 8 }}
+        >
           <CVDocument data={cvData} config={config} />
         </PDFViewer>
       </Suspense>
@@ -988,9 +1002,9 @@ import type { TemplateConfig, SectionConfig } from '@cv-generator/shared';
 
 const STEPS = [
   { number: 1, title: 'Base Template', description: 'Choose starting layout and name' },
-  { number: 2, title: 'Sections',      description: 'Reorder and configure sections' },
-  { number: 3, title: 'Colors',        description: 'Set primary and accent colors' },
-  { number: 4, title: 'Preview',       description: 'Review and save your template' },
+  { number: 2, title: 'Sections', description: 'Reorder and configure sections' },
+  { number: 3, title: 'Colors', description: 'Set primary and accent colors' },
+  { number: 4, title: 'Preview', description: 'Review and save your template' },
 ];
 
 export default function TemplateWizardPage() {
@@ -1004,7 +1018,9 @@ export default function TemplateWizardPage() {
 
   const [step, setStep] = useState(1);
   const [templateName, setTemplateName] = useState(existingTemplate?.name ?? '');
-  const [templateDescription, setTemplateDescription] = useState(existingTemplate?.description ?? '');
+  const [templateDescription, setTemplateDescription] = useState(
+    existingTemplate?.description ?? '',
+  );
   const [selectedBase, setSelectedBase] = useState('Classic');
   const [draftConfig, setDraftConfig] = useState<TemplateConfig>(
     (existingTemplate?.config as TemplateConfig | undefined) ?? {
@@ -1012,7 +1028,7 @@ export default function TemplateWizardPage() {
       primaryColor: '#1e293b',
       accentColor: '#475569',
       sections: DEFAULT_SECTIONS,
-    }
+    },
   );
 
   // Sync from fetched template when editing (async load)
@@ -1022,7 +1038,7 @@ export default function TemplateWizardPage() {
     setDraftConfig(existingTemplate.config as TemplateConfig);
   }
 
-  const handleSelectBase = (preset: typeof BUILT_IN_PRESETS[number]) => {
+  const handleSelectBase = (preset: (typeof BUILT_IN_PRESETS)[number]) => {
     setSelectedBase(preset.name);
     setDraftConfig({
       baseLayout: preset.baseLayout,
@@ -1113,10 +1129,7 @@ export default function TemplateWizardPage() {
             />
           )}
           {step === 2 && (
-            <Step2Sections
-              sections={draftConfig.sections}
-              onChange={updateSections}
-            />
+            <Step2Sections sections={draftConfig.sections} onChange={updateSections} />
           )}
           {step === 3 && (
             <Step3Colors
@@ -1126,9 +1139,7 @@ export default function TemplateWizardPage() {
               onAccentChange={(c) => setDraftConfig((p) => ({ ...p, accentColor: c }))}
             />
           )}
-          {step === 4 && (
-            <Step4Preview config={draftConfig} />
-          )}
+          {step === 4 && <Step4Preview config={draftConfig} />}
         </CardContent>
       </Card>
 
@@ -1144,10 +1155,7 @@ export default function TemplateWizardPage() {
         </Button>
 
         {step < 4 ? (
-          <Button
-            onClick={() => setStep((s) => s + 1)}
-            disabled={!canAdvance()}
-          >
+          <Button onClick={() => setStep((s) => s + 1)} disabled={!canAdvance()}>
             Next
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
@@ -1183,6 +1191,7 @@ pnpm dev
 ```
 
 Navigate to `http://localhost:5173/templates`:
+
 - 3 built-in template cards visible (Classic, Modern, Compact)
 - Each card shows the layout badge and "Built-in" badge
 - Admin user sees lock icon on each card (not edit/delete buttons)

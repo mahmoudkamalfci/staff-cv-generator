@@ -135,9 +135,7 @@ describe('Template schemas', () => {
   it('rejects config when header section is invisible', () => {
     const result = TemplateConfigSchema.safeParse({
       ...validConfig,
-      sections: [
-        { id: 'header', label: 'Header Info', visible: false, order: 0 },
-      ],
+      sections: [{ id: 'header', label: 'Header Info', visible: false, order: 0 }],
     });
     expect(result.success).toBe(false);
   });
@@ -145,9 +143,7 @@ describe('Template schemas', () => {
   it('rejects config when header section is missing', () => {
     const result = TemplateConfigSchema.safeParse({
       ...validConfig,
-      sections: [
-        { id: 'summary', label: 'Summary Info', visible: true, order: 0 },
-      ],
+      sections: [{ id: 'summary', label: 'Summary Info', visible: true, order: 0 }],
     });
     expect(result.success).toBe(false);
   });

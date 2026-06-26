@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getInitials } from '@/lib/utils';
+import type { Staff } from '@cv-generator/shared';
 
 export default function StaffListPage() {
   const { data: staff, isLoading } = useStaffList();
@@ -20,7 +21,7 @@ export default function StaffListPage() {
   const [search, setSearch] = useState('');
 
   const filtered = staff?.filter(
-    (s) =>
+    (s: Staff) =>
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.jobTitle.toLowerCase().includes(search.toLowerCase()),
   );
@@ -84,7 +85,7 @@ export default function StaffListPage() {
                 </CardContent>
               </Card>
             ))
-          : filtered?.map((member) => (
+          : filtered?.map((member: Staff) => (
               <Card
                 key={member.id}
                 className="shadow-card hover:shadow-elevated transition-shadow duration-200"
@@ -107,14 +108,26 @@ export default function StaffListPage() {
                   </div>
 
                   <div className="flex gap-2 mt-4 justify-end">
-                    <Button variant="ghost" size="icon" title="View profile" aria-label={`View profile of ${member.name}`} asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title="View profile"
+                      aria-label={`View profile of ${member.name}`}
+                      asChild
+                    >
                       <Link to={`/staff/${member.id}`}>
                         <Eye className="w-4 h-4" />
                       </Link>
                     </Button>
                     {user?.role === 'admin' && (
                       <>
-                        <Button variant="ghost" size="icon" title="Edit" aria-label={`Edit profile of ${member.name}`} asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Edit"
+                          aria-label={`Edit profile of ${member.name}`}
+                          asChild
+                        >
                           <Link to={`/staff/${member.id}/edit`}>
                             <Pencil className="w-4 h-4" />
                           </Link>

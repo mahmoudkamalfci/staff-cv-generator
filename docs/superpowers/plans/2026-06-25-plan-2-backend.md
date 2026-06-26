@@ -24,6 +24,7 @@
 ### Task 1: Backend Project Setup & Core Middleware
 
 **Files:**
+
 - Modify: `apps/backend/package.json`
 - Create: `apps/backend/tsconfig.json`
 - Create: `apps/backend/eslint.config.js`
@@ -37,6 +38,7 @@
 - Create: `apps/backend/src/middleware/logger.ts`
 
 - [ ] **Step 1: Replace `apps/backend/package.json`**
+
 ```json
 {
   "name": "@cv-generator/backend",
@@ -87,15 +89,16 @@
 ```
 
 - [ ] **Step 2: Create `tsconfig.json`, `eslint.config.js`, `.env.example`, `src/config.ts`, `src/middleware/asyncHandler.ts`, `src/middleware/validate.ts` as per standard setup.**
-Ensure `config.ts` exports `databaseUrl`, `port`, `jwtSecret`, etc.
+      Ensure `config.ts` exports `databaseUrl`, `port`, `jwtSecret`, etc.
 
 - [ ] **Step 3: Create `apps/backend/src/middleware/logger.ts`**
+
 ```ts
 import type { Request, Response, NextFunction } from 'express';
 
 export const logger = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
-  res.on("finish", () => {
+  res.on('finish', () => {
     const duration = Date.now() - start;
     console.log(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
   });
@@ -104,11 +107,15 @@ export const logger = (req: Request, res: Response, next: NextFunction): void =>
 ```
 
 - [ ] **Step 4: Create `apps/backend/src/middleware/errorHandler.ts`**
+
 ```ts
 import type { Request, Response, NextFunction } from 'express';
 
 export class AppError extends Error {
-  constructor(public statusCode: number, message: string) {
+  constructor(
+    public statusCode: number,
+    message: string,
+  ) {
     super(message);
     this.name = 'AppError';
     Error.captureStackTrace(this, this.constructor);
@@ -137,6 +144,7 @@ export const errorHandler = (err: any, _req: Request, res: Response, _next: Next
 ```
 
 - [ ] **Step 5: Create `apps/backend/src/app.ts`**
+
 ```ts
 import express from 'express';
 import cors from 'cors';
@@ -171,6 +179,7 @@ export function createApp() {
 ```
 
 - [ ] **Step 6: Create `apps/backend/src/index.ts`**
+
 ```ts
 import { createApp } from './app.js';
 import { config } from './config.js';
@@ -188,11 +197,13 @@ app.listen(config.port, () => {
 ### Task 2: Database Setup with Prisma
 
 **Files:**
+
 - Create: `apps/backend/prisma/schema.prisma`
 - Create: `apps/backend/src/db/prisma.ts`
 - Create: `apps/backend/prisma/seed.ts`
 
 - [ ] **Step 1: Create `prisma/schema.prisma`**
+
 ```prisma
 generator client {
   provider = "prisma-client-js"
@@ -287,12 +298,14 @@ model GeneratedCV {
 ```
 
 - [ ] **Step 2: Create `src/db/prisma.ts`**
+
 ```ts
 import { PrismaClient } from '@prisma/client';
 export const prisma = new PrismaClient();
 ```
 
 - [ ] **Step 3: Create `prisma/seed.ts`**
+
 ```ts
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
@@ -300,9 +313,24 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.template.createMany({
     data: [
-      { name: 'Classic', layoutKey: 'classic', description: 'Traditional two-column layout.', isActive: true },
-      { name: 'Modern', layoutKey: 'modern', description: 'Full-width card-based layout.', isActive: true },
-      { name: 'Compact', layoutKey: 'compact', description: 'Single-column dense layout.', isActive: true },
+      {
+        name: 'Classic',
+        layoutKey: 'classic',
+        description: 'Traditional two-column layout.',
+        isActive: true,
+      },
+      {
+        name: 'Modern',
+        layoutKey: 'modern',
+        description: 'Full-width card-based layout.',
+        isActive: true,
+      },
+      {
+        name: 'Compact',
+        layoutKey: 'compact',
+        description: 'Single-column dense layout.',
+        isActive: true,
+      },
     ],
     skipDuplicates: true,
   });
@@ -321,6 +349,7 @@ main()
 ### Task 3: Auth Routes (Login, Refresh, Logout)
 
 **Files:**
+
 - Create: `apps/backend/src/auth/auth.service.ts`
 - Create: `apps/backend/src/auth/auth.router.ts`
 - Create: `apps/backend/src/middleware/requireAuth.ts`
@@ -336,38 +365,47 @@ main()
 ### Task 4: Staff & Skills Routes (With Pagination)
 
 **Files:**
+
 - Create: `apps/backend/src/staff/staff.router.ts`
 - Create: `apps/backend/src/staff/skills.router.ts`
 - Create: `apps/backend/src/upload/upload.ts` (multer config)
 
 - [ ] **Step 1: Create `staff.router.ts` with Pagination**
-```ts
-staffRouter.get('/', asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 20;
-  
-  const [staff, total] = await Promise.all([
-    prisma.staff.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { name: 'asc' }
-    }),
-    prisma.staff.count()
-  ]);
-  
-  res.json({ data: staff, pagination: { page, limit, total } });
-}));
 
-staffRouter.get('/:id', asyncHandler(async (req, res) => {
-  const staff = await prisma.staff.findUnique({
-    where: { id: req.params.id },
-    include: { skills: true }
-  });
-  if (!staff) throw new AppError(404, 'Staff not found');
-  res.json({ data: staff });
-}));
+```ts
+staffRouter.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+
+    const [staff, total] = await Promise.all([
+      prisma.staff.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { name: 'asc' },
+      }),
+      prisma.staff.count(),
+    ]);
+
+    res.json({ data: staff, pagination: { page, limit, total } });
+  }),
+);
+
+staffRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const staff = await prisma.staff.findUnique({
+      where: { id: req.params.id },
+      include: { skills: true },
+    });
+    if (!staff) throw new AppError(404, 'Staff not found');
+    res.json({ data: staff });
+  }),
+);
 ```
-*(Implement POST, PATCH, DELETE for Staff and Photo Upload as admin-only)*
+
+_(Implement POST, PATCH, DELETE for Staff and Photo Upload as admin-only)_
 
 - [ ] **Step 2: Create `skills.router.ts` for managing specific skills.**
 - [ ] **Step 3: Mount in `app.ts` and commit.**
@@ -377,6 +415,7 @@ staffRouter.get('/:id', asyncHandler(async (req, res) => {
 ### Task 5: Projects & Participations Routes (With Pagination)
 
 **Files:**
+
 - Create: `apps/backend/src/projects/projects.router.ts`
 - Create: `apps/backend/src/projects/participations.router.ts`
 
@@ -389,14 +428,15 @@ staffRouter.get('/:id', asyncHandler(async (req, res) => {
 ### Task 6: CV Generation & Templates Routes
 
 **Files:**
+
 - Create: `apps/backend/src/cv/cv.router.ts`
 - Create: `apps/backend/src/cv/templates.router.ts`
 
 - [ ] **Step 1: Implement `GET /api/cv/:staffId/:templateId`**
-Fetch Staff via `prisma.staff.findUnique` with `include: { skills: true, participations: { include: { project: true } } }`.
-Fetch Template via `prisma.template.findUnique`.
-Log generation via `prisma.generatedCV.create`.
-Return assembled JSON.
+      Fetch Staff via `prisma.staff.findUnique` with `include: { skills: true, participations: { include: { project: true } } }`.
+      Fetch Template via `prisma.template.findUnique`.
+      Log generation via `prisma.generatedCV.create`.
+      Return assembled JSON.
 - [ ] **Step 2: Mount in `app.ts` and commit.**
 
 ---

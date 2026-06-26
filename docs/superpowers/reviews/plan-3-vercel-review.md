@@ -21,18 +21,26 @@ Plan 3 is architecturally sound for a Vite + React 18 SPA scaffold and gets the 
 **Location:** `Task 5 / Step 1 / Sidebar.tsx` (lines ~970–978 of plan)
 
 **Problem:**
+
 ```tsx
 import {
-  LayoutDashboard, Users, FolderKanban, FileText,
-  LayoutTemplate, LogOut, BriefcaseBusiness,
+  LayoutDashboard,
+  Users,
+  FolderKanban,
+  FileText,
+  LayoutTemplate,
+  LogOut,
+  BriefcaseBusiness,
 } from 'lucide-react';
 ```
+
 This is a barrel import of `lucide-react`. The library ships ~1,583 module re-exports in its barrel. In dev, importing from the barrel adds **~2.8 seconds to every cold HMR start**. In production it forces the bundler to analyse the entire icon graph even when only 7 icons are used.
 
-**The plan also imports lucide-react in:**  
-- `Topbar.tsx`: `import { Moon, Sun } from 'lucide-react'`  
-- `LoginPage.tsx`: `import { BriefcaseBusiness, Loader2 } from 'lucide-react'`  
-- `ProtectedRoute.tsx`: `import { Loader2 } from 'lucide-react'`  
+**The plan also imports lucide-react in:**
+
+- `Topbar.tsx`: `import { Moon, Sun } from 'lucide-react'`
+- `LoginPage.tsx`: `import { BriefcaseBusiness, Loader2 } from 'lucide-react'`
+- `ProtectedRoute.tsx`: `import { Loader2 } from 'lucide-react'`
 - `App.tsx`: `import { Loader2 } from 'lucide-react'`
 
 All five files do barrel imports. Vite does NOT apply `optimizePackageImports` transforms (that is a Next.js 13.5+ feature). In Vite, barrel imports are left as-is.
@@ -88,6 +96,7 @@ import { Dialog } from '@radix-ui';
 **Location:** `Task 5 / Step 6 / App.tsx` (lines ~1276–1289 of plan)
 
 **Problem — inline component definition inside module scope:**
+
 ```tsx
 const PageLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -100,9 +109,11 @@ This is defined at module scope (outside `App`), so it is **not** re-created on 
 
 **Separate concern — `QueryClient` initialization:**
 The plan correctly initializes `QueryClient` at module scope outside `App()`:
+
 ```tsx
 const queryClient = new QueryClient({ ... });
 ```
+
 This is perfect compliance with `advanced-init-once`. ✅
 
 ---
@@ -114,6 +125,7 @@ This is perfect compliance with `advanced-init-once`. ✅
 **Location:** `Task 5 / Step 6 / App.tsx` (lines ~1303–1396 of plan)
 
 **Problem:**
+
 ```tsx
 <Suspense fallback={<PageLoader />}>
   <DashboardPage />
@@ -151,6 +163,7 @@ export default function App() {
 **Location:** `Task 5 / Step 2 / Topbar.tsx` (lines ~1068–1073 of plan)
 
 **Problem:**
+
 ```tsx
 const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
 ```
@@ -197,6 +210,7 @@ This also addresses `client-localstorage-schema` (versioned key) and `rerender-l
 **Location:** `Task 4 / Step 2 / AuthContext.tsx` (lines ~892–905 of plan)
 
 **Problem:**
+
 ```tsx
 useEffect(() => {
   const tryRefresh = async () => {
@@ -234,16 +248,17 @@ This **correctly** uses the functional form of `setState` for toggling. ✅
 
 ```tsx
 // LoginPage.tsx
-{errors.email && (
-  <p id="email-error">{errors.email.message}</p>
-)}
+{
+  errors.email && <p id="email-error">{errors.email.message}</p>;
+}
 
-{error && (
-  <div role="alert">{error}</div>
-)}
+{
+  error && <div role="alert">{error}</div>;
+}
 ```
 
 These are all **safe** because:
+
 - `errors.email` is an object or `undefined` — when it's an object, it's truthy; when undefined, nothing renders.
 - `error` is `string | null` — when `null`, nothing renders; when a string, renders.
 
@@ -269,6 +284,7 @@ All conditionals in this plan are safe. No violations of `rendering-conditional-
 **Location:** `ProtectedRoute.tsx`, `App.tsx` (PageLoader), `LoginPage.tsx`
 
 **Problem:**
+
 ```tsx
 <Loader2 className="w-8 h-8 animate-spin text-accent" />
 ```
@@ -276,6 +292,7 @@ All conditionals in this plan are safe. No violations of `rendering-conditional-
 `Loader2` from lucide-react renders as an `<svg>` element. The `animate-spin` class is applied directly to the SVG. Per `rendering-animate-svg-wrapper`, browsers may not GPU-accelerate CSS transforms on SVG elements directly.
 
 **Recommended Fix:**
+
 ```tsx
 <div className="animate-spin">
   <Loader2 className="w-8 h-8 text-accent" />
@@ -293,18 +310,16 @@ All conditionals in this plan are safe. No violations of `rendering-conditional-
 **Problem:** The sidebar `NavLink` components trigger lazy route loading only on navigation. There is no hover-based or focus-based preloading of the chunk.
 
 **Recommended Fix (optional, Plan 4):**
+
 ```tsx
 const preloadRoute = (importFn: () => Promise<unknown>) => () => {
   void importFn();
 };
 
 // In Sidebar:
-<NavLink
-  to="/staff"
-  onMouseEnter={preloadRoute(() => import('@/pages/staff/StaffListPage'))}
->
+<NavLink to="/staff" onMouseEnter={preloadRoute(() => import('@/pages/staff/StaffListPage'))}>
   Staff
-</NavLink>
+</NavLink>;
 ```
 
 This reduces perceived latency by preloading the chunk on hover, before the user actually clicks. **Not critical for Plan 3 scaffold** — implement in Plan 4 with actual pages.
@@ -316,6 +331,7 @@ This reduces perceived latency by preloading the chunk on hover, before the user
 **Location:** `Task 4 / Step 1 / api.ts` (lines ~813–814 of plan)
 
 **Problem:**
+
 ```ts
 let isRefreshing = false;
 let failedQueue: Array<...> = [];
@@ -340,6 +356,7 @@ const login = useCallback(async (input: LoginInput) => {
 ```
 
 `login` has an empty dependency array `[]`. This is correct because:
+
 - `api` is a module-level singleton (stable reference)
 - `setAccessToken` is a module-level function (stable reference)
 - `setUser` is the React `setState` dispatcher (guaranteed stable by React)
@@ -363,6 +380,7 @@ No stale closure risk. ✅
 **Location:** `Task 1 / Step 7 / index.html` (lines ~207–212 of plan)
 
 **Status:** The plan already includes:
+
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -382,15 +400,17 @@ const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 const StaffListPage = lazy(() => import('@/pages/staff/StaffListPage'));
 // ... 8 more lazy imports
 ```
+
 This is excellent. Every page module is code-split, keeping the initial bundle lean. The `Suspense` boundary wrapping is correct. Each import path is statically analyzable (literal strings — compliant with `bundle-analyzable-paths`).
 
 ### ✅ `advanced-init-once` — QueryClient created outside render function
 
 ```tsx
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: 1 } }
+  defaultOptions: { queries: { staleTime: 5 * 60 * 1000, retry: 1 } },
 });
 ```
+
 Module-level initialization ensures the `QueryClient` is created exactly once per app load, not recreated on every render. Perfect.
 
 ### ✅ `rerender-lazy-state-init` — Dark mode initial state uses lazy initializer
@@ -398,6 +418,7 @@ Module-level initialization ensures the `QueryClient` is created exactly once pe
 ```tsx
 const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
 ```
+
 The function form of `useState` ensures the DOM read only happens once on mount, not on every render.
 
 ### ✅ `rerender-functional-setstate` — Toggle uses functional setState
@@ -405,6 +426,7 @@ The function form of `useState` ensures the DOM read only happens once on mount,
 ```tsx
 onClick={() => setDark((d) => !d)}
 ```
+
 Correct functional update form — no stale closure risk.
 
 ### ✅ `async-suspense-boundaries` — Suspense used at route level
@@ -416,6 +438,7 @@ All lazy routes are wrapped in `<Suspense fallback={<PageLoader />}>`. The app s
 ```tsx
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 ```
+
 Every `import()` call uses a statically analyzable literal string. No dynamic variable paths. Vite can tree-shake and chunk-split accurately.
 
 ### ✅ `rerender-no-inline-components` — No components defined inside render functions
@@ -433,9 +456,11 @@ No scroll or touch event listeners are added in this plan. Not applicable.
 ### ✅ No inline `useEffect` for derived state
 
 The `isAuthenticated` value in `AuthContext` is derived inline:
+
 ```tsx
 value={{ user, isAuthenticated: !!user, isLoading, login, logout }}
 ```
+
 Rather than storing it as separate state + `useEffect`, it's computed from `user` during render. This is correct `rerender-derived-state-no-effect` compliance.
 
 ### ✅ JWT token queue in `api.ts` correctly handles concurrent 401s
@@ -464,7 +489,10 @@ export default defineConfig({
   resolve: { alias: { '@': path.resolve(__dirname, './src') } },
   server: {
     port: 5173,
-    proxy: { '/api': { target: 'http://localhost:3001', changeOrigin: true }, '/uploads': { target: 'http://localhost:3001', changeOrigin: true } },
+    proxy: {
+      '/api': { target: 'http://localhost:3001', changeOrigin: true },
+      '/uploads': { target: 'http://localhost:3001', changeOrigin: true },
+    },
   },
   optimizeDeps: {
     include: ['lucide-react'], // ← ADD THIS
@@ -479,19 +507,25 @@ export default defineConfig({
 **2. Hoist `PageLoader` JSX element outside `App`** (Task 5, Step 6 — `App.tsx`)
 
 Replace the current pattern:
+
 ```tsx
 // BEFORE — JSX recreated on every App render
 const PageLoader = () => (
-  <div className="..."><Loader2 className="..." /></div>
+  <div className="...">
+    <Loader2 className="..." />
+  </div>
 );
 ```
 
 With a hoisted static element:
+
 ```tsx
 // AFTER — static JSX element, never recreated
 const PAGE_FALLBACK = (
   <div className="flex items-center justify-center h-64">
-    <div className="animate-spin">  {/* ← also fixes rendering-animate-svg-wrapper */}
+    <div className="animate-spin">
+      {' '}
+      {/* ← also fixes rendering-animate-svg-wrapper */}
       <Loader2 className="w-8 h-8 text-accent" />
     </div>
   </div>
@@ -556,6 +590,7 @@ Document in Plan 4 (not Plan 3) that Sidebar nav links should preload route chun
 **6. Add note about `isRefreshing` SSR caveat** (Task 4, Step 1 — `api.ts`)
 
 Add a comment in `api.ts`:
+
 ```ts
 // NOTE: isRefreshing and failedQueue are module-level mutable state.
 // This is intentional and correct for a pure SPA (no SSR).
@@ -579,21 +614,21 @@ Low visual impact but removes the CSS-on-SVG hardware acceleration limitation.
 
 The following Vercel rules were reviewed and explicitly determined to be non-applicable to this Vite + React 18 SPA:
 
-| Rule ID | Reason Skipped |
-|---|---|
-| `server-auth-actions` | No Server Actions (Next.js feature) |
-| `server-cache-react` | No RSC, no React.cache() in client SPAs |
-| `server-cache-lru` | No server-side request handling |
-| `server-dedup-props` | No RSC/client boundary serialization |
-| `server-hoist-static-io` | No server route handlers |
-| `server-no-shared-module-state` | SPA has single-process client — safe |
-| `server-serialization` | No RSC props |
-| `server-parallel-fetching` | No RSC component trees |
-| `server-parallel-nested-fetching` | No RSC |
-| `server-after-nonblocking` | No `after()` API (Next.js only) |
-| `rendering-hydration-no-flicker` | No SSR hydration |
-| `rendering-hydration-suppress-warning` | No SSR |
-| `client-swr-dedup` | Plan uses React Query instead of SWR — equivalent, acceptable |
+| Rule ID                                | Reason Skipped                                                |
+| -------------------------------------- | ------------------------------------------------------------- |
+| `server-auth-actions`                  | No Server Actions (Next.js feature)                           |
+| `server-cache-react`                   | No RSC, no React.cache() in client SPAs                       |
+| `server-cache-lru`                     | No server-side request handling                               |
+| `server-dedup-props`                   | No RSC/client boundary serialization                          |
+| `server-hoist-static-io`               | No server route handlers                                      |
+| `server-no-shared-module-state`        | SPA has single-process client — safe                          |
+| `server-serialization`                 | No RSC props                                                  |
+| `server-parallel-fetching`             | No RSC component trees                                        |
+| `server-parallel-nested-fetching`      | No RSC                                                        |
+| `server-after-nonblocking`             | No `after()` API (Next.js only)                               |
+| `rendering-hydration-no-flicker`       | No SSR hydration                                              |
+| `rendering-hydration-suppress-warning` | No SSR                                                        |
+| `client-swr-dedup`                     | Plan uses React Query instead of SWR — equivalent, acceptable |
 
 > **Note on `client-swr-dedup`:** The plan uses `@tanstack/react-query` for data fetching. React Query provides equivalent (and often superior) automatic deduplication, caching, and background revalidation compared to SWR. The `client-swr-dedup` rule's intent is fully satisfied by TanStack Query's design. No change needed.
 
@@ -601,15 +636,15 @@ The following Vercel rules were reviewed and explicitly determined to be non-app
 
 ## Summary Scorecard
 
-| Category | Violations | Credits | Net Score |
-|---|---|---|---|
-| 1. Eliminating Waterfalls | 0 critical | Auth context uses correct async patterns | ✅ Pass |
-| 2. Bundle Size Optimization | **2 critical** (lucide barrel, manual radix note missing) | All pages lazy-loaded, static import paths | ⚠️ Fix Required |
-| 3. Server-Side Performance | N/A | — | ➖ Skipped |
-| 4. Client-Side Data Fetching | 1 important (localStorage) | TanStack Query used correctly | ⚠️ Fix Recommended |
-| 5. Re-render Optimization | 1 important (PageLoader JSX), 1 minor | Functional setState, useCallback stable deps, derived auth state | ⚠️ Fix Recommended |
-| 6. Rendering Performance | 1 minor (SVG spinner) | Static Suspense fallback pattern understood | ℹ️ Minor |
-| 7. JavaScript Performance | 0 | No hot loops in scaffold | ✅ Pass |
-| 8. Advanced Patterns | 0 | QueryClient initialized once at module level | ✅ Pass |
+| Category                     | Violations                                                | Credits                                                          | Net Score          |
+| ---------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------- | ------------------ |
+| 1. Eliminating Waterfalls    | 0 critical                                                | Auth context uses correct async patterns                         | ✅ Pass            |
+| 2. Bundle Size Optimization  | **2 critical** (lucide barrel, manual radix note missing) | All pages lazy-loaded, static import paths                       | ⚠️ Fix Required    |
+| 3. Server-Side Performance   | N/A                                                       | —                                                                | ➖ Skipped         |
+| 4. Client-Side Data Fetching | 1 important (localStorage)                                | TanStack Query used correctly                                    | ⚠️ Fix Recommended |
+| 5. Re-render Optimization    | 1 important (PageLoader JSX), 1 minor                     | Functional setState, useCallback stable deps, derived auth state | ⚠️ Fix Recommended |
+| 6. Rendering Performance     | 1 minor (SVG spinner)                                     | Static Suspense fallback pattern understood                      | ℹ️ Minor           |
+| 7. JavaScript Performance    | 0                                                         | No hot loops in scaffold                                         | ✅ Pass            |
+| 8. Advanced Patterns         | 0                                                         | QueryClient initialized once at module level                     | ✅ Pass            |
 
 **Overall Verdict: Plan is ready to implement after addressing P0 (2 items) and P1 (2 items) updates.**

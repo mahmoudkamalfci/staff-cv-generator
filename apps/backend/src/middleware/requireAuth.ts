@@ -45,7 +45,7 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction): v
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-  
+
   if (req.user.role !== 'admin') {
     res.status(403).json({ error: 'Forbidden: Admin access required' });
     return;

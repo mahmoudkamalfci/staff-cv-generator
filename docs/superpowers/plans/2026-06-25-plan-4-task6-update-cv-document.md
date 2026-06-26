@@ -24,9 +24,11 @@
 ### Task 1: Install @react-pdf/renderer
 
 **Files:**
+
 - Modify: `apps/frontend/package.json`
 
 **Interfaces:**
+
 - Produces: `@react-pdf/renderer` available as a dependency in the frontend app
 
 - [ ] **Step 1: Install the package**
@@ -58,10 +60,12 @@ git commit -m "feat(frontend): install @react-pdf/renderer"
 ### Task 2: CVDocument — The Single Rendering Component
 
 **Files:**
+
 - Create: `apps/frontend/src/components/cv-templates/CVDocument.tsx`
 - Delete (if they exist from earlier Plan 4 work): `apps/frontend/src/components/cv-templates/ClassicTemplate.tsx`, `ModernTemplate.tsx`, `CompactTemplate.tsx`
 
 **Interfaces:**
+
 - Consumes:
   - `CVData` from `@cv-generator/shared`
   - `TemplateConfig`, `SectionConfig` from `@cv-generator/shared`
@@ -74,15 +78,7 @@ git commit -m "feat(frontend): install @react-pdf/renderer"
 ```tsx
 // IMPORTANT: @react-pdf/renderer is ONLY imported in this file.
 // All other files that need PDF rendering must lazy-load this component.
-import {
-  Document,
-  Page,
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Font,
-} from '@react-pdf/renderer';
+import { Document, Page, View, Text, Image, StyleSheet, Font } from '@react-pdf/renderer';
 import type { CVData, TemplateConfig, SectionConfig } from '@cv-generator/shared';
 
 // Register a clean sans-serif font (built into react-pdf — no network request)
@@ -182,9 +178,7 @@ function HeaderSection({ data, styles }: { data: CVData; styles: ReturnType<type
   const { staff } = data;
   return (
     <View style={styles.headerBox}>
-      {staff.photoUrl && (
-        <Image style={styles.headerPhoto} src={staff.photoUrl} />
-      )}
+      {staff.photoUrl && <Image style={styles.headerPhoto} src={staff.photoUrl} />}
       <View>
         <Text style={styles.headerName}>{staff.name}</Text>
         <Text style={styles.headerTitle}>{staff.jobTitle}</Text>
@@ -194,7 +188,15 @@ function HeaderSection({ data, styles }: { data: CVData; styles: ReturnType<type
   );
 }
 
-function SummarySection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
+function SummarySection({
+  data,
+  label,
+  styles,
+}: {
+  data: CVData;
+  label: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View>
       <Text style={styles.sectionHeading}>{label}</Text>
@@ -203,7 +205,15 @@ function SummarySection({ data, label, styles }: { data: CVData; label: string; 
   );
 }
 
-function SkillsSection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
+function SkillsSection({
+  data,
+  label,
+  styles,
+}: {
+  data: CVData;
+  label: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View>
       <Text style={styles.sectionHeading}>{label}</Text>
@@ -222,7 +232,15 @@ function SkillsSection({ data, label, styles }: { data: CVData; label: string; s
   );
 }
 
-function ExperienceSection({ data, label, styles }: { data: CVData; label: string; styles: ReturnType<typeof makeStyles> }) {
+function ExperienceSection({
+  data,
+  label,
+  styles,
+}: {
+  data: CVData;
+  label: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const formatDate = (d: string | null | undefined) => {
     if (!d) return 'Present';
     return new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -235,13 +253,16 @@ function ExperienceSection({ data, label, styles }: { data: CVData; label: strin
         <View key={p.id} style={styles.expCard}>
           <Text style={styles.expProject}>{p.project.name}</Text>
           <Text style={styles.expMeta}>
-            {p.project.client} · {p.project.location} · {formatDate(p.project.startDate)} — {formatDate(p.project.endDate)}
+            {p.project.client} · {p.project.location} · {formatDate(p.project.startDate)} —{' '}
+            {formatDate(p.project.endDate)}
           </Text>
           <Text style={styles.expRole}>{p.role}</Text>
           <Text style={styles.expDesc}>{p.responsibilities}</Text>
           <View style={styles.techWrap}>
             {(p.project.technologies as string[]).map((t) => (
-              <Text key={t} style={styles.techChip}>{t}</Text>
+              <Text key={t} style={styles.techChip}>
+                {t}
+              </Text>
             ))}
           </View>
         </View>
@@ -250,7 +271,13 @@ function ExperienceSection({ data, label, styles }: { data: CVData; label: strin
   );
 }
 
-function CustomSection({ section, styles }: { section: SectionConfig; styles: ReturnType<typeof makeStyles> }) {
+function CustomSection({
+  section,
+  styles,
+}: {
+  section: SectionConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   return (
     <View>
       <Text style={styles.sectionHeading}>{section.label}</Text>
@@ -260,14 +287,20 @@ function CustomSection({ section, styles }: { section: SectionConfig; styles: Re
 }
 
 // --- Layout renderers ---
-function renderSection(section: SectionConfig, data: CVData, styles: ReturnType<typeof makeStyles>) {
+function renderSection(
+  section: SectionConfig,
+  data: CVData,
+  styles: ReturnType<typeof makeStyles>,
+) {
   switch (section.id) {
     case 'summary':
       return <SummarySection key={section.id} data={data} label={section.label} styles={styles} />;
     case 'skills':
       return <SkillsSection key={section.id} data={data} label={section.label} styles={styles} />;
     case 'experience':
-      return <ExperienceSection key={section.id} data={data} label={section.label} styles={styles} />;
+      return (
+        <ExperienceSection key={section.id} data={data} label={section.label} styles={styles} />
+      );
     case 'custom':
       return <CustomSection key={`custom-${section.order}`} section={section} styles={styles} />;
     default:
@@ -275,19 +308,31 @@ function renderSection(section: SectionConfig, data: CVData, styles: ReturnType<
   }
 }
 
-function OneColumnLayout({ data, config, styles }: { data: CVData; config: TemplateConfig; styles: ReturnType<typeof makeStyles> }) {
+function OneColumnLayout({
+  data,
+  config,
+  styles,
+}: {
+  data: CVData;
+  config: TemplateConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const sections = config.sections
     .filter((s) => s.visible && s.id !== 'header')
     .sort((a, b) => a.order - b.order);
 
-  return (
-    <View style={styles.fullCol}>
-      {sections.map((s) => renderSection(s, data, styles))}
-    </View>
-  );
+  return <View style={styles.fullCol}>{sections.map((s) => renderSection(s, data, styles))}</View>;
 }
 
-function TwoColumnLayout({ data, config, styles }: { data: CVData; config: TemplateConfig; styles: ReturnType<typeof makeStyles> }) {
+function TwoColumnLayout({
+  data,
+  config,
+  styles,
+}: {
+  data: CVData;
+  config: TemplateConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const sections = config.sections
     .filter((s) => s.visible && s.id !== 'header')
     .sort((a, b) => a.order - b.order);
@@ -300,14 +345,20 @@ function TwoColumnLayout({ data, config, styles }: { data: CVData; config: Templ
       <View style={styles.sideCol}>
         {sidebarSections.map((s) => renderSection(s, data, styles))}
       </View>
-      <View style={styles.mainCol}>
-        {mainSections.map((s) => renderSection(s, data, styles))}
-      </View>
+      <View style={styles.mainCol}>{mainSections.map((s) => renderSection(s, data, styles))}</View>
     </View>
   );
 }
 
-function ThreeColumnLayout({ data, config, styles }: { data: CVData; config: TemplateConfig; styles: ReturnType<typeof makeStyles> }) {
+function ThreeColumnLayout({
+  data,
+  config,
+  styles,
+}: {
+  data: CVData;
+  config: TemplateConfig;
+  styles: ReturnType<typeof makeStyles>;
+}) {
   const sections = config.sections
     .filter((s) => s.visible && s.id !== 'header')
     .sort((a, b) => a.order - b.order);
@@ -374,9 +425,11 @@ git commit -m "feat(frontend): add CVDocument react-pdf rendering engine"
 ### Task 3: Updated CVPreviewPage — PDFViewer
 
 **Files:**
+
 - Modify: `apps/frontend/src/pages/cv/CVPreviewPage.tsx`
 
 **Interfaces:**
+
 - Consumes:
   - `useSuspenseQuery` from `@tanstack/react-query`
   - `api` from `@/lib/api`
@@ -405,16 +458,16 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
   const { data } = useSuspenseQuery<CVData>({
     queryKey: ['cv', staffId, templateId],
     queryFn: () =>
-      api
-        .get<{ data: CVData }>(`/cv/${staffId}/${templateId}`)
-        .then((r) => r.data.data),
+      api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data),
   });
 
-  const [PDFViewer, setPDFViewer] = useState<React.ComponentType<React.PropsWithChildren<{
-    width: string;
-    height: string;
-    style?: React.CSSProperties;
-  }>> | null>(null);
+  const [PDFViewer, setPDFViewer] = useState<React.ComponentType<
+    React.PropsWithChildren<{
+      width: string;
+      height: string;
+      style?: React.CSSProperties;
+    }>
+  > | null>(null);
 
   // Lazy-load PDFViewer on mount (only after data is ready)
   if (!PDFViewer) {
@@ -460,7 +513,7 @@ function DownloadButton({ staffId, templateId }: { staffId: string; templateId: 
 
       const blob = await pdf(
         // @ts-expect-error — dynamic import renders fine at runtime
-        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />
+        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />,
       ).toBlob();
 
       const url = URL.createObjectURL(blob);
@@ -534,9 +587,11 @@ git commit -m "feat(frontend): replace window.print with PDFViewer in CVPreviewP
 ### Task 4: Updated CVGeneratorPage — Inline Download Button
 
 **Files:**
+
 - Modify: `apps/frontend/src/pages/cv/CVGeneratorPage.tsx`
 
 **Interfaces:**
+
 - Consumes:
   - `useStaffList` from `@/hooks/useStaff`
   - `useTemplateList` from `@/hooks/useTemplates`
@@ -603,7 +658,7 @@ export default function CVGeneratorPage() {
 
       const blob = await pdf(
         // @ts-expect-error — JSX in dynamic import context
-        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />
+        <CVDocumentComponent data={cvResponse} config={cvResponse.template.config} />,
       ).toBlob();
 
       const url = URL.createObjectURL(blob);
@@ -806,9 +861,11 @@ pnpm dev
 - [ ] **Step 3: Verify template config is respected**
 
 1. In the browser, call the API directly:
+
 ```
 GET /api/cv/:staffId/:templateId (use the "Modern" template)
 ```
+
 2. Confirm the response includes `template.config.baseLayout === 'one-column'`
 3. Confirm the PDF viewer shows the single-column layout for Modern vs two-column for Classic
 

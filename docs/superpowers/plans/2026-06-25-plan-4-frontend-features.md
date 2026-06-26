@@ -2147,6 +2147,7 @@ export function CompactTemplate({ data }: Props) {
 > **Fix 1 (P0) — `bundle-dynamic-imports`:** Templates are lazy-loaded so users only download the template they select, not all three. Each `React.lazy` import uses a statically analyzable string literal so Vite can split each template into its own chunk.
 >
 > **Fix 2 (P0) — `bundle-dynamic-imports` (@react-pdf/renderer):** `@react-pdf/renderer` is a heavy package (~500KB). It must only be loaded on-demand when the user clicks 'Generate PDF', **never** as part of the initial page load. If a PDF download button is added in future, use dynamic import gated behind the user action:
+>
 > ```tsx
 > // Load PDF renderer only when user triggers PDF generation
 > const handleGeneratePDF = async () => {
@@ -2154,11 +2155,13 @@ export function CompactTemplate({ data }: Props) {
 >   // ... use pdf()
 > };
 > ```
+>
 > Do NOT add `import ... from '@react-pdf/renderer'` as a static top-level import.
 >
 > **Fix 3 (P1) — `async-suspense-boundaries`:** CVPreviewPage is split into a **static shell** (toolbar renders immediately with zero data) and a **data-driven inner component** (`CVContent`) wrapped in `<Suspense>`. This means the Print and Back buttons are always visible — even while CV data is loading.
 >
 > **Component architecture:**
+>
 > ```tsx
 > // CVPreviewPage renders the toolbar immediately
 > export default function CVPreviewPage() {
@@ -2186,13 +2189,13 @@ import type { CVData, LayoutKey } from '@cv-generator/shared';
 // Each template is lazy-loaded so only the selected template's code is downloaded.
 // String literals are statically analyzable by Vite for chunk splitting.
 const ClassicTemplate = lazy(() =>
-  import('@/components/cv-templates/ClassicTemplate').then(m => ({ default: m.ClassicTemplate }))
+  import('@/components/cv-templates/ClassicTemplate').then((m) => ({ default: m.ClassicTemplate })),
 );
 const ModernTemplate = lazy(() =>
-  import('@/components/cv-templates/ModernTemplate').then(m => ({ default: m.ModernTemplate }))
+  import('@/components/cv-templates/ModernTemplate').then((m) => ({ default: m.ModernTemplate })),
 );
 const CompactTemplate = lazy(() =>
-  import('@/components/cv-templates/CompactTemplate').then(m => ({ default: m.CompactTemplate }))
+  import('@/components/cv-templates/CompactTemplate').then((m) => ({ default: m.CompactTemplate })),
 );
 
 const templateComponents = {
@@ -2215,7 +2218,7 @@ function CVContent({ staffId, templateId }: { staffId: string; templateId: strin
   // useSuspenseQuery integrates cleanly with the <Suspense> boundary above
   const { data, error } = useSuspenseQuery<CVData>({
     queryKey: ['cv', staffId, templateId],
-    queryFn: () => api.get<CVData>(`/cv/${staffId}/${templateId}`).then(r => r.data),
+    queryFn: () => api.get<CVData>(`/cv/${staffId}/${templateId}`).then((r) => r.data),
   });
 
   if (error || !data) {

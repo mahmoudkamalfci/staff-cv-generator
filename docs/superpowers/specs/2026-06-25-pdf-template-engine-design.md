@@ -89,6 +89,7 @@ model Template {
 ```
 
 **Field notes:**
+
 - `layoutKey`: `'classic' | 'modern' | 'compact'` for built-in templates; UUID string for custom ones
 - `isBuiltIn`: when `true`, PATCH and DELETE are blocked at the API level (returns 403)
 - `config`: a `TemplateConfig` JSON object — see below
@@ -98,21 +99,22 @@ model Template {
 ```ts
 type TemplateConfig = {
   baseLayout: 'one-column' | 'two-column' | 'three-column';
-  primaryColor: string;    // hex color, e.g. "#1e3a5f"
-  accentColor: string;     // hex color, e.g. "#2e86de"
+  primaryColor: string; // hex color, e.g. "#1e3a5f"
+  accentColor: string; // hex color, e.g. "#2e86de"
   sections: SectionConfig[];
 };
 
 type SectionConfig = {
   id: 'header' | 'summary' | 'skills' | 'experience' | 'custom';
-  label: string;           // display name shown in PDF
-  visible: boolean;        // if false, section is skipped in rendering
-  order: number;           // ascending sort order
-  content?: string;        // only used when id === 'custom' (admin-written static text)
+  label: string; // display name shown in PDF
+  visible: boolean; // if false, section is skipped in rendering
+  order: number; // ascending sort order
+  content?: string; // only used when id === 'custom' (admin-written static text)
 };
 ```
 
 **Section rules:**
+
 - `header` is always `visible: true` and cannot be toggled off — it is enforced at the schema level with a Zod refinement
 - `custom` sections have a user-defined `label` and static `content` field (plain text, no markdown)
 - Max 10 sections total (Zod `.max(10)` constraint to prevent abuse)
@@ -136,10 +138,9 @@ export const TemplateConfigSchema = z.object({
     .array(SectionConfigSchema)
     .min(1)
     .max(10)
-    .refine(
-      (sections) => sections.some((s) => s.id === 'header' && s.visible),
-      { message: 'Header section must always be visible' }
-    ),
+    .refine((sections) => sections.some((s) => s.id === 'header' && s.visible), {
+      message: 'Header section must always be visible',
+    }),
 });
 
 export const CreateTemplateInputSchema = z.object({
@@ -158,46 +159,49 @@ export type UpdateTemplateInput = z.infer<typeof UpdateTemplateInputSchema>;
 ### Built-in Template Default Configs (seeded)
 
 **Classic** (`two-column`, dark slate header):
+
 ```json
 {
   "baseLayout": "two-column",
   "primaryColor": "#1e293b",
   "accentColor": "#475569",
   "sections": [
-    { "id": "header",     "label": "Header",     "visible": true,  "order": 0 },
-    { "id": "skills",     "label": "Skills",     "visible": true,  "order": 1 },
-    { "id": "summary",    "label": "Profile",    "visible": true,  "order": 2 },
-    { "id": "experience", "label": "Experience", "visible": true,  "order": 3 }
+    { "id": "header", "label": "Header", "visible": true, "order": 0 },
+    { "id": "skills", "label": "Skills", "visible": true, "order": 1 },
+    { "id": "summary", "label": "Profile", "visible": true, "order": 2 },
+    { "id": "experience", "label": "Experience", "visible": true, "order": 3 }
   ]
 }
 ```
 
 **Modern** (`one-column`, blue gradient header):
+
 ```json
 {
   "baseLayout": "one-column",
   "primaryColor": "#1d4ed8",
   "accentColor": "#3b82f6",
   "sections": [
-    { "id": "header",     "label": "Header",     "visible": true,  "order": 0 },
-    { "id": "summary",    "label": "About",      "visible": true,  "order": 1 },
-    { "id": "skills",     "label": "Skills",     "visible": true,  "order": 2 },
-    { "id": "experience", "label": "Experience", "visible": true,  "order": 3 }
+    { "id": "header", "label": "Header", "visible": true, "order": 0 },
+    { "id": "summary", "label": "About", "visible": true, "order": 1 },
+    { "id": "skills", "label": "Skills", "visible": true, "order": 2 },
+    { "id": "experience", "label": "Experience", "visible": true, "order": 3 }
   ]
 }
 ```
 
 **Compact** (`one-column`, minimal monochrome):
+
 ```json
 {
   "baseLayout": "one-column",
   "primaryColor": "#111827",
   "accentColor": "#374151",
   "sections": [
-    { "id": "header",     "label": "Header",     "visible": true,  "order": 0 },
-    { "id": "summary",    "label": "Summary",    "visible": true,  "order": 1 },
-    { "id": "skills",     "label": "Skills",     "visible": true,  "order": 2 },
-    { "id": "experience", "label": "Experience", "visible": true,  "order": 3 }
+    { "id": "header", "label": "Header", "visible": true, "order": 0 },
+    { "id": "summary", "label": "Summary", "visible": true, "order": 1 },
+    { "id": "skills", "label": "Skills", "visible": true, "order": 2 },
+    { "id": "experience", "label": "Experience", "visible": true, "order": 3 }
   ]
 }
 ```
@@ -211,15 +215,18 @@ export type UpdateTemplateInput = z.infer<typeof UpdateTemplateInputSchema>;
 ### Tasks
 
 **Task 1 — Prisma Migration**
+
 - Add `isBuiltIn Boolean @default(false)` and `config Json` columns to `Template`
 - Run `prisma migrate dev --name add-template-config`
 - Update seed to populate `config` and set `isBuiltIn: true` for the 3 built-in templates
 
 **Task 2 — Shared Schema**
+
 - Add `TemplateConfigSchema`, `CreateTemplateInputSchema`, `UpdateTemplateInputSchema` to `packages/shared`
 - Export new types: `TemplateConfig`, `CreateTemplateInput`, `UpdateTemplateInput`
 
 **Task 3 — Template CRUD Routes**
+
 - `POST /api/templates` — admin only; validates body with `CreateTemplateInputSchema`; generates UUID as `layoutKey`
 - `PATCH /api/templates/:id` — admin only; validates body with `UpdateTemplateInputSchema`; returns 403 if `isBuiltIn`
 - `DELETE /api/templates/:id` — admin only; returns 403 if `isBuiltIn`
@@ -227,9 +234,11 @@ export type UpdateTemplateInput = z.infer<typeof UpdateTemplateInputSchema>;
 - `GET /api/templates/:id` — unchanged route, returns full template object
 
 **Task 4 — CV Assembly Route Update**
+
 - `GET /api/cv/:staffId/:templateId` already returns the template object; confirm it now includes the `config` field in its response (should be automatic once the column exists)
 
 ### API Constraints
+
 - All template mutation routes require `requireAuth` + `requireAdmin` middleware
 - `isBuiltIn` is never writable via the API — it is server-controlled only
 - `layoutKey` for custom templates is set server-side to `uuid()` — not user-supplied
@@ -257,6 +266,7 @@ CVDocument({ data: CVData, config: TemplateConfig })
 ```
 
 **Section renderers (internal sub-components in same file):**
+
 - `HeaderSection` — staff name, job title, years experience, photo (react-pdf `<Image>`)
 - `SummarySection` — plain text paragraph from `staff.summary`
 - `SkillsSection` — skill name + level indicator chips
@@ -275,6 +285,7 @@ CVDocument({ data: CVData, config: TemplateConfig })
 ### Updated `CVGeneratorPage.tsx`
 
 Adds a **"Download PDF"** button alongside the existing "Preview CV" button:
+
 - "Preview CV" → `navigate('/cv/preview/:staffId/:templateId')`
 - "Download PDF" → inline download (fetches CV data, renders `CVDocument`, downloads blob) without navigating away
 - Both buttons are disabled until staff + template are selected
@@ -285,11 +296,11 @@ Adds a **"Download PDF"** button alongside the existing "Preview CV" button:
 
 ### New Pages & Routes
 
-| Route | Component | Purpose |
-|-------|-----------|---------|
-| `/templates` | `TemplatesPage` | Template list with admin actions |
-| `/templates/new` | `TemplateWizardPage` | 4-step create wizard |
-| `/templates/:id/edit` | `TemplateWizardPage` | 4-step edit wizard (pre-filled) |
+| Route                 | Component            | Purpose                          |
+| --------------------- | -------------------- | -------------------------------- |
+| `/templates`          | `TemplatesPage`      | Template list with admin actions |
+| `/templates/new`      | `TemplateWizardPage` | 4-step create wizard             |
+| `/templates/:id/edit` | `TemplateWizardPage` | 4-step edit wizard (pre-filled)  |
 
 ### `TemplatesPage` (Updated)
 
@@ -305,12 +316,14 @@ Adds a **"Download PDF"** button alongside the existing "Preview CV" button:
 State managed with `React.useState` — a single `draftConfig: TemplateConfig` object updated as the user progresses. When editing, initial state is pre-populated from the fetched template.
 
 **Step 1 — Base Template**
+
 - Template name `<Input>` field (required)
 - Template description `<Textarea>` (optional)
 - Grid of 3 cards (Classic, Modern, Compact) — clicking one sets `draftConfig` to that built-in template's default config (copied, not referenced)
 - If editing an existing template, the wizard skips base selection (the existing config is the starting point)
 
 **Step 2 — Sections**
+
 - Uses `@hello-pangea/dnd` (fork of `react-beautiful-dnd`) for drag-and-drop reordering
 - Each section row:
   - Drag handle icon
@@ -321,11 +334,13 @@ State managed with `React.useState` — a single `draftConfig: TemplateConfig` o
 - Custom sections show an expandable textarea for `content`
 
 **Step 3 — Colors**
+
 - Two `<input type="color">` pickers: Primary Color + Accent Color
 - Live color swatch previews next to each picker
 - HEX value shown and editable as a text input alongside the color picker
 
 **Step 4 — Preview**
+
 - Fetches the first available staff member from the API (or falls back to a hardcoded sample if none exist)
 - Renders `<PDFViewer>` with `<CVDocument data={sampleData} config={draftConfig} />`
 - Shows the actual PDF output before saving
@@ -334,6 +349,7 @@ State managed with `React.useState` — a single `draftConfig: TemplateConfig` o
   - On edit: `PATCH /api/templates/:id` → redirects to `/templates` on success
 
 **Step navigation:**
+
 - "Next" / "Back" buttons persist state across steps (no data lost on step change)
 - Step indicator (1 of 4) shown in wizard header
 - "Cancel" link returns to `/templates` without saving
@@ -341,6 +357,7 @@ State managed with `React.useState` — a single `draftConfig: TemplateConfig` o
 ### New Data Hook: `useTemplates.ts` (extended)
 
 Adds to the existing `useTemplateList`:
+
 - `useTemplateDetail(id)` — `GET /api/templates/:id`
 - `useCreateTemplate()` — `POST /api/templates`
 - `useUpdateTemplate(id)` — `PATCH /api/templates/:id`
@@ -387,14 +404,14 @@ CVGeneratorPage
 
 ## Error Handling
 
-| Scenario | Handling |
-|----------|----------|
-| `CVData` fetch fails | Error boundary shows "Failed to load CV data" with Back button |
-| `pdf().toBlob()` throws | Toast error: "PDF generation failed. Please try again." |
-| Template create/update fails | Toast error with server message |
-| Delete built-in template (403) | Toast error: "Built-in templates cannot be deleted" |
-| Staff member has no photo | `<Image>` is omitted (conditional render) |
-| Custom section has empty content | Section still renders with label only |
+| Scenario                         | Handling                                                       |
+| -------------------------------- | -------------------------------------------------------------- |
+| `CVData` fetch fails             | Error boundary shows "Failed to load CV data" with Back button |
+| `pdf().toBlob()` throws          | Toast error: "PDF generation failed. Please try again."        |
+| Template create/update fails     | Toast error with server message                                |
+| Delete built-in template (403)   | Toast error: "Built-in templates cannot be deleted"            |
+| Staff member has no photo        | `<Image>` is omitted (conditional render)                      |
+| Custom section has empty content | Section still renders with label only                          |
 
 ---
 
@@ -402,11 +419,11 @@ CVGeneratorPage
 
 This spec produces **3 plan documents**:
 
-| Plan | Title | Scope |
-|------|-------|-------|
-| Plan 5 | Backend Template Extension | Prisma migration, shared schemas, template CRUD routes |
-| Plan 4 (update) | Frontend — Task 6 replaced | CVDocument.tsx, updated CVPreviewPage, updated CVGeneratorPage |
-| Plan 6 | Frontend Template Builder | TemplatesPage update, TemplateWizardPage, drag-and-drop sections |
+| Plan            | Title                      | Scope                                                            |
+| --------------- | -------------------------- | ---------------------------------------------------------------- |
+| Plan 5          | Backend Template Extension | Prisma migration, shared schemas, template CRUD routes           |
+| Plan 4 (update) | Frontend — Task 6 replaced | CVDocument.tsx, updated CVPreviewPage, updated CVGeneratorPage   |
+| Plan 6          | Frontend Template Builder  | TemplatesPage update, TemplateWizardPage, drag-and-drop sections |
 
 > **Note:** Plan 4 Tasks 1–5 (data hooks, dashboard, staff pages, project pages, CV generator page base) are NOT affected by this spec. Only Task 6 is replaced.
 
@@ -415,6 +432,7 @@ This spec produces **3 plan documents**:
 ## Dependencies
 
 **New frontend packages:**
+
 - `@react-pdf/renderer` — already in discussion; must be added to `apps/frontend/package.json`
 - `@hello-pangea/dnd` — drag-and-drop for section reordering in wizard
 

@@ -11,13 +11,16 @@ import { CreateTemplateInputSchema, UpdateTemplateInputSchema } from '@cv-genera
 export const templatesRouter: Router = Router();
 
 // GET /api/templates — all active templates (public, auth not required)
-templatesRouter.get('/', asyncHandler(async (_req, res) => {
-  const templates = await prisma.template.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: 'asc' },
-  });
-  res.json({ data: templates });
-}));
+templatesRouter.get(
+  '/',
+  asyncHandler(async (_req, res) => {
+    const templates = await prisma.template.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    res.json({ data: templates });
+  }),
+);
 
 // GET /api/templates/:id — single template
 templatesRouter.get(
@@ -28,7 +31,7 @@ templatesRouter.get(
     const template = await prisma.template.findUnique({ where: { id: req.params.id } });
     if (!template) throw new AppError(404, 'Template not found');
     res.json({ data: template });
-  })
+  }),
 );
 
 // POST /api/templates — admin creates a new custom template
@@ -56,7 +59,7 @@ templatesRouter.post(
     });
 
     res.status(201).json({ data: template });
-  })
+  }),
 );
 
 // PATCH /api/templates/:id — admin updates a custom template (403 if built-in)
@@ -64,10 +67,12 @@ templatesRouter.patch(
   '/:id',
   requireAuth,
   requireAdmin,
-  validate(z.object({
-    params: z.object({ id: z.string().uuid() }),
-    body: UpdateTemplateInputSchema,
-  })),
+  validate(
+    z.object({
+      params: z.object({ id: z.string().uuid() }),
+      body: UpdateTemplateInputSchema,
+    }),
+  ),
   asyncHandler(async (req, res) => {
     const existing = await prisma.template.findUnique({ where: { id: req.params.id } });
     if (!existing) throw new AppError(404, 'Template not found');
@@ -89,7 +94,7 @@ templatesRouter.patch(
     });
 
     res.json({ data: updated });
-  })
+  }),
 );
 
 // DELETE /api/templates/:id — admin deletes a custom template (403 if built-in)
@@ -105,5 +110,5 @@ templatesRouter.delete(
 
     await prisma.template.delete({ where: { id: req.params.id } });
     res.status(204).send();
-  })
+  }),
 );

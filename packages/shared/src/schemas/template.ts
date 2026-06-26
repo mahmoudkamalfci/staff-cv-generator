@@ -20,10 +20,9 @@ export const TemplateConfigSchema = z.object({
     .array(SectionConfigSchema)
     .min(1)
     .max(10)
-    .refine(
-      (sections) => sections.some((s) => s.id === 'header' && s.visible),
-      { message: 'Header section must always be visible' }
-    ),
+    .refine((sections) => sections.some((s) => s.id === 'header' && s.visible), {
+      message: 'Header section must always be visible',
+    }),
 });
 
 export const CVTemplateSchema = z.object({

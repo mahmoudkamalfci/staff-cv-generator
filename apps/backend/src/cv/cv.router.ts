@@ -11,52 +11,57 @@ import { validate } from '../middleware/validate.js';
 const paramSchema = z.object({
   params: z.object({
     staffId: z.string().uuid(),
-    templateId: z.string().uuid()
-  })
+    templateId: z.string().uuid(),
+  }),
 });
 
 // GET /api/cv/:staffId/:templateId
-cvRouter.get('/:staffId/:templateId', requireAuth, validate(paramSchema), asyncHandler(async (req, res) => {
-  const { staffId, templateId } = req.params;
-  const userId = req.user!.userId;
+cvRouter.get(
+  '/:staffId/:templateId',
+  requireAuth,
+  validate(paramSchema),
+  asyncHandler(async (req, res) => {
+    const { staffId, templateId } = req.params;
+    const userId = req.user!.userId;
 
-  const staff = await prisma.staff.findUnique({
-    where: { id: staffId },
-    include: {
-      skills: true,
-      participations: {
-        include: {
-          project: true
-        }
-      }
+    const staff = await prisma.staff.findUnique({
+      where: { id: staffId },
+      include: {
+        skills: true,
+        participations: {
+          include: {
+            project: true,
+          },
+        },
+      },
+    });
+
+    if (!staff) {
+      throw new AppError(404, 'Staff not found');
     }
-  });
 
-  if (!staff) {
-    throw new AppError(404, 'Staff not found');
-  }
+    const template = await prisma.template.findUnique({
+      where: { id: templateId },
+    });
 
-  const template = await prisma.template.findUnique({
-    where: { id: templateId }
-  });
-
-  if (!template) {
-    throw new AppError(404, 'Template not found');
-  }
-
-  const generatedCV = await prisma.generatedCV.create({
-    data: {
-      staffId: staff.id,
-      templateId: template.id,
-      generatedBy: userId
+    if (!template) {
+      throw new AppError(404, 'Template not found');
     }
-  });
 
-  res.json({
-    data: {
-      staff,
-      template,
-      generatedCV
-    }
-  });
-}));
+    const generatedCV = await prisma.generatedCV.create({
+      data: {
+        staffId: staff.id,
+        templateId: template.id,
+        generatedBy: userId,
+      },
+    });
+
+    res.json({
+      data: {
+        staff,
+        template,
+        generatedCV,
+      },
+    });
+  }),
+);

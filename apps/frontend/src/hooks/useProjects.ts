@@ -15,14 +15,14 @@ export const projectKeys = {
 export function useProjectList() {
   return useQuery({
     queryKey: projectKeys.all,
-    queryFn: () => api.get<Project[]>('/projects').then((r) => r.data),
+    queryFn: () => api.get<{ data: Project[] }>('/projects').then((r) => r.data.data),
   });
 }
 
 export function useProjectDetail(id: string) {
   return useQuery({
     queryKey: projectKeys.detail(id),
-    queryFn: () => api.get<Project>(`/projects/${id}`).then((r) => r.data),
+    queryFn: () => api.get<{ data: Project }>(`/projects/${id}`).then((r) => r.data.data),
     enabled: !!id,
   });
 }
