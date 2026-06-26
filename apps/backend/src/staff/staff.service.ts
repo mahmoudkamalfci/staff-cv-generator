@@ -23,23 +23,38 @@ export class StaffService {
   static async getStaffById(id: string) {
     const staff = await prisma.staff.findUnique({
       where: { id },
-      include: { skills: true },
+      include: { 
+        skills: true,
+        participations: { include: { project: true } }
+      },
     });
     if (!staff) throw new AppError(404, 'Staff not found');
     return staff;
   }
 
   static async createStaff(data: any) {
-    return prisma.staff.create({ data });
+    const { skills, participations, ...rest } = data;
+    return prisma.staff.create({ 
+      data: {
+        ...rest,
+        skills: skills ? { create: skills } : undefined,
+        participations: participations ? { create: participations } : undefined,
+      }
+    });
   }
 
   static async updateStaff(id: string, data: any) {
+    const { skills, participations, ...rest } = data;
     const staff = await prisma.staff.findUnique({ where: { id } });
     if (!staff) throw new AppError(404, 'Staff not found');
 
     return prisma.staff.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        skills: skills ? { deleteMany: {}, create: skills } : undefined,
+        participations: participations ? { deleteMany: {}, create: participations } : undefined,
+      },
     });
   }
 

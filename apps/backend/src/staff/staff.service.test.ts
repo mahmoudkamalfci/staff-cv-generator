@@ -35,4 +35,53 @@ describe('StaffService', () => {
       expect(result).toEqual(mockStaff);
     });
   });
+  describe('createStaff', () => {
+    it('should create staff with skills and participations', async () => {
+      const mockStaff = { id: '1', name: 'John Doe' };
+      jest.spyOn(prisma.staff, 'create').mockResolvedValue(mockStaff as any);
+
+      const data = {
+        name: 'John Doe',
+        skills: [{ name: 'React', level: 'expert' }],
+        participations: [{ projectId: 'p1', role: 'Dev', responsibilities: 'Code' }],
+      };
+
+      const result = await StaffService.createStaff(data);
+
+      expect(prisma.staff.create).toHaveBeenCalledWith({
+        data: {
+          name: 'John Doe',
+          skills: { create: data.skills },
+          participations: { create: data.participations },
+        },
+      });
+      expect(result).toEqual(mockStaff);
+    });
+  });
+
+  describe('updateStaff', () => {
+    it('should update staff with nested relations', async () => {
+      const mockStaff = { id: '1', name: 'John Doe' };
+      jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(mockStaff as any);
+      jest.spyOn(prisma.staff, 'update').mockResolvedValue(mockStaff as any);
+
+      const data = {
+        name: 'John Doe',
+        skills: [{ name: 'React', level: 'expert' }],
+        participations: [{ projectId: 'p1', role: 'Dev', responsibilities: 'Code' }],
+      };
+
+      const result = await StaffService.updateStaff('1', data);
+
+      expect(prisma.staff.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: {
+          name: 'John Doe',
+          skills: { deleteMany: {}, create: data.skills },
+          participations: { deleteMany: {}, create: data.participations },
+        },
+      });
+      expect(result).toEqual(mockStaff);
+    });
+  });
 });
