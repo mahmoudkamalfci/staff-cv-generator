@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { SkillsManager } from '@/components/staff/SkillsManager';
 import { getInitials } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import {
@@ -81,18 +80,40 @@ export default function StaffDetailPage() {
       </Card>
 
       {/* Skills */}
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="text-base">Skills</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SkillsManager
-            staffId={id!}
-            skills={staff.skills ?? []}
-            canEdit={user?.role === 'admin'}
-          />
-        </CardContent>
-      </Card>
+      {staff.skills && staff.skills.length > 0 && (
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="text-base">Skills</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {staff.skills.map((skill) => (
+                <Badge key={skill.id} variant="secondary" className="px-3 py-1">
+                  {skill.name} <span className="opacity-60 ml-2">({skill.level})</span>
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Previous Projects */}
+      {staff.participations && staff.participations.length > 0 && (
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="text-base">Previous Projects</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {staff.participations.map((p) => (
+              <div key={p.id} className="p-4 border rounded-lg bg-card/50">
+                <h3 className="font-semibold text-lg">{p.project?.name || 'Unknown Project'}</h3>
+                <p className="text-sm font-medium text-muted-foreground mt-1">Role: {p.role}</p>
+                <p className="text-sm mt-2">{p.responsibilities}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Generate CV */}
       <Card className="shadow-card border-accent/30">
