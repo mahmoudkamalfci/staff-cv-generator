@@ -44,7 +44,7 @@ export default function ProjectListPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Projects</h2>
+          <h1 className="text-2xl font-bold text-foreground">Projects</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {projects?.length ?? 0} projects in the system
           </p>
@@ -72,7 +72,7 @@ export default function ProjectListPage() {
       <div className="space-y-3">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="shadow-card">
+              <Card key={i} className="shadow-none border border-border bg-card">
                 <CardContent className="p-5">
                   <Skeleton className="h-16 w-full" />
                 </CardContent>
@@ -81,16 +81,18 @@ export default function ProjectListPage() {
           : filtered?.map((project: Project) => (
               <Card
                 key={project.id}
-                className="shadow-card hover:shadow-elevated transition-shadow duration-200"
+                className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 flex-wrap">
                         <h3 className="font-semibold text-foreground">{project.name}</h3>
-                        <Badge variant="outline">{project.client}</Badge>
+                        <Badge variant="outline" className="border-border text-muted-foreground text-xs">
+                          {project.client}
+                        </Badge>
                         {project.endDate === null && (
-                          <Badge className="bg-success/20 text-success border-0 text-xs">
+                          <Badge className="bg-success text-success-foreground border-0 text-xs font-semibold">
                             Ongoing
                           </Badge>
                         )}
@@ -103,7 +105,7 @@ export default function ProjectListPage() {
                         {(project.technologies as string[]).slice(0, 6).map((tech) => (
                           <span
                             key={tech}
-                            className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
+                            className="text-xs bg-secondary text-primary border border-border px-2 py-0.5 rounded-full font-medium"
                           >
                             {tech}
                           </span>
@@ -120,6 +122,7 @@ export default function ProjectListPage() {
                         variant="ghost"
                         size="icon"
                         title="View"
+                        className="h-10 w-10"
                         asChild
                         aria-label={`View details of project ${project.name}`}
                       >
@@ -133,6 +136,7 @@ export default function ProjectListPage() {
                             variant="ghost"
                             size="icon"
                             title="Edit"
+                            className="h-10 w-10"
                             asChild
                             aria-label={`Edit project ${project.name}`}
                           >
@@ -145,7 +149,7 @@ export default function ProjectListPage() {
                             size="icon"
                             title="Delete"
                             aria-label={`Delete project ${project.name}`}
-                            className="text-destructive hover:bg-destructive/10"
+                            className="text-destructive hover:bg-destructive/10 h-10 w-10"
                             onClick={() => handleDelete(project.id, project.name)}
                           >
                             <Trash2 className="w-4 h-4" />
