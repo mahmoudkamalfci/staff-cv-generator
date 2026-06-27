@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -66,7 +66,7 @@ export default function StaffFormPage() {
       toast({ title: 'Password reset successfully' });
       setIsResetDialogOpen(false);
       setNewPassword('');
-    } catch (error) {
+    } catch {
       toast({ title: 'Failed to reset password', variant: 'destructive' });
     }
   };
@@ -83,7 +83,7 @@ export default function StaffFormPage() {
     resolver: zodResolver(isEdit ? UpdateStaffSchema : CreateStaffSchema),
     values: existing
       ? {
-          email: (existing as any).user?.email || '',
+          email: (existing as unknown as { user?: { email?: string } }).user?.email || '',
           name: existing.name,
           jobTitle: existing.jobTitle,
           yearsExperience: existing.yearsExperience,
@@ -178,22 +178,20 @@ export default function StaffFormPage() {
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in" key={id ?? 'new'}>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild className="h-10 px-4">
           <Link to={isEdit ? `/staff/${id}` : '/staff'}>
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Link>
         </Button>
-        <h2 className="text-2xl font-bold text-foreground">
+        <h1 className="text-2xl font-bold text-foreground">
           {isEdit ? 'Edit Staff Member' : 'Add Staff Member'}
-        </h2>
+        </h1>
       </div>
 
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="text-base">Profile Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <Card className="shadow-none border border-border bg-card divide-y divide-border">
+        {/* Section 1: Profile Information */}
+        <div className="p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -266,11 +264,12 @@ export default function StaffFormPage() {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-base">Skills</Label>
+                <Label className="text-base font-semibold">Skills</Label>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="h-10 px-4"
                   onClick={() => appendSkill({ name: '', level: 'beginner' })}
                 >
                   <Plus className="w-4 h-4 mr-1" /> Add Skill
@@ -279,7 +278,7 @@ export default function StaffFormPage() {
               {skillFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex items-start gap-4 p-4 border rounded-lg bg-card/50"
+                  className="flex items-start gap-4 p-4 border border-border rounded-lg bg-card/50"
                 >
                   <div className="flex-1 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -298,7 +297,7 @@ export default function StaffFormPage() {
                       <div className="space-y-2">
                         <Label>Level</Label>
                         <select
-                          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus:border-accent"
                           {...register(`skills.${index}.level` as const)}
                         >
                           <option value="beginner">Beginner</option>
@@ -313,7 +312,7 @@ export default function StaffFormPage() {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="text-destructive mt-6"
+                    className="text-destructive mt-6 h-10 w-10"
                     onClick={() => removeSkill(index)}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -324,11 +323,12 @@ export default function StaffFormPage() {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-base">Previous Projects</Label>
+                <Label className="text-base font-semibold">Previous Projects</Label>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="h-10 px-4"
                   onClick={() => appendProject({ projectId: '', role: '', responsibilities: '' })}
                 >
                   <Plus className="w-4 h-4 mr-1" /> Add Project
@@ -337,13 +337,13 @@ export default function StaffFormPage() {
               {projectFields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex items-start gap-4 p-4 border rounded-lg bg-card/50"
+                  className="flex items-start gap-4 p-4 border border-border rounded-lg bg-card/50"
                 >
                   <div className="flex-1 space-y-4">
                     <div className="space-y-2">
                       <Label>Project</Label>
                       <select
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus:border-accent"
                         {...register(`participations.${index}.projectId` as const)}
                       >
                         <option value="">Select a project...</option>
@@ -390,7 +390,7 @@ export default function StaffFormPage() {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="text-destructive mt-6"
+                    className="text-destructive mt-6 h-10 w-10"
                     onClick={() => removeProject(index)}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -399,7 +399,7 @@ export default function StaffFormPage() {
               ))}
             </div>
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
+            <Button type="submit" disabled={isSubmitting} className="w-full h-11" size="lg">
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving…
@@ -411,15 +411,12 @@ export default function StaffFormPage() {
               )}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
 
-      {isEdit && (
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="text-base">Profile Photo</CardTitle>
-          </CardHeader>
-          <CardContent>
+        {/* Section 2: Profile Photo */}
+        {isEdit && (
+          <div className="p-6">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Profile Photo</h2>
             {existing?.photoUrl && (
               <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border border-border mb-4">
                 <img
@@ -438,6 +435,8 @@ export default function StaffFormPage() {
             />
             <Button
               variant="outline"
+              size="lg"
+              className="h-11"
               onClick={() => fileRef.current?.click()}
               disabled={uploadPhoto.isPending}
             >
@@ -452,19 +451,16 @@ export default function StaffFormPage() {
               )}
             </Button>
             <p className="text-muted-foreground text-xs mt-2">JPG, PNG, or WebP. Max 5MB.</p>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {isEdit && (
-        <Card className="shadow-card mt-6 border-destructive/20">
-          <CardHeader>
-            <CardTitle className="text-base text-destructive">Security</CardTitle>
-          </CardHeader>
-          <CardContent>
+        {/* Section 3: Security */}
+        {isEdit && (
+          <div className="p-6">
+            <h2 className="text-xs font-semibold text-destructive uppercase tracking-wider mb-4">Security</h2>
             <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="destructive">Reset User Password</Button>
+                <Button variant="destructive" size="lg" className="h-11">Reset User Password</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -483,16 +479,17 @@ export default function StaffFormPage() {
                   <Button
                     onClick={handleResetPassword}
                     disabled={newPassword.length < 8 || resetPasswordMutation.isPending}
-                    className="w-full"
+                    className="w-full h-11"
+                    size="lg"
                   >
                     {resetPasswordMutation.isPending ? 'Resetting...' : 'Save New Password'}
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

@@ -15,11 +15,40 @@ export default function ProjectDetailPage() {
 
   if (isLoading)
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div
+        className="flex flex-col items-center justify-center h-64 gap-3 text-muted-foreground"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <Loader2 className="w-8 h-8 animate-spin text-accent" aria-hidden="true" />
+        <span className="text-sm font-medium">Loading project details...</span>
       </div>
     );
-  if (!project) return <p className="text-muted-foreground">Project not found.</p>;
+
+  if (!project)
+    return (
+      <div className="max-w-4xl space-y-6 animate-fade-in">
+        <div className="flex items-center">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/projects">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Projects
+            </Link>
+          </Button>
+        </div>
+        <Card className="shadow-none border border-border bg-card">
+          <CardContent className="p-12 text-center space-y-4">
+            <div className="text-destructive font-semibold text-lg">Project not found</div>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto">
+              The project you are looking for does not exist, or you do not have permission to view
+              it.
+            </p>
+            <Button variant="outline" asChild className="mt-2">
+              <Link to="/projects">Return to projects list</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
 
   const p = project as typeof project & {
     participations?: Array<{
@@ -43,77 +72,121 @@ export default function ProjectDetailPage() {
         {user?.role === 'admin' && (
           <Button variant="outline" size="sm" asChild>
             <Link to={`/projects/${id}/edit`}>
-              <Pencil className="w-4 h-4 mr-2" /> Edit
+              <Pencil className="w-4 h-4 mr-2" /> Edit Project
             </Link>
           </Button>
         )}
       </div>
 
-      <Card className="shadow-card">
-        <CardContent className="p-6 space-y-4">
+      <Card className="shadow-none border border-border bg-card">
+        <CardContent className="p-6 space-y-5">
           <div className="flex items-start justify-between flex-wrap gap-3">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">{project.name}</h2>
+            <div className="space-y-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">
+                {project.name}
+              </h1>
               {project.endDate === null && (
-                <Badge className="bg-success/20 text-success border-0 mt-1">Ongoing</Badge>
+                <Badge className="bg-success text-success-foreground border-0 text-[10px] font-semibold py-0.5 px-1.5 shrink-0 select-none mt-1">
+                  Ongoing
+                </Badge>
               )}
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm pt-1">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Building2 className="w-4 h-4" /> {project.client}
+              <Building2 className="w-4 h-4 shrink-0" />
+              <span>{project.client}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="w-4 h-4" /> {project.location}
+              <MapPin className="w-4 h-4 shrink-0" />
+              <span>{project.location}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="w-4 h-4" /> {formatDate(project.startDate)} —{' '}
-              {formatDate(project.endDate)}
+              <Calendar className="w-4 h-4 shrink-0" />
+              <span>
+                {formatDate(project.startDate)} — {formatDate(project.endDate)}
+              </span>
             </div>
           </div>
           <Separator />
-          <p className="text-foreground leading-relaxed">{project.description}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {(project.technologies as string[]).map((tech) => (
-              <span
-                key={tech}
-                className="text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full"
-              >
-                {tech}
-              </span>
-            ))}
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Description
+            </h2>
+            <p className="text-foreground leading-relaxed whitespace-pre-wrap">
+              {project.description}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Technologies
+            </h2>
+            <div className="flex flex-wrap gap-1.5">
+              {(project.technologies as string[]).map((tech) => (
+                <span
+                  key={tech}
+                  className="text-xs bg-secondary text-primary border border-border px-2.5 py-1 rounded-full font-medium"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {p.participations && p.participations.length > 0 && (
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Users className="w-4 h-4" /> Assigned Staff ({p.participations.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {p.participations.map((part) => (
-              <div key={part.id} className="border border-border rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <Link
-                      to={`/staff/${part.staffId}`}
-                      className="font-medium text-foreground hover:text-accent transition-colors"
-                    >
-                      {part.staffName ?? 'Staff Member'}
-                    </Link>
-                    <p className="text-sm text-muted-foreground">{part.staffJobTitle}</p>
+      <Card className="shadow-none border border-border bg-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
+            <Users className="w-4 h-4 text-primary" /> Assigned Staff{' '}
+            {p.participations && p.participations.length > 0 && `(${p.participations.length})`}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!p.participations || p.participations.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2">
+              <Users className="w-8 h-8 text-muted-foreground/45" aria-hidden="true" />
+              <p className="text-sm font-medium text-foreground">No staff members assigned</p>
+              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                No team members are currently linked to this project. Edit the project to assign
+                staff.
+              </p>
+              {user?.role === 'admin' && (
+                <Button variant="outline" size="sm" asChild className="mt-2">
+                  <Link to={`/projects/${id}/edit`}>Assign Staff</Link>
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {p.participations.map((part) => (
+                <div
+                  key={part.id}
+                  className="border border-border rounded-lg p-4 bg-muted/20 hover:bg-muted/40 transition-colors duration-150"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <Link
+                        to={`/staff/${part.staffId}`}
+                        className="font-medium text-foreground hover:text-accent focus-visible:text-accent focus-visible:underline outline-none transition-colors"
+                      >
+                        {part.staffName ?? 'Staff Member'}
+                      </Link>
+                      <p className="text-sm text-muted-foreground">{part.staffJobTitle}</p>
+                    </div>
+                    <Badge variant="secondary" className="shrink-0">
+                      {part.role}
+                    </Badge>
                   </div>
-                  <Badge variant="secondary">{part.role}</Badge>
+                  <p className="text-sm text-foreground mt-2 whitespace-pre-wrap">
+                    {part.responsibilities}
+                  </p>
                 </div>
-                <p className="text-sm text-foreground mt-2">{part.responsibilities}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

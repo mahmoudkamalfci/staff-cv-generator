@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, LayoutTemplate } from 'lucide-react';
 import { useStaffList } from '@/hooks/useStaff';
@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getInitials } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { CVTemplate, Staff } from '@cv-generator/shared';
 
 export default function CVGeneratorPage() {
@@ -28,23 +29,33 @@ export default function CVGeneratorPage() {
   const selectedStaff = staff?.find((s: Staff) => s.id === selectedStaffId);
   const selectedTemplate = templates?.find((t: CVTemplate) => t.id === selectedTemplateId);
 
-  const handleGenerate = () => {
+  const handleGenerate = useCallback(() => {
     if (selectedStaffId && selectedTemplateId) {
       navigate(`/cv/preview/${selectedStaffId}/${selectedTemplateId}`);
     }
-  };
+  }, [selectedStaffId, selectedTemplateId, navigate]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && selectedStaffId && selectedTemplateId) {
+        handleGenerate();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedStaffId, selectedTemplateId, handleGenerate]);
 
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
       <div>
-        <h2 className="text-2xl font-bold text-foreground">CV Generator</h2>
+        <h1 className="text-2xl font-bold text-foreground">CV Generator</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           Select a staff member and a template to generate a professional CV.
         </p>
       </div>
 
       {/* Step 1: Select Staff */}
-      <Card className="shadow-card">
+      <Card className="shadow-none border border-border bg-card">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">
@@ -57,27 +68,31 @@ export default function CVGeneratorPage() {
           <Label htmlFor="staff-select" className="sr-only">
             Select Staff Member
           </Label>
-          <Select onValueChange={setSelectedStaffId} disabled={staffLoading}>
-            <SelectTrigger id="staff-select">
-              <SelectValue placeholder={staffLoading ? 'Loading…' : 'Choose a staff member'} />
-            </SelectTrigger>
-            <SelectContent>
-              {staff?.map((s: Staff) => (
-                <SelectItem key={s.id} value={s.id}>
-                  <div className="flex items-center gap-2">
-                    <span>{s.name}</span>
-                    <span className="text-muted-foreground text-xs">— {s.jobTitle}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {staffLoading ? (
+            <Skeleton className="h-11 w-full" />
+          ) : (
+            <Select onValueChange={setSelectedStaffId}>
+              <SelectTrigger id="staff-select" className="h-11">
+                <SelectValue placeholder="Choose a staff member" />
+              </SelectTrigger>
+              <SelectContent>
+                {staff?.map((s: Staff) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{s.name}</span>
+                      <span className="text-muted-foreground text-xs">— {s.jobTitle}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {selectedStaff && (
-            <div className="flex items-center gap-3 mt-4 p-3 bg-muted rounded-lg">
+            <div className="flex items-center gap-3 mt-4 p-3 bg-muted rounded-lg border border-border/30">
               <Avatar className="w-10 h-10">
                 <AvatarImage src={selectedStaff.photoUrl ?? undefined} />
-                <AvatarFallback className="bg-accent/20 text-accent text-sm font-bold">
+                <AvatarFallback className="bg-secondary text-primary text-sm font-bold">
                   {getInitials(selectedStaff.name)}
                 </AvatarFallback>
               </Avatar>
@@ -85,7 +100,7 @@ export default function CVGeneratorPage() {
                 <p className="font-medium text-sm text-foreground">{selectedStaff.name}</p>
                 <p className="text-xs text-muted-foreground">{selectedStaff.jobTitle}</p>
               </div>
-              <Badge variant="secondary" className="ml-auto text-xs">
+              <Badge variant="secondary" className="ml-auto text-xs font-semibold bg-muted-foreground/10 text-muted-foreground border-0">
                 {selectedStaff.yearsExperience} yrs exp
               </Badge>
             </div>
@@ -94,7 +109,7 @@ export default function CVGeneratorPage() {
       </Card>
 
       {/* Step 2: Select Template */}
-      <Card className="shadow-card">
+      <Card className="shadow-none border border-border bg-card">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">
@@ -106,7 +121,10 @@ export default function CVGeneratorPage() {
         <CardContent>
           <div className="grid grid-cols-1 gap-3" role="radiogroup" aria-label="Select CV Template">
             {templatesLoading ? (
-              <p className="text-muted-foreground text-sm">Loading templates…</p>
+              <div className="space-y-3">
+                <Skeleton className="h-[60px] w-full" />
+                <Skeleton className="h-[60px] w-full" />
+              </div>
             ) : (
               templates?.map((template: CVTemplate) => (
                 <button
@@ -130,7 +148,7 @@ export default function CVGeneratorPage() {
                       <p className="text-xs text-muted-foreground">{template.description}</p>
                     </div>
                     {selectedTemplateId === template.id && (
-                      <Badge className="ml-auto bg-accent/20 text-accent border-0 text-xs">
+                      <Badge className="ml-auto bg-accent text-accent-foreground border-0 text-xs font-semibold">
                         Selected
                       </Badge>
                     )}
