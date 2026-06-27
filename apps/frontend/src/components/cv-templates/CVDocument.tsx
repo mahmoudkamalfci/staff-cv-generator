@@ -15,21 +15,22 @@ function makeStyles(primaryColor: string, accentColor: string) {
     page: {
       fontFamily: 'Helvetica',
       fontSize: 10,
-      color: '#1a1a1a',
+      color: '#1a1f26',
       backgroundColor: '#ffffff',
     },
     // Layout containers
     body: { flexDirection: 'row', flex: 1 },
-    mainCol: { flex: 1, padding: '20pt 24pt' },
-    sideCol: { width: '160pt', backgroundColor: '#f1f5f9', padding: '20pt 14pt' },
-    fullCol: { flex: 1, padding: '20pt 32pt' },
+    mainCol: { flex: 1, padding: '20pt 24pt 40pt 20pt' },
+    sideCol: { width: '160pt', backgroundColor: '#f8fafc', padding: '20pt 16pt 40pt 24pt' },
+    fullCol: { flex: 1, padding: '20pt 24pt 40pt 24pt' },
     threeColBody: { flexDirection: 'row', flex: 1 },
-    threeColSide: { width: '120pt', backgroundColor: '#f8fafc', padding: '14pt 10pt' },
-    threeColMain: { flex: 1, padding: '14pt 16pt' },
+    threeColSideLeft: { width: '120pt', backgroundColor: '#f8fafc', padding: '14pt 12pt 40pt 24pt' },
+    threeColSideRight: { width: '120pt', backgroundColor: '#f8fafc', padding: '14pt 24pt 40pt 12pt' },
+    threeColMain: { flex: 1, padding: '14pt 16pt 40pt 16pt' },
     // Header
     headerBox: {
       backgroundColor: primaryColor,
-      padding: '24pt 32pt',
+      padding: '24pt 24pt',
       flexDirection: 'row',
       alignItems: 'center',
       gap: 16,
@@ -42,7 +43,6 @@ function makeStyles(primaryColor: string, accentColor: string) {
     sectionHeading: {
       fontSize: 8,
       fontWeight: 'bold',
-      textTransform: 'uppercase',
       letterSpacing: 1.2,
       color: accentColor,
       borderBottomWidth: 1,
@@ -52,35 +52,63 @@ function makeStyles(primaryColor: string, accentColor: string) {
       marginTop: 14,
     },
     // Summary
-    summaryText: { fontSize: 10, lineHeight: 1.5, color: '#374151' },
+    summaryText: { fontSize: 10, lineHeight: 1.5, color: '#1a1f26' },
     // Skills
-    skillRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-    skillName: { fontSize: 9, color: '#1f2937', fontWeight: 'bold' },
-    skillLevel: { fontSize: 8, color: '#6b7280', textTransform: 'capitalize' },
-    skillBar: { height: 3, backgroundColor: '#e5e7eb', borderRadius: 2, marginTop: 2 },
-    skillFill: { height: 3, backgroundColor: accentColor, borderRadius: 2 },
+    skillsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
+    skillChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#edf0f2',
+      borderWidth: 1,
+      borderColor: '#dce1e6',
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: 4,
+      marginRight: 4,
+      marginBottom: 4,
+    },
+    skillText: { fontSize: 8, color: '#1a1f26', fontWeight: 'bold' },
+    skillLevelText: { fontSize: 7, color: accentColor, marginLeft: 4, fontWeight: 'bold' },
     // Experience
     expCard: {
-      borderLeftWidth: 2,
-      borderLeftColor: accentColor,
-      paddingLeft: 8,
+      borderWidth: 1,
+      borderColor: '#dce1e6',
+      backgroundColor: '#ffffff',
+      borderRadius: 6,
+      padding: 10,
       marginBottom: 12,
     },
-    expProject: { fontSize: 11, fontWeight: 'bold', color: '#111827' },
+    expProject: { fontSize: 11, fontWeight: 'bold', color: '#1a1f26' },
     expMeta: { fontSize: 8, color: '#6b7280', marginTop: 1 },
     expRole: { fontSize: 9, fontWeight: 'bold', color: accentColor, marginTop: 3 },
-    expDesc: { fontSize: 9, color: '#374151', marginTop: 3, lineHeight: 1.4 },
-    techWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 3, marginTop: 4 },
+    expDesc: { fontSize: 9, color: '#1a1f26', marginTop: 3, lineHeight: 1.4 },
+    techWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 },
     techChip: {
       fontSize: 7,
-      backgroundColor: '#f3f4f6',
-      color: '#374151',
-      paddingHorizontal: 4,
+      backgroundColor: '#edf0f2',
+      color: '#1a1f26',
+      paddingHorizontal: 6,
       paddingVertical: 2,
-      borderRadius: 3,
+      borderRadius: 4,
+      marginRight: 2,
+      marginBottom: 2,
     },
     // Custom section
-    customText: { fontSize: 10, color: '#374151', lineHeight: 1.5 },
+    customText: { fontSize: 10, color: '#1a1f26', lineHeight: 1.5 },
+    // Footer
+    footer: {
+      position: 'absolute',
+      bottom: 15,
+      left: 24,
+      right: 24,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      borderTopWidth: 0.5,
+      borderTopColor: '#dce1e6',
+      paddingTop: 6,
+    },
+    footerLeft: { fontSize: 7, color: '#6b7280', fontFamily: 'Helvetica' },
+    footerRight: { fontSize: 7, color: '#6b7280', fontFamily: 'Helvetica' },
   });
 }
 
@@ -120,7 +148,7 @@ function SummarySection({
 }) {
   return (
     <View>
-      <Text style={styles.sectionHeading}>{label || ''}</Text>
+      <Text style={styles.sectionHeading}>{(label || '').toUpperCase()}</Text>
       <Text style={styles.summaryText}>{data.staff.summary || ''}</Text>
     </View>
   );
@@ -138,18 +166,19 @@ function SkillsSection({
   const skills = data.staff.skills || [];
   return (
     <View>
-      <Text style={styles.sectionHeading}>{label || ''}</Text>
-      {skills.map((skill) => (
-        <View key={skill.id}>
-          <View style={styles.skillRow}>
-            <Text style={styles.skillName}>{skill.name || ''}</Text>
-            <Text style={styles.skillLevel}>{skill.level || ''}</Text>
+      <Text style={styles.sectionHeading}>{(label || '').toUpperCase()}</Text>
+      <View style={styles.skillsWrap}>
+        {skills.map((skill) => (
+          <View key={skill.id} style={styles.skillChip}>
+            <Text style={styles.skillText}>{skill.name || ''}</Text>
+            {skill.level ? (
+              <Text style={styles.skillLevelText}>
+                {skill.level.toUpperCase()}
+              </Text>
+            ) : null}
           </View>
-          <View style={styles.skillBar}>
-            <View style={[styles.skillFill, { width: LEVEL_WIDTH[skill.level] ?? '50%' }]} />
-          </View>
-        </View>
-      ))}
+        ))}
+      </View>
     </View>
   );
 }
@@ -174,7 +203,7 @@ function ExperienceSection({
 
   return (
     <View>
-      <Text style={styles.sectionHeading}>{label || ''}</Text>
+      <Text style={styles.sectionHeading}>{(label || '').toUpperCase()}</Text>
       {participations.map((p) => {
         const startDateStr = formatDate(p.project.startDate, '');
         const endDateStr = formatDate(p.project.endDate, 'Present');
@@ -186,7 +215,7 @@ function ExperienceSection({
         const metaString = metaParts.join(' · ');
 
         return (
-          <View key={p.id} style={styles.expCard} wrap={false}>
+          <View key={p.id} style={styles.expCard}>
             <Text style={styles.expProject}>{p.project.name || ''}</Text>
             <Text style={styles.expMeta}>{metaString}</Text>
             <Text style={styles.expRole}>{p.role || ''}</Text>
@@ -214,7 +243,7 @@ function CustomSection({
 }) {
   return (
     <View>
-      <Text style={styles.sectionHeading}>{section.label || ''}</Text>
+      <Text style={styles.sectionHeading}>{(section.label || '').toUpperCase()}</Text>
       {section.content ? <Text style={styles.customText}>{section.content || ''}</Text> : null}
     </View>
   );
@@ -271,8 +300,12 @@ function TwoColumnLayout({
     .filter((s) => s.visible && s.id !== 'header')
     .sort((a, b) => a.order - b.order);
 
-  const sidebarSections = sections.filter((s) => s.id === 'skills' || s.id === 'custom');
-  const mainSections = sections.filter((s) => s.id !== 'skills' && s.id !== 'custom');
+  const sidebarSections = sections.filter(
+    (s) => s.id === 'skills' || (s.id === 'custom' && (!s.content || s.content.length <= 150))
+  );
+  const mainSections = sections.filter(
+    (s) => s.id !== 'skills' && !(s.id === 'custom' && (!s.content || s.content.length <= 150))
+  );
 
   return (
     <View style={styles.body}>
@@ -304,19 +337,23 @@ function ThreeColumnLayout({
     .sort((a, b) => a.order - b.order);
 
   const col1 = sections.filter((s) => s.id === 'skills');
-  const col2 = sections.filter((s) => s.id === 'experience' || s.id === 'summary');
-  const col3 = sections.filter((s) => s.id === 'custom');
+  const col2 = sections.filter(
+    (s) => s.id === 'experience' || s.id === 'summary' || (s.id === 'custom' && s.content && s.content.length > 150)
+  );
+  const col3 = sections.filter(
+    (s) => s.id === 'custom' && (!s.content || s.content.length <= 150)
+  );
 
   return (
     <View style={styles.threeColBody}>
       {col1.length > 0 ? (
-        <View style={styles.threeColSide}>{col1.map((s) => renderSection(s, data, styles))}</View>
+        <View style={styles.threeColSideLeft}>{col1.map((s) => renderSection(s, data, styles))}</View>
       ) : null}
       {col2.length > 0 ? (
         <View style={styles.threeColMain}>{col2.map((s) => renderSection(s, data, styles))}</View>
       ) : null}
       {col3.length > 0 ? (
-        <View style={styles.threeColSide}>{col3.map((s) => renderSection(s, data, styles))}</View>
+        <View style={styles.threeColSideRight}>{col3.map((s) => renderSection(s, data, styles))}</View>
       ) : null}
     </View>
   );
@@ -342,6 +379,10 @@ export default function CVDocument({ data, config }: Props) {
         {config.baseLayout === 'three-column' ? (
           <ThreeColumnLayout data={data} config={config} styles={styles} />
         ) : null}
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerLeft}>{(data.staff.name || '').toUpperCase()} — PROFESSIONAL CV</Text>
+          <Text style={styles.footerRight} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+        </View>
       </Page>
     </Document>
   );
