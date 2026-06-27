@@ -19,7 +19,7 @@ export const CreateProjectSchema = z.object({
   client: z.string().min(1, 'Client is required').max(200),
   location: z.string().min(1, 'Location is required').max(200),
   startDate: z.string().date('Invalid date format, use YYYY-MM-DD'),
-  endDate: z.string().date().nullable().optional(),
+  endDate: z.preprocess((val) => (val === '' ? null : val), z.string().date().nullable().optional()),
   technologies: z.array(z.string().min(1)).min(1, 'At least one technology is required'),
   participations: z.array(
     z.object({

@@ -23,7 +23,7 @@ export class StaffService {
         where: whereClause,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { name: 'asc' },
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.staff.count({ where: whereClause }),
     ]);

@@ -18,7 +18,7 @@ describe('StaffController', () => {
 
     await StaffController.getStaff(req, res);
 
-    expect(StaffService.getStaff).toHaveBeenCalledWith(1, 10);
+    expect(StaffService.getStaff).toHaveBeenCalledWith(1, 10, undefined);
     expect(res.json).toHaveBeenCalledWith({
       data: mockStaff,
       pagination: { page: 1, limit: 10, total: 1 },
@@ -54,7 +54,7 @@ describe('StaffController', () => {
         json: jest.fn(),
       } as unknown as Response;
 
-      jest.spyOn(StaffService, 'resetPassword').mockResolvedValue(undefined);
+      jest.spyOn(StaffService, 'resetPassword').mockResolvedValue({ success: true });
 
       await StaffController.resetPassword(req, res);
 

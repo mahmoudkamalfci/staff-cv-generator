@@ -26,7 +26,7 @@ export default function CVGeneratorPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const navigate = useNavigate();
 
-  const selectedStaff = staff?.find((s: Staff) => s.id === selectedStaffId);
+  const selectedStaff = staff?.data?.find((s: Staff) => s.id === selectedStaffId);
   const selectedTemplate = templates?.find((t: CVTemplate) => t.id === selectedTemplateId);
 
   const handleGenerate = useCallback(() => {
@@ -76,7 +76,7 @@ export default function CVGeneratorPage() {
                 <SelectValue placeholder="Choose a staff member" />
               </SelectTrigger>
               <SelectContent>
-                {staff?.map((s: Staff) => (
+                {staff?.data?.map((s: Staff) => (
                   <SelectItem key={s.id} value={s.id}>
                     <div className="flex items-center gap-2">
                       <span>{s.name}</span>

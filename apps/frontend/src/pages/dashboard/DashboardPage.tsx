@@ -69,7 +69,7 @@ export default function DashboardPage() {
       <Card className="shadow-none border border-border bg-card divide-y divide-border">
         <StatRow
           title="Staff Members"
-          value={staff?.length}
+          value={staff?.pagination?.total}
           icon={Users}
           iconColor="bg-accent/15 text-accent"
           to="/staff"
@@ -77,7 +77,7 @@ export default function DashboardPage() {
         />
         <StatRow
           title="Projects"
-          value={projects?.length}
+          value={projects?.pagination?.total}
           icon={FolderKanban}
           iconColor="bg-primary/15 text-primary"
           to="/projects"

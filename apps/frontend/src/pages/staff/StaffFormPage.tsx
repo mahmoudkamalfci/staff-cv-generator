@@ -72,7 +72,7 @@ export default function StaffFormPage() {
   };
 
   const { data: projectsData } = useProjectList();
-  const projects = projectsData || [];
+  const projects = projectsData?.data || [];
 
   const {
     register,

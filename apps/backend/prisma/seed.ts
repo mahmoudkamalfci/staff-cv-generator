@@ -133,7 +133,7 @@ async function main() {
   users.push(adminUser);
 
   // 2. Generate the rest of the random users
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < 49; i++) {
     const user = await prisma.user.create({
       data: {
         email: faker.internet.email(),
@@ -180,7 +180,7 @@ async function main() {
   ];
   const projects = [];
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 50; i++) {
     const project = await prisma.project.create({
       data: {
         name: faker.company.catchPhrase(),

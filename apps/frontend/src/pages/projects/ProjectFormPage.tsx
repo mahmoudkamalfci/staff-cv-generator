@@ -275,7 +275,7 @@ export default function ProjectFormPage() {
                                   <SelectValue placeholder="Select Staff..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {staffList?.map((staff: Staff) => (
+                                  {staffList?.data?.map((staff: Staff) => (
                                     <SelectItem key={staff.id} value={staff.id}>
                                       {staff.name} - {staff.jobTitle}
                                     </SelectItem>

@@ -20,7 +20,7 @@ export function useProjectList(page: number = 1, search: string = '') {
         .get<{
           data: Project[];
           pagination: { page: number; limit: number; total: number };
-        }>('/projects', { params: { page, search: search || undefined } })
+        }>('/projects', { params: { page, limit: 9, search: search || undefined } })
         .then((r) => r.data),
   });
 }

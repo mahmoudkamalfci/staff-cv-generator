@@ -56,7 +56,7 @@ describe('staff.router', () => {
     });
 
     it('should successfully reset password for admin users', async () => {
-      jest.spyOn(StaffService, 'resetPassword').mockResolvedValue(undefined);
+      jest.spyOn(StaffService, 'resetPassword').mockResolvedValue({ success: true });
 
       const response = await fetch(getUrl('/staff/1/reset-password'), {
         method: 'POST',

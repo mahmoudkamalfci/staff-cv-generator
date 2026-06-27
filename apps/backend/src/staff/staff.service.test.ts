@@ -13,9 +13,10 @@ describe('StaffService', () => {
       const result = await StaffService.getStaff(1, 10);
 
       expect(prisma.staff.findMany).toHaveBeenCalledWith({
+        where: {},
         skip: 0,
         take: 10,
-        orderBy: { name: 'asc' },
+        orderBy: { createdAt: 'desc' },
       });
       expect(result).toEqual({ staff: mockStaff, total: 1 });
     });
@@ -154,8 +155,8 @@ describe('StaffService', () => {
       expect(result).toBeDefined();
       expect(prisma.staff.findMany).toHaveBeenCalled();
       expect(result.length).toBe(1);
-      expect(result[0].name).toBe('Jane Doe');
-      expect(result[0].matchedSkills).toContain('React');
+      expect(result[0]?.name).toBe('Jane Doe');
+      expect(result[0]?.matchedSkills).toContain('React');
     });
   });
   describe('deleteStaff', () => {

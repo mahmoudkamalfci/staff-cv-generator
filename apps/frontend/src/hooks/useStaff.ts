@@ -23,7 +23,7 @@ export function useStaffList(page: number = 1, search: string = '') {
         .get<{
           data: Staff[];
           pagination: { page: number; limit: number; total: number };
-        }>('/staff', { params: { page, search: search || undefined } })
+        }>('/staff', { params: { page, limit: 9, search: search || undefined } })
         .then((r) => r.data),
   });
 }

@@ -79,7 +79,7 @@ export function Step4Preview({ config }: Props) {
 
   // Load first real staff member for preview; fall back to sample data (only dependent on staffList)
   useEffect(() => {
-    const firstStaff = staffList?.[0];
+    const firstStaff = staffList?.data?.[0];
     if (!firstStaff) {
       setBaseCvData(SAMPLE_DATA);
       return;
@@ -118,7 +118,7 @@ export function Step4Preview({ config }: Props) {
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
         This is exactly how the generated PDF will look.
-        {!staffList?.[0] && (
+        {!staffList?.data?.[0] && (
           <span className="text-yellow-600 ml-1">
             (Showing sample data — add a staff member to preview with real data.)
           </span>
