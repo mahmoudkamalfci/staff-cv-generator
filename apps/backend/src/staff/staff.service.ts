@@ -103,7 +103,12 @@ export class StaffService {
     const staff = await prisma.staff.findUnique({ where: { id } });
     if (!staff) throw new AppError(404, 'Staff not found');
 
-    await prisma.staff.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      await tx.staff.delete({ where: { id } });
+      if (staff.userId) {
+        await tx.user.delete({ where: { id: staff.userId } });
+      }
+    });
 
     if (staff.photoUrl) {
       const photoPath = path.join(__dirname, '..', '..', 'uploads', path.basename(staff.photoUrl));

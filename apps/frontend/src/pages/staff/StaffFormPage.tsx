@@ -15,7 +15,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useRef, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -190,15 +196,29 @@ export default function StaffFormPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" {...register('email')} placeholder="john@example.com" />
-              {errors.email && <p className="text-destructive text-xs">{errors.email.message as string}</p>}
+              <Input
+                id="email"
+                type="email"
+                {...register('email')}
+                placeholder="john@example.com"
+              />
+              {errors.email && (
+                <p className="text-destructive text-xs">{errors.email.message as string}</p>
+              )}
             </div>
 
             {!isEdit && (
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" {...register('password')} placeholder="Secure password" />
-                {errors.password && <p className="text-destructive text-xs">{errors.password.message as string}</p>}
+                <Input
+                  id="password"
+                  type="password"
+                  {...register('password')}
+                  placeholder="Secure password"
+                />
+                {errors.password && (
+                  <p className="text-destructive text-xs">{errors.password.message as string}</p>
+                )}
               </div>
             )}
             <div className="space-y-2">

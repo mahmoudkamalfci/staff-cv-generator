@@ -33,7 +33,8 @@ export function useStaffDetail(id: string) {
 export function useCreateStaff() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateStaffInput) => api.post<Staff>('/staff', data).then((r) => r.data),
+    mutationFn: (data: CreateStaffInput) =>
+      api.post<{ data: Staff }>('/staff', data).then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: staffKeys.all }),
   });
 }
@@ -113,8 +114,11 @@ export function useResetPassword(id: string) {
 
 export function useStaffSuggestions() {
   return useMutation({
-    mutationFn: (technologies: string[]) => 
-      api.post<{ data: (Staff & { matchedSkills: string[] })[] }>('/staff/suggestions', { technologies }).then((r) => r.data.data),
+    mutationFn: (technologies: string[]) =>
+      api
+        .post<{
+          data: (Staff & { matchedSkills: string[] })[];
+        }>('/staff/suggestions', { technologies })
+        .then((r) => r.data.data),
   });
 }
-

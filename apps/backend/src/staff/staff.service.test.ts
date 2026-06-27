@@ -158,4 +158,31 @@ describe('StaffService', () => {
       expect(result[0].matchedSkills).toContain('React');
     });
   });
+  describe('deleteStaff', () => {
+    it('should delete staff and associated user within a transaction', async () => {
+      const mockStaff = { id: '1', userId: 'u1' };
+      jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(mockStaff as any);
+      jest.spyOn(prisma, '$transaction').mockImplementation(async (cb) => (cb as any)(prisma));
+      jest.spyOn(prisma.staff, 'delete').mockResolvedValue(mockStaff as any);
+      jest.spyOn(prisma.user, 'delete').mockResolvedValue({} as any);
+
+      await StaffService.deleteStaff('1');
+
+      expect(prisma.staff.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 'u1' } });
+    });
+
+    it('should delete staff only if no associated user exists', async () => {
+      const mockStaff = { id: '1', userId: null };
+      jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(mockStaff as any);
+      jest.spyOn(prisma, '$transaction').mockImplementation(async (cb) => (cb as any)(prisma));
+      jest.spyOn(prisma.staff, 'delete').mockResolvedValue(mockStaff as any);
+      jest.spyOn(prisma.user, 'delete').mockResolvedValue({} as any);
+
+      await StaffService.deleteStaff('1');
+
+      expect(prisma.staff.delete).toHaveBeenCalledWith({ where: { id: '1' } });
+      expect(prisma.user.delete).not.toHaveBeenCalled();
+    });
+  });
 });
