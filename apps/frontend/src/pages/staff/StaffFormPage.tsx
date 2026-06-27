@@ -77,7 +77,7 @@ export default function StaffFormPage() {
     resolver: zodResolver(isEdit ? UpdateStaffSchema : CreateStaffSchema),
     values: existing
       ? {
-          email: existing.user?.email || '',
+          email: (existing as any).user?.email || '',
           name: existing.name,
           jobTitle: existing.jobTitle,
           yearsExperience: existing.yearsExperience,
