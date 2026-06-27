@@ -110,3 +110,11 @@ export function useResetPassword(id: string) {
     },
   });
 }
+
+export function useStaffSuggestions() {
+  return useMutation({
+    mutationFn: (technologies: string[]) => 
+      api.post<{ data: (Staff & { matchedSkills: string[] })[] }>('/staff/suggestions', { technologies }).then((r) => r.data.data),
+  });
+}
+
