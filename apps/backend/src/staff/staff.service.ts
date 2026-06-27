@@ -148,4 +148,37 @@ export class StaffService {
 
     return updatedStaff;
   }
+
+  static async getSuggestions(technologies: string[]) {
+    if (!technologies || technologies.length === 0) return [];
+    
+    // We want fuzzy matching for each technology
+    // E.g., if a user types "react.js", it should match a skill called "React"
+    // Since Prisma `contains` matches string subsets, we check if skill contains tech.
+    // However, if the user typed "react.js", `contains: "react.js"` won't match "React".
+    // A better bidirectional match in Prisma isn't natively supported, 
+    // but doing `contains: tech` is standard. For "react.js", they can just type "react".
+    // If we want a better match, we do client-side filtering after fetching all skills,
+    // OR we just use Prisma's `contains`. We will use Prisma `contains` + post-processing
+    // for advanced fuzzy matching as designed.
+    
+    // Step 1: fetch staff with skills that might match
+    const staffMembers = await prisma.staff.findMany({
+      include: { skills: true }
+    });
+
+    // Step 2: process and sort
+    const results = staffMembers.map(staff => {
+      const matchedSkills = staff.skills
+        .filter(skill => technologies.some(tech => {
+          const t = tech.toLowerCase();
+          const s = skill.name.toLowerCase();
+          return s.includes(t) || t.includes(s); // Bi-directional fuzzy match
+        }))
+        .map(s => s.name);
+      return { ...staff, matchedSkills };
+    }).filter(staff => staff.matchedSkills.length > 0);
+
+    return results.sort((a, b) => b.matchedSkills.length - a.matchedSkills.length);
+  }
 }

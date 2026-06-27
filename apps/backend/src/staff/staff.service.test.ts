@@ -131,4 +131,31 @@ describe('StaffService', () => {
       expect(result).toEqual({ success: true });
     });
   });
+
+  describe('getSuggestions', () => {
+    it('returns staff matching technologies using fuzzy search', async () => {
+      const mockStaff = [
+        {
+          id: '1',
+          name: 'Jane Doe',
+          skills: [{ name: 'React' }, { name: 'Node.js' }]
+        },
+        {
+          id: '2',
+          name: 'John Smith',
+          skills: [{ name: 'Angular' }]
+        }
+      ];
+
+      jest.spyOn(prisma.staff, 'findMany').mockResolvedValue(mockStaff as any);
+
+      // Testing user's requirement: user types "react.js" and matches skill "React"
+      const result = await StaffService.getSuggestions(['react.js']);
+      expect(result).toBeDefined();
+      expect(prisma.staff.findMany).toHaveBeenCalled();
+      expect(result.length).toBe(1);
+      expect(result[0].name).toBe('Jane Doe');
+      expect(result[0].matchedSkills).toContain('React');
+    });
+  });
 });
