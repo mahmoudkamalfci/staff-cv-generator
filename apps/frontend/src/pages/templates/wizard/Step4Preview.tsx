@@ -4,8 +4,8 @@ import { useStaffList } from '@/hooks/useStaff';
 import { api } from '@/lib/api';
 import type { CVData, TemplateConfig } from '@cv-generator/shared';
 
-// CVDocument is loaded only when this step is rendered
-const CVDocument = lazy(() => import('@/components/cv-templates/CVDocument'));
+// Lazy load the iframe wrapper to avoid loading @react-pdf/renderer on the whole wizard page
+const PDFPreviewIframe = lazy(() => import('./PDFPreviewIframe'));
 
 // Fallback sample data — used if no staff members exist yet
 const SAMPLE_DATA: CVData = {
@@ -76,13 +76,6 @@ interface Props {
 export function Step4Preview({ config }: Props) {
   const { data: staffList } = useStaffList();
   const [baseCvData, setBaseCvData] = useState<CVData | null>(null);
-  const [PDFViewer, setPDFViewer] = useState<React.ComponentType<
-    React.PropsWithChildren<{
-      width: string;
-      height: string;
-      style?: React.CSSProperties;
-    }>
-  > | null>(null);
 
   // Load first real staff member for preview; fall back to sample data (only dependent on staffList)
   useEffect(() => {
@@ -112,15 +105,7 @@ export function Step4Preview({ config }: Props) {
     };
   }, [baseCvData, config]);
 
-  // Lazy-load PDFViewer
-  useEffect(() => {
-    import('@react-pdf/renderer').then((mod) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setPDFViewer(() => (mod as any).PDFViewer);
-    });
-  }, []);
-
-  if (!cvData || !PDFViewer) {
+  if (!cvData) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />
@@ -143,16 +128,11 @@ export function Step4Preview({ config }: Props) {
         fallback={
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            <span className="ml-3 text-sm text-muted-foreground">Loading preview engine...</span>
           </div>
         }
       >
-        <PDFViewer
-          width="100%"
-          height="700px"
-          style={{ border: '1px solid #e5e7eb', borderRadius: 8 }}
-        >
-          <CVDocument data={cvData} config={config} />
-        </PDFViewer>
+        <PDFPreviewIframe cvData={cvData} config={config} />
       </Suspense>
     </div>
   );
