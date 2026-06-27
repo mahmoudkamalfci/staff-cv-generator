@@ -1,31 +1,19 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, FileText, Loader2 } from 'lucide-react';
 import { useStaffDetail } from '@/hooks/useStaff';
 import { useAuth } from '@/hooks/useAuth';
 import { useTemplateList } from '@/hooks/useTemplates';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { getInitials } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export default function StaffDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { data: staff, isLoading } = useStaffDetail(id!);
   const { data: templates } = useTemplateList();
-  const [selectedTemplate, setSelectedTemplate] = useState('');
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -36,19 +24,19 @@ export default function StaffDetailPage() {
     );
   }
 
-  if (!staff) return <p className="text-muted-foreground">Staff member not found.</p>;
+  if (!staff) return <p className="text-muted-foreground text-center py-12">Staff member not found.</p>;
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
-      {/* Back + Edit */}
+      {/* Back + Edit Actions */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild className="h-10 px-4">
           <Link to="/staff">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Staff
           </Link>
         </Button>
         {user?.role === 'admin' && (
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="h-10 px-4">
             <Link to={`/staff/${id}/edit`}>
               <Pencil className="w-4 h-4 mr-2" /> Edit Profile
             </Link>
@@ -56,105 +44,100 @@ export default function StaffDetailPage() {
         )}
       </div>
 
-      {/* Profile Header */}
-      <Card className="shadow-card">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-5">
-            <Avatar className="w-20 h-20">
+      {/* Unified Profile Sheet */}
+      <Card className="shadow-none border border-border bg-card divide-y divide-border">
+        {/* Section 1: Profile Header */}
+        <div className="p-6">
+          <div className="flex flex-col sm:flex-row items-start gap-6">
+            <Avatar className="w-20 h-20 shrink-0">
               <AvatarImage src={staff.photoUrl ?? undefined} alt={staff.name} />
-              <AvatarFallback className="bg-accent/20 text-accent text-xl font-bold">
+              <AvatarFallback className="bg-secondary text-primary text-xl font-bold">
                 {getInitials(staff.name)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-foreground">{staff.name}</h2>
-              <p className="text-muted-foreground">{staff.jobTitle}</p>
-              <Badge variant="secondary" className="mt-2">
-                {staff.yearsExperience} year{staff.yearsExperience !== 1 ? 's' : ''} experience
-              </Badge>
-              <Separator className="my-4" />
-              <p className="text-sm text-foreground leading-relaxed">{staff.summary}</p>
+            <div className="flex-1 min-w-0 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">{staff.name}</h1>
+                  <p className="text-muted-foreground mt-0.5">{staff.jobTitle}</p>
+                </div>
+                <Badge variant="secondary" className="self-start sm:self-center px-3 py-1 font-medium bg-muted text-muted-foreground border-0">
+                  {staff.yearsExperience} year{staff.yearsExperience !== 1 ? 's' : ''} experience
+                </Badge>
+              </div>
+              {staff.summary && (
+                <p className="text-sm text-foreground leading-relaxed mt-4 bg-muted/20 p-4 rounded border border-border/30">
+                  {staff.summary}
+                </p>
+              )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Skills */}
-      {staff.skills && staff.skills.length > 0 && (
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="text-base">Skills</CardTitle>
-          </CardHeader>
-          <CardContent>
+        {/* Section 2: Skills */}
+        {staff.skills && staff.skills.length > 0 && (
+          <div className="p-6">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Skills</h2>
             <div className="flex flex-wrap gap-2">
               {staff.skills.map((skill) => (
-                <Badge key={skill.id} variant="secondary" className="px-3 py-1">
+                <Badge key={skill.id} variant="secondary" className="px-3 py-1 bg-secondary text-primary border border-border font-medium">
                   {skill.name} <span className="opacity-60 ml-2">({skill.level})</span>
                 </Badge>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Previous Projects */}
-      {staff.participations && staff.participations.length > 0 && (
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="text-base">Previous Projects</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {staff.participations.map((p) => (
-              <div key={p.id} className="p-4 border rounded-lg bg-card/50">
-                <h3 className="font-semibold text-lg">
-                  {p.project ? (
-                    <Link to={`/projects/${p.projectId}`} className="text-primary hover:underline">
-                      {p.project.name}
-                    </Link>
-                  ) : (
-                    'Unknown Project'
-                  )}
-                </h3>
-                <p className="text-sm font-medium text-muted-foreground mt-1">Role: {p.role}</p>
-                <p className="text-sm mt-2">{p.responsibilities}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Generate CV */}
-      <Card className="shadow-card border-accent/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <FileText className="w-5 h-5 text-accent" />
-            Generate CV
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex gap-3 items-end flex-wrap">
-          <div className="flex-1 min-w-48 space-y-1">
-            <Label htmlFor="template-select" className="text-xs">Template</Label>
-            <Select onValueChange={setSelectedTemplate}>
-              <SelectTrigger id="template-select">
-                <SelectValue placeholder="Select a template…" />
-              </SelectTrigger>
-              <SelectContent>
-                {templates?.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
-          <Button
-            variant="accent"
-            disabled={!selectedTemplate}
-            onClick={() => navigate(`/cv/preview/${id}/${selectedTemplate}`)}
-          >
-            Generate CV
-          </Button>
-        </CardContent>
+        )}
+
+        {/* Section 3: Previous Projects */}
+        {staff.participations && staff.participations.length > 0 && (
+          <div className="p-6">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Previous Projects</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {staff.participations.map((p) => (
+                <div key={p.id} className="p-4 border border-border bg-card/50 rounded-lg flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-semibold text-base">
+                      {p.project ? (
+                        <Link to={`/projects/${p.projectId}`} className="text-primary hover:underline hover:text-accent">
+                          {p.project.name}
+                        </Link>
+                      ) : (
+                        'Unknown Project'
+                      )}
+                    </h3>
+                    <p className="text-xs font-medium text-muted-foreground mt-1">Role: {p.role}</p>
+                    {p.responsibilities && (
+                      <p className="text-sm mt-3 text-foreground/90 leading-relaxed">{p.responsibilities}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Section 4: Generate CV */}
+        <div className="p-6 bg-muted/10">
+          <div className="space-y-3">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Generate CV Profile</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {templates?.map((t) => (
+                <Button
+                  key={t.id}
+                  variant="outline"
+                  className="h-auto py-3 px-4 justify-between border-border hover:bg-muted/40 hover:text-accent group transition-colors shadow-none text-left flex items-center"
+                  onClick={() => navigate(`/cv/preview/${id}/${t.id}`)}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm text-foreground group-hover:text-accent">{t.name}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{t.description || 'Standard tender layout'}</p>
+                  </div>
+                  <FileText className="w-4 h-4 text-muted-foreground group-hover:text-accent ml-2 shrink-0" />
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
       </Card>
     </div>
   );
