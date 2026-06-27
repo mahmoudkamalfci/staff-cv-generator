@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ProjectSchema } from './project.js';
+import { StaffSchema } from './staff.js';
 
 export const ParticipationSchema = z.object({
   id: z.string().uuid(),
@@ -7,6 +8,7 @@ export const ParticipationSchema = z.object({
   projectId: z.string().uuid(),
   role: z.string().min(1).max(200),
   responsibilities: z.string().min(1),
+  staff: z.lazy(() => StaffSchema),
 });
 
 export const ParticipationWithProjectSchema = ParticipationSchema.extend({

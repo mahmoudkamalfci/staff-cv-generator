@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { formatDate } from '@/lib/utils';
+import type { Participation } from '@cv-generator/shared';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -49,17 +50,6 @@ export default function ProjectDetailPage() {
         </Card>
       </div>
     );
-
-  const p = project as typeof project & {
-    participations?: Array<{
-      id: string;
-      staffId: string;
-      role: string;
-      responsibilities: string;
-      staffName?: string;
-      staffJobTitle?: string;
-    }>;
-  };
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
@@ -139,11 +129,13 @@ export default function ProjectDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <Users className="w-4 h-4 text-primary" /> Assigned Staff{' '}
-            {p.participations && p.participations.length > 0 && `(${p.participations.length})`}
+            {project.participations &&
+              project.participations.length > 0 &&
+              `(${project.participations.length})`}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {!p.participations || p.participations.length === 0 ? (
+          {!project.participations || project.participations.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2">
               <Users className="w-8 h-8 text-muted-foreground/45" aria-hidden="true" />
               <p className="text-sm font-medium text-foreground">No staff members assigned</p>
@@ -159,7 +151,7 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {p.participations.map((part) => (
+              {project.participations.map((part: Participation) => (
                 <div
                   key={part.id}
                   className="border border-border rounded-lg p-4 bg-muted/20 hover:bg-muted/40 transition-colors duration-150"
@@ -170,9 +162,9 @@ export default function ProjectDetailPage() {
                         to={`/staff/${part.staffId}`}
                         className="font-medium text-foreground hover:text-accent focus-visible:text-accent focus-visible:underline outline-none transition-colors"
                       >
-                        {part.staffName ?? 'Staff Member'}
+                        {part.staff?.name ?? 'Staff Member'}
                       </Link>
-                      <p className="text-sm text-muted-foreground">{part.staffJobTitle}</p>
+                      <p className="text-sm text-muted-foreground">{part.staff?.jobTitle}</p>
                     </div>
                     <Badge variant="secondary" className="shrink-0">
                       {part.role}
