@@ -47,6 +47,18 @@ const SAMPLE_DATA: CVData = {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
+        staff: {
+          id: 'sample',
+          name: 'Jane Doe',
+          jobTitle: 'Senior Software Engineer',
+          yearsExperience: 8,
+          summary:
+            'Experienced software engineer specialising in cloud architecture, distributed systems, and frontend development. Passionate about building scalable, maintainable products.',
+          photoUrl: null,
+          userId: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
       },
     ],
   },

@@ -5,6 +5,7 @@ import type {
   CreateProjectInput,
   UpdateProjectInput,
   CreateParticipationInput,
+  Participation,
 } from '@cv-generator/shared';
 
 export const projectKeys = {
@@ -25,10 +26,12 @@ export function useProjectList(page: number = 1, search: string = '') {
   });
 }
 
+export type ProjectDetail = Project & { participations?: Participation[] };
+
 export function useProjectDetail(id: string) {
   return useQuery({
     queryKey: projectKeys.detail(id),
-    queryFn: () => api.get<{ data: Project }>(`/projects/${id}`).then((r) => r.data.data),
+    queryFn: () => api.get<{ data: ProjectDetail }>(`/projects/${id}`).then((r) => r.data.data),
     enabled: !!id,
   });
 }
