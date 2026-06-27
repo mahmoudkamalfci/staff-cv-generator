@@ -17,6 +17,7 @@ export const StaffSchema = z.object({
 export const StaffWithSkillsSchema = StaffSchema.extend({
   skills: z.array(SkillSchema),
   participations: z.array(ParticipationWithProjectSchema).optional(),
+  email: z.string().email().optional(),
 });
 
 export const CreateStaffSchema = z.object({

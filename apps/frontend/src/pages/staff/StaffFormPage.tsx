@@ -83,7 +83,7 @@ export default function StaffFormPage() {
     resolver: zodResolver(isEdit ? UpdateStaffSchema : CreateStaffSchema),
     values: existing
       ? {
-          email: (existing as unknown as { user?: { email?: string } }).user?.email || '',
+          email: existing.email || '',
           name: existing.name,
           jobTitle: existing.jobTitle,
           yearsExperience: existing.yearsExperience,
@@ -416,7 +416,9 @@ export default function StaffFormPage() {
         {/* Section 2: Profile Photo */}
         {isEdit && (
           <div className="p-6">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Profile Photo</h2>
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+              Profile Photo
+            </h2>
             {existing?.photoUrl && (
               <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border border-border mb-4">
                 <img
@@ -457,10 +459,14 @@ export default function StaffFormPage() {
         {/* Section 3: Security */}
         {isEdit && (
           <div className="p-6">
-            <h2 className="text-xs font-semibold text-destructive uppercase tracking-wider mb-4">Security</h2>
+            <h2 className="text-xs font-semibold text-destructive uppercase tracking-wider mb-4">
+              Security
+            </h2>
             <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="destructive" size="lg" className="h-11">Reset User Password</Button>
+                <Button variant="destructive" size="lg" className="h-11">
+                  Reset User Password
+                </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
