@@ -38,7 +38,10 @@ export function useCreateProject() {
   return useMutation({
     mutationFn: (data: CreateProjectInput) =>
       api.post<{ data: Project }>('/projects', data).then((r) => r.data.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: projectKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: ['staff'] });
+    },
   });
 }
 
@@ -50,6 +53,7 @@ export function useUpdateProject(id: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: projectKeys.all });
       qc.invalidateQueries({ queryKey: projectKeys.detail(id) });
+      qc.invalidateQueries({ queryKey: ['staff'] });
     },
   });
 }
@@ -58,7 +62,10 @@ export function useDeleteProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/projects/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: projectKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: ['staff'] });
+    },
   });
 }
 
@@ -69,7 +76,7 @@ export function useCreateParticipation() {
       api.post('/participations', data).then((r) => r.data),
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) });
-      qc.invalidateQueries({ queryKey: ['staff', variables.staffId, 'participations'] });
+      qc.invalidateQueries({ queryKey: ['staff'] });
     },
   });
 }
@@ -82,7 +89,7 @@ export function useDeleteParticipation() {
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: projectKeys.all });
       qc.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) });
-      qc.invalidateQueries({ queryKey: ['staff', variables.staffId, 'participations'] });
+      qc.invalidateQueries({ queryKey: ['staff'] });
     },
   });
 }

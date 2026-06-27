@@ -41,7 +41,10 @@ export function useCreateStaff() {
   return useMutation({
     mutationFn: (data: CreateStaffInput) =>
       api.post<{ data: Staff }>('/staff', data).then((r) => r.data.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: staffKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: staffKeys.all });
+      qc.invalidateQueries({ queryKey: ['projects'] });
+    },
   });
 }
 
@@ -53,6 +56,7 @@ export function useUpdateStaff(id: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: staffKeys.all });
       qc.invalidateQueries({ queryKey: staffKeys.detail(id) });
+      qc.invalidateQueries({ queryKey: ['projects'] });
     },
   });
 }
@@ -61,7 +65,10 @@ export function useDeleteStaff() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/staff/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: staffKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: staffKeys.all });
+      qc.invalidateQueries({ queryKey: ['projects'] });
+    },
   });
 }
 
@@ -80,6 +87,7 @@ export function useUploadStaffPhoto(staffId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) });
       qc.invalidateQueries({ queryKey: staffKeys.all });
+      qc.invalidateQueries({ queryKey: ['projects'] });
     },
   });
 }
@@ -89,7 +97,11 @@ export function useAddSkill(staffId: string) {
   return useMutation({
     mutationFn: (data: CreateSkillInput) =>
       api.post(`/staff/${staffId}/skills`, data).then((r) => r.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) });
+      qc.invalidateQueries({ queryKey: staffKeys.all });
+      qc.invalidateQueries({ queryKey: ['projects'] });
+    },
   });
 }
 
@@ -97,7 +109,11 @@ export function useDeleteSkill(staffId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (skillId: string) => api.delete(`/skills/${skillId}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) });
+      qc.invalidateQueries({ queryKey: staffKeys.all });
+      qc.invalidateQueries({ queryKey: ['projects'] });
+    },
   });
 }
 
