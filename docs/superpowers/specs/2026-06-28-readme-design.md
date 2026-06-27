@@ -27,57 +27,7 @@ A brief section explaining the structural decisions:
 - **Feature-Based Architecture**: Note that the codebase (especially the backend) is organized by domain features (e.g., auth, staff, cv) to promote scalability and encapsulation.
 
 ### 3.4 Database ERD
-We will include a Mermaid ERD diagram showing the core relationships, based on the Prisma schema:
-```mermaid
-erDiagram
-    User ||--o| Staff : "is associated with"
-    User ||--o{ GeneratedCV : "generates"
-    Staff ||--o{ Skill : "has"
-    Staff ||--o{ Participation : "participates in"
-    Project ||--o{ Participation : "includes"
-    Staff ||--o{ GeneratedCV : "owns"
-    Template ||--o{ GeneratedCV : "used for"
-
-    User {
-        String id PK
-        String email
-        String role
-    }
-    Staff {
-        String id PK
-        String userId FK
-        String name
-        String jobTitle
-    }
-    Project {
-        String id PK
-        String name
-        String client
-    }
-    Participation {
-        String id PK
-        String staffId FK
-        String projectId FK
-        String role
-    }
-    Skill {
-        String id PK
-        String staffId FK
-        String name
-        String level
-    }
-    Template {
-        String id PK
-        String name
-        String layoutKey
-    }
-    GeneratedCV {
-        String id PK
-        String staffId FK
-        String templateId FK
-        String generatedBy FK
-    }
-```
+View the database ERD diagram here: [Mermaid ERD](https://mermaid.ai/d/5506dabe-3cae-489f-a32d-b76b7dd94f65)
 
 ### 3.5 Getting Started
 Step-by-step instructions for local development:
