@@ -54,4 +54,13 @@ export class StaffController {
     await StaffService.resetPassword(req.params.id as string, password);
     res.json({ message: 'Password reset successfully' });
   }
+
+  static async getSuggestions(req: Request, res: Response) {
+    const { technologies } = req.body;
+    if (!Array.isArray(technologies)) {
+      throw new AppError(400, 'technologies must be an array of strings');
+    }
+    const suggestions = await StaffService.getSuggestions(technologies);
+    res.json({ data: suggestions });
+  }
 }

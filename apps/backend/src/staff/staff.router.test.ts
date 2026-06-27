@@ -72,4 +72,26 @@ describe('staff.router', () => {
       expect(data).toEqual({ message: 'Password reset successfully' });
     });
   });
+
+  describe('POST /staff/suggestions', () => {
+    const adminToken = jwt.sign({ userId: 'admin-id', email: 'admin@test.com', role: 'admin' }, process.env.JWT_SECRET || 'supersecretjwtkeythatyoushouldchange');
+
+    it('should return suggestions', async () => {
+      jest.spyOn(StaffService, 'getSuggestions').mockResolvedValue([{ id: '1', name: 'John', matchedSkills: ['React'] }] as any);
+
+      const response = await fetch(getUrl('/staff/suggestions'), {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ technologies: ['react'] })
+      });
+      
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.data).toBeDefined();
+      expect(data.data.length).toBe(1);
+    });
+  });
 });

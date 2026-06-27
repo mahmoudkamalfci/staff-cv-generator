@@ -9,6 +9,7 @@ import { upload } from '../upload/upload.js';
 export const staffRouter: Router = Router();
 
 staffRouter.get('/', asyncHandler(StaffController.getStaff));
+staffRouter.post('/suggestions', requireAuth, asyncHandler(StaffController.getSuggestions));
 staffRouter.get('/:id', asyncHandler(StaffController.getStaffById));
 staffRouter.post(
   '/',
