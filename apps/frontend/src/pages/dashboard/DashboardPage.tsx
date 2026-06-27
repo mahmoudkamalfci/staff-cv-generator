@@ -1,4 +1,4 @@
-import { Users, FolderKanban, LayoutTemplate, FileText } from 'lucide-react';
+import { Users, FolderKanban, LayoutTemplate, FileText, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useStaffList } from '@/hooks/useStaff';
 import { useProjectList } from '@/hooks/useProjects';
@@ -8,42 +8,44 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-interface StatCardProps {
+interface StatRowProps {
   title: string;
   value: number | undefined;
   icon: React.ElementType;
-  color: string;
+  iconColor: string;
   to: string;
   isLoading: boolean;
 }
 
-function StatCard({ title, value, icon: Icon, color, to, isLoading }: StatCardProps) {
+function StatRow({ title, value, icon: Icon, iconColor, to, isLoading }: StatRowProps) {
   return (
-    <Card className="shadow-card hover:shadow-elevated transition-shadow duration-200">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            {isLoading ? (
-              <Skeleton className="h-8 w-16 mt-1" />
-            ) : (
-              <p className="text-3xl font-bold text-foreground mt-1">{value ?? 0}</p>
-            )}
-          </div>
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-            <Icon className="w-6 h-6" />
-          </div>
+    <div className="flex items-center justify-between p-6 transition-colors hover:bg-muted/30">
+      <div className="flex items-center gap-4">
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconColor}`}>
+          <Icon className="w-5 h-5" />
         </div>
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="mt-4 text-xs text-muted-foreground hover:text-foreground px-0"
-        >
-          <Link to={to}>View all →</Link>
+        <div>
+          <h3 className="text-sm font-medium text-foreground">{title}</h3>
+          <p className="text-xs text-muted-foreground">Manage and view registration details</p>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-6">
+        {isLoading ? (
+          <Skeleton className="h-7 w-12" />
+        ) : (
+          <span className="text-2xl font-bold text-foreground font-mono">{value ?? 0}</span>
+        )}
+        <Button asChild variant="outline" size="sm" className="h-9 px-4 hidden sm:inline-flex">
+          <Link to={to}>View Registry</Link>
         </Button>
-      </CardContent>
-    </Card>
+        <Button asChild variant="ghost" size="icon" className="h-10 w-10 sm:hidden">
+          <Link to={to} aria-label={`View ${title}`}>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -57,44 +59,44 @@ export default function DashboardPage() {
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-foreground">
+        <h1 className="text-2xl font-bold text-foreground">
           Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}
-        </h2>
+        </h1>
         <p className="text-muted-foreground mt-1">Here's what's in your CV generator today.</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatCard
+      {/* Stats List Ledger */}
+      <Card className="shadow-none border border-border bg-card divide-y divide-border">
+        <StatRow
           title="Staff Members"
           value={staff?.length}
           icon={Users}
-          color="bg-accent/15 text-accent"
+          iconColor="bg-accent/15 text-accent"
           to="/staff"
           isLoading={staffLoading}
         />
-        <StatCard
+        <StatRow
           title="Projects"
           value={projects?.length}
           icon={FolderKanban}
-          color="bg-primary/15 text-primary"
+          iconColor="bg-primary/15 text-primary"
           to="/projects"
           isLoading={projectsLoading}
         />
-        <StatCard
+        <StatRow
           title="CV Templates"
           value={templates?.length}
           icon={LayoutTemplate}
-          color="bg-success/15 text-success"
+          iconColor="bg-secondary text-secondary-foreground border border-border/20"
           to="/templates"
           isLoading={templatesLoading}
         />
-      </div>
+      </Card>
 
       {/* Quick Action */}
-      <Card className="shadow-card border-dashed">
+      <Card className="shadow-none border border-border bg-card">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <FileText className="w-5 h-5 text-accent" />
             Generate a CV
           </CardTitle>
@@ -104,7 +106,7 @@ export default function DashboardPage() {
             Select a staff member and a template to generate a professional CV for your next
             proposal.
           </p>
-          <Button asChild variant="accent">
+          <Button asChild variant="accent" size="lg" className="h-11">
             <Link to="/cv">Open CV Generator</Link>
           </Button>
         </CardContent>
