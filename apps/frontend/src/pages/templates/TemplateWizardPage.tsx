@@ -91,7 +91,12 @@ export default function TemplateWizardPage() {
 
   const canAdvance = (): boolean => {
     if (step === 1) return templateName.trim().length > 0;
-    if (step === 2) return draftConfig.sections.some((s) => s.id === 'header' && s.visible);
+    if (step === 2) {
+      return (
+        draftConfig.sections.some((s) => s.id === 'header' && s.visible) &&
+        draftConfig.sections.every((s) => s.label.trim().length > 0 && s.label.length <= 60)
+      );
+    }
     return true;
   };
 

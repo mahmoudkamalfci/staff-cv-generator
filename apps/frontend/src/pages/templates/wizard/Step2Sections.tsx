@@ -26,9 +26,8 @@ export function Step2Sections({ sections, onChange }: Props) {
     onChange(sections.map((s) => (s.id === id ? { ...s, visible: !s.visible } : s)));
   };
 
-  const updateLabel = (idx: number, label: string) => {
-    const updated = sorted.map((s, i) => (i === idx ? { ...s, label } : s));
-    onChange(updated);
+  const updateLabel = (id: string, label: string) => {
+    onChange(sections.map((s) => (s.id === id ? { ...s, label } : s)));
   };
 
   return (
@@ -66,7 +65,8 @@ export function Step2Sections({ sections, onChange }: Props) {
                           <div className="flex-1 flex items-center gap-2">
                             <Input
                               value={section.label}
-                              onChange={(e) => updateLabel(idx, e.target.value)}
+                              onChange={(e) => updateLabel(section.id, e.target.value)}
+                              maxLength={60}
                               className="h-7 text-sm"
                               placeholder="Section title"
                               aria-label="Section title"
