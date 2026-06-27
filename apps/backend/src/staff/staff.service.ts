@@ -8,14 +8,24 @@ import bcrypt from 'bcryptjs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class StaffService {
-  static async getStaff(page: number, limit: number) {
+  static async getStaff(page: number, limit: number, search?: string) {
+    const whereClause = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { jobTitle: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+
     const [staff, total] = await Promise.all([
       prisma.staff.findMany({
+        where: whereClause,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { name: 'asc' },
       }),
-      prisma.staff.count(),
+      prisma.staff.count({ where: whereClause }),
     ]);
 
     return { staff, total };

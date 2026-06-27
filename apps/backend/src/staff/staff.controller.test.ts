@@ -1,8 +1,7 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { StaffController } from './staff.controller.js';
 import { StaffService } from './staff.service.js';
-import { Request, Response } from 'express';
-
+import type { Request, Response } from 'express';
 
 describe('StaffController', () => {
   it('should get staff list with pagination', async () => {
@@ -75,7 +74,7 @@ describe('StaffController', () => {
 
       await expect(StaffController.resetPassword(req, res)).rejects.toMatchObject({
         statusCode: 400,
-        message: 'Password is required'
+        message: 'Password is required',
       });
     });
   });

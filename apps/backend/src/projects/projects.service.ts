@@ -3,9 +3,19 @@ import { AppError } from '../middleware/errorHandler.js';
 import type { CreateProjectInput, UpdateProjectInput } from '@cv-generator/shared';
 
 export class ProjectsService {
-  static async getProjects(page: number, limit: number) {
+  static async getProjects(page: number, limit: number, search?: string) {
+    const whereClause = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { client: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+
     const [projects, total] = await Promise.all([
       prisma.project.findMany({
+        where: whereClause,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -17,7 +27,7 @@ export class ProjectsService {
           },
         },
       }),
-      prisma.project.count(),
+      prisma.project.count({ where: whereClause }),
     ]);
 
     return { projects, total };

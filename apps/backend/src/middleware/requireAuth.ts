@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 
@@ -8,6 +8,7 @@ export interface AuthUser {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: AuthUser;
@@ -34,7 +35,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction): vo
     const decoded = jwt.verify(token, config.jwtSecret) as unknown as AuthUser;
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     res.status(401).json({ error: 'Unauthorized: Invalid or expired token' });
     return;
   }

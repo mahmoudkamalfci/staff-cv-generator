@@ -12,10 +12,16 @@ export const projectKeys = {
   detail: (id: string) => ['projects', id] as const,
 };
 
-export function useProjectList() {
+export function useProjectList(page: number = 1, search: string = '') {
   return useQuery({
-    queryKey: projectKeys.all,
-    queryFn: () => api.get<{ data: Project[] }>('/projects').then((r) => r.data.data),
+    queryKey: [...projectKeys.all, page, search],
+    queryFn: () =>
+      api
+        .get<{
+          data: Project[];
+          pagination: { page: number; limit: number; total: number };
+        }>('/projects', { params: { page, search: search || undefined } })
+        .then((r) => r.data),
   });
 }
 

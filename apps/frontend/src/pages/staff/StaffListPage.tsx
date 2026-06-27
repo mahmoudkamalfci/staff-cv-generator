@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Plus, Search, Trash2, Eye, Pencil } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Search, Trash2, Eye, Pencil } from 'lucide-react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useStaffList, useDeleteStaff } from '@/hooks/useStaff';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -14,17 +15,22 @@ import { getInitials } from '@/lib/utils';
 import type { Staff } from '@cv-generator/shared';
 
 export default function StaffListPage() {
-  const { data: staff, isLoading } = useStaffList();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const { data: response, isLoading } = useStaffList(page, debouncedSearch);
+  const staff = response?.data;
+  const pagination = response?.pagination;
+
   const { user } = useAuth();
   const deleteStaff = useDeleteStaff();
   const { toast } = useToast();
-  const [search, setSearch] = useState('');
-
-  const filtered = staff?.filter(
-    (s: Staff) =>
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.jobTitle.toLowerCase().includes(search.toLowerCase()),
-  );
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Remove ${name} from the system?`)) return;
@@ -47,7 +53,7 @@ export default function StaffListPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Staff Members</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {staff?.length ?? 0} members in the system
+            {pagination?.total ?? 0} members in the system
           </p>
         </div>
         {user?.role === 'admin' && (
@@ -85,7 +91,7 @@ export default function StaffListPage() {
                 </CardContent>
               </Card>
             ))
-          : filtered?.map((member: Staff) => (
+          : staff?.map((member: Staff) => (
               <Card
                 key={member.id}
                 className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150"
@@ -152,9 +158,38 @@ export default function StaffListPage() {
             ))}
       </div>
 
-      {!isLoading && filtered?.length === 0 && (
+      {!isLoading && staff?.length === 0 && (
         <div className="text-center py-16 text-muted-foreground">
           <p>No staff members found.</p>
+        </div>
+      )}
+
+      {pagination && pagination.total > pagination.limit && (
+        <div className="flex items-center justify-between mt-6">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * pagination.limit + 1} to{' '}
+            {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} results
+          </p>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page * pagination.limit >= pagination.total}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
         </div>
       )}
     </div>

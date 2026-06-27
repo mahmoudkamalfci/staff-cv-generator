@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { StaffService } from './staff.service.js';
 import fs from 'fs';
 import { AppError } from '../middleware/errorHandler.js';
@@ -11,7 +11,9 @@ export class StaffController {
     if (isNaN(limit) || limit < 1) limit = 20;
     limit = Math.min(limit, 100);
 
-    const { staff, total } = await StaffService.getStaff(page, limit);
+    const search = req.query.search as string | undefined;
+
+    const { staff, total } = await StaffService.getStaff(page, limit, search);
     res.json({ data: staff, pagination: { page, limit, total } });
   }
 
@@ -39,7 +41,10 @@ export class StaffController {
     if (!req.file) throw new AppError(400, 'No photo provided');
 
     try {
-      const updatedStaff = await StaffService.uploadPhoto(req.params.id as string, req.file.filename);
+      const updatedStaff = await StaffService.uploadPhoto(
+        req.params.id as string,
+        req.file.filename,
+      );
       res.json({ data: updatedStaff });
     } catch (error) {
       if (req.file) fs.unlinkSync(req.file.path);
@@ -50,7 +55,7 @@ export class StaffController {
   static async resetPassword(req: Request, res: Response) {
     const { password } = req.body;
     if (!password) throw new AppError(400, 'Password is required');
-    
+
     await StaffService.resetPassword(req.params.id as string, password);
     res.json({ message: 'Password reset successfully' });
   }

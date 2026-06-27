@@ -15,10 +15,16 @@ export const staffKeys = {
   skills: (id: string) => ['staff', id, 'skills'] as const,
 };
 
-export function useStaffList() {
+export function useStaffList(page: number = 1, search: string = '') {
   return useQuery({
-    queryKey: staffKeys.all,
-    queryFn: () => api.get<{ data: Staff[] }>('/staff').then((r) => r.data.data),
+    queryKey: [...staffKeys.all, page, search],
+    queryFn: () =>
+      api
+        .get<{
+          data: Staff[];
+          pagination: { page: number; limit: number; total: number };
+        }>('/staff', { params: { page, search: search || undefined } })
+        .then((r) => r.data),
   });
 }
 

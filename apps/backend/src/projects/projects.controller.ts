@@ -9,7 +9,9 @@ export class ProjectsController {
     if (isNaN(limit) || limit < 1) limit = 20;
     limit = Math.min(limit, 100);
 
-    const { projects, total } = await ProjectsService.getProjects(page, limit);
+    const search = req.query.search as string | undefined;
+
+    const { projects, total } = await ProjectsService.getProjects(page, limit, search);
     res.json({ data: projects, pagination: { page, limit, total } });
   }
 

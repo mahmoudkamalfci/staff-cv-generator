@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Plus, Search, Trash2, Eye, Pencil, Calendar } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Search, Trash2, Eye, Pencil, Calendar } from 'lucide-react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useProjectList, useDeleteProject } from '@/hooks/useProjects';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -13,17 +14,22 @@ import { formatDate } from '@/lib/utils';
 import type { Project } from '@cv-generator/shared';
 
 export default function ProjectListPage() {
-  const { data: projects, isLoading } = useProjectList();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const { data: response, isLoading } = useProjectList(page, debouncedSearch);
+  const projects = response?.data;
+  const pagination = response?.pagination;
+
   const { user } = useAuth();
   const deleteProject = useDeleteProject();
   const { toast } = useToast();
-  const [search, setSearch] = useState('');
-
-  const filtered = projects?.filter(
-    (p: Project) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.client.toLowerCase().includes(search.toLowerCase()),
-  );
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete project "${name}"?`)) return;
@@ -46,7 +52,7 @@ export default function ProjectListPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Projects</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {projects?.length ?? 0} projects in the system
+            {pagination?.total ?? 0} projects in the system
           </p>
         </div>
         {user?.role === 'admin' && (
@@ -89,7 +95,7 @@ export default function ProjectListPage() {
                 </CardContent>
               </Card>
             ))
-          : filtered?.map((project: Project) => (
+          : projects?.map((project: Project) => (
               <Card
                 key={project.id}
                 className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150 flex flex-col justify-between"
@@ -176,9 +182,38 @@ export default function ProjectListPage() {
             ))}
       </div>
 
-      {!isLoading && filtered?.length === 0 && (
+      {!isLoading && projects?.length === 0 && (
         <div className="text-center py-16 text-muted-foreground">
           <p>No projects found.</p>
+        </div>
+      )}
+
+      {pagination && pagination.total > pagination.limit && (
+        <div className="flex items-center justify-between mt-6">
+          <p className="text-sm text-muted-foreground">
+            Showing {(page - 1) * pagination.limit + 1} to{' '}
+            {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} results
+          </p>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page * pagination.limit >= pagination.total}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
         </div>
       )}
     </div>
