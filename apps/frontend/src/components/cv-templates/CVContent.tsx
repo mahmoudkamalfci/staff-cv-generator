@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import type { CVData } from '@cv-generator/shared';
 import { usePDF } from '@react-pdf/renderer';
 import { Loader2 } from 'lucide-react';
+import { cvKeys } from '@/hooks/useCVData';
 
 import CVDocument from './CVDocument';
 
@@ -15,7 +16,7 @@ export default function CVContent({
   templateId: string;
 }) {
   const { data } = useSuspenseQuery<CVData>({
-    queryKey: ['cv', staffId, templateId],
+    queryKey: cvKeys.detail(staffId, templateId),
     queryFn: () =>
       api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data),
   });

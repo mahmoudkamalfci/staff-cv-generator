@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { cvKeys } from './useCVData';
 import type {
   Staff,
   StaffWithSkills,
@@ -57,6 +58,7 @@ export function useUpdateStaff(id: string) {
       qc.invalidateQueries({ queryKey: staffKeys.all });
       qc.invalidateQueries({ queryKey: staffKeys.detail(id) });
       qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: cvKeys.byStaff(id) });
     },
   });
 }
@@ -65,9 +67,10 @@ export function useDeleteStaff() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/staff/${id}`),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       qc.invalidateQueries({ queryKey: staffKeys.all });
       qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: cvKeys.byStaff(id) });
     },
   });
 }
@@ -88,6 +91,7 @@ export function useUploadStaffPhoto(staffId: string) {
       qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) });
       qc.invalidateQueries({ queryKey: staffKeys.all });
       qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: cvKeys.byStaff(staffId) });
     },
   });
 }
@@ -101,6 +105,7 @@ export function useAddSkill(staffId: string) {
       qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) });
       qc.invalidateQueries({ queryKey: staffKeys.all });
       qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: cvKeys.byStaff(staffId) });
     },
   });
 }
@@ -113,6 +118,7 @@ export function useDeleteSkill(staffId: string) {
       qc.invalidateQueries({ queryKey: staffKeys.detail(staffId) });
       qc.invalidateQueries({ queryKey: staffKeys.all });
       qc.invalidateQueries({ queryKey: ['projects'] });
+      qc.invalidateQueries({ queryKey: cvKeys.byStaff(staffId) });
     },
   });
 }

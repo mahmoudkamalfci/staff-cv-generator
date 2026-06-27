@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Suspense, useState, lazy } from 'react';
 import type { CVData } from '@cv-generator/shared';
+import { cvKeys } from '@/hooks/useCVData';
 
 const CVContent = lazy(() => import('@/components/cv-templates/CVContent'));
 
@@ -17,7 +18,7 @@ function DownloadButton({ staffId, templateId }: { staffId: string; templateId: 
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const cachedData = queryClient.getQueryData<CVData>(['cv', staffId, templateId]);
+      const cachedData = queryClient.getQueryData<CVData>(cvKeys.detail(staffId, templateId));
       const cvResponse =
         cachedData ||
         (await api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data));
