@@ -1,8 +1,7 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { SkillsController } from './skills.controller.js';
 import { SkillsService } from './skills.service.js';
-import { Request, Response } from 'express';
-
+import type { Request, Response } from 'express';
 
 describe('SkillsController', () => {
   it('should get skills by staff id', async () => {

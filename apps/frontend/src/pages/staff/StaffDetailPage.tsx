@@ -106,7 +106,15 @@ export default function StaffDetailPage() {
           <CardContent className="space-y-4">
             {staff.participations.map((p) => (
               <div key={p.id} className="p-4 border rounded-lg bg-card/50">
-                <h3 className="font-semibold text-lg">{p.project?.name || 'Unknown Project'}</h3>
+                <h3 className="font-semibold text-lg">
+                  {p.project ? (
+                    <Link to={`/projects/${p.projectId}`} className="text-primary hover:underline">
+                      {p.project.name}
+                    </Link>
+                  ) : (
+                    'Unknown Project'
+                  )}
+                </h3>
                 <p className="text-sm font-medium text-muted-foreground mt-1">Role: {p.role}</p>
                 <p className="text-sm mt-2">{p.responsibilities}</p>
               </div>
