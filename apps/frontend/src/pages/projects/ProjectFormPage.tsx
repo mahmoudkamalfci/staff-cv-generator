@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { StaffSuggestionsCard } from './StaffSuggestionsCard';
 
 export default function ProjectFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -125,7 +126,7 @@ export default function ProjectFormPage() {
     );
 
   return (
-    <div key={id ?? 'new'} className="max-w-2xl space-y-6 animate-fade-in">
+    <div key={id ?? 'new'} className="max-w-6xl space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" asChild>
           <Link to={isEdit ? `/projects/${id}` : '/projects'}>
@@ -137,7 +138,9 @@ export default function ProjectFormPage() {
         </h2>
       </div>
 
-      <Card className="shadow-card">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-2">
+          <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="text-base">Project Details</CardTitle>
         </CardHeader>
@@ -342,6 +345,16 @@ export default function ProjectFormPage() {
           </form>
         </CardContent>
       </Card>
+        </div>
+        
+        <div className="lg:col-span-1">
+          <StaffSuggestionsCard 
+            technologies={technologies} 
+            assignedStaffIds={fields.map(f => f.staffId)}
+            onAddStaff={(staffId) => append({ staffId, role: '', responsibilities: '' })}
+          />
+        </div>
+      </div>
     </div>
   );
 }
