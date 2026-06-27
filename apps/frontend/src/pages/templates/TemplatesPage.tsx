@@ -89,13 +89,13 @@ export default function TemplatesPage() {
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">CV Templates</h2>
+            <h1 className="text-2xl font-bold text-foreground">CV Templates</h1>
             <p className="text-muted-foreground text-sm mt-1">
               Available templates for generating staff CVs.
             </p>
           </div>
           {isAdmin && (
-            <Button onClick={() => navigate('/templates/new')} size="sm">
+            <Button onClick={() => navigate('/templates/new')} className="h-10 px-4">
               <Plus className="w-4 h-4 mr-2" />
               New Template
             </Button>
@@ -105,7 +105,7 @@ export default function TemplatesPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {isLoading
             ? Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i} className="shadow-card">
+                <Card key={i} className="shadow-none border border-border bg-card">
                   <CardContent className="p-6">
                     <Skeleton className="h-24 w-full" />
                   </CardContent>
@@ -114,7 +114,7 @@ export default function TemplatesPage() {
             : templates?.map((template) => (
                 <Card
                   key={template.id}
-                  className="shadow-card hover:shadow-elevated transition-shadow duration-200"
+                  className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -131,7 +131,7 @@ export default function TemplatesPage() {
                                     variant="ghost"
                                     size="icon"
                                     disabled
-                                    className="h-7 w-7"
+                                    className="h-10 w-10"
                                     aria-label={`Built-in template ${template.name} is locked`}
                                   >
                                     <Lock className="w-3.5 h-3.5" />
@@ -145,7 +145,7 @@ export default function TemplatesPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7"
+                                className="h-10 w-10"
                                 onClick={() => navigate(`/templates/${template.id}/edit`)}
                                 aria-label={`Edit template ${template.name}`}
                               >
@@ -154,7 +154,7 @@ export default function TemplatesPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                className="h-10 w-10 text-destructive hover:text-destructive"
                                 onClick={() => setPendingDelete(template)}
                                 aria-label={`Delete template ${template.name}`}
                               >
@@ -183,7 +183,7 @@ export default function TemplatesPage() {
                         </Badge>
                       )}
                       {template.isActive && (
-                        <Badge className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200 border-0 text-xs">
+                        <Badge className="bg-success text-success-foreground border-0 text-xs font-semibold">
                           Active
                         </Badge>
                       )}

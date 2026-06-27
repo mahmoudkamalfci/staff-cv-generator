@@ -10,19 +10,28 @@ interface StaffSuggestionsCardProps {
   assignedStaffIds: string[];
 }
 
-export function StaffSuggestionsCard({ technologies, onAddStaff, assignedStaffIds }: StaffSuggestionsCardProps) {
+export function StaffSuggestionsCard({
+  technologies,
+  onAddStaff,
+  assignedStaffIds,
+}: StaffSuggestionsCardProps) {
   const { mutate, data: suggestions, isPending } = useStaffSuggestions();
-  
+
   const handleFetch = () => {
     if (technologies.length > 0) mutate(technologies);
   };
 
   return (
-    <Card className="sticky top-6 shadow-card h-fit">
+    <Card className="sticky top-6 shadow-none border border-border bg-card h-fit">
       <CardHeader>
         <CardTitle className="text-base flex justify-between items-center">
           Staff Suggestions
-          <Button variant="outline" size="sm" onClick={handleFetch} disabled={isPending || technologies.length === 0}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleFetch}
+            disabled={isPending || technologies.length === 0}
+          >
             {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Refresh
           </Button>
@@ -33,13 +42,19 @@ export function StaffSuggestionsCard({ technologies, onAddStaff, assignedStaffId
           <p className="text-sm text-muted-foreground">Add technologies to see suggestions.</p>
         )}
         {suggestions?.map((staff) => (
-          <div key={staff.id} className="flex justify-between items-start border-b border-border pb-3 last:border-0 last:pb-0">
+          <div
+            key={staff.id}
+            className="flex justify-between items-start border-b border-border pb-3 last:border-0 last:pb-0"
+          >
             <div>
               <p className="font-medium text-sm">{staff.name}</p>
               <p className="text-xs text-muted-foreground mb-2">{staff.jobTitle}</p>
               <div className="flex flex-wrap gap-1">
-                {staff.matchedSkills.map(skill => (
-                  <span key={skill} className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded-sm">
+                {staff.matchedSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="text-[10px] bg-secondary text-primary border border-border px-1.5 py-0.5 rounded-full font-medium select-none"
+                  >
                     {skill}
                   </span>
                 ))}

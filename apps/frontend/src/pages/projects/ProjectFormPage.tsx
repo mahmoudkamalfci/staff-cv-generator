@@ -54,7 +54,7 @@ export default function ProjectFormPage() {
           client: existing.client,
           location: existing.location,
           startDate: String(existing.startDate).split('T')[0] ?? '',
-          endDate: existing.endDate ? String(existing.endDate).split('T')[0] ?? null : null,
+          endDate: existing.endDate ? (String(existing.endDate).split('T')[0] ?? null) : null,
           technologies: existingTechs,
           participations: existingParticipations.map((p: Participation) => ({
             staffId: p.staffId,
@@ -120,8 +120,13 @@ export default function ProjectFormPage() {
 
   if (isEdit && isLoading)
     return (
-      <div className="flex justify-center h-64 items-center">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div
+        className="flex flex-col items-center justify-center h-64 gap-3 text-muted-foreground"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <Loader2 className="w-8 h-8 animate-spin text-accent" aria-hidden="true" />
+        <span className="text-sm font-medium">Loading project...</span>
       </div>
     );
 
@@ -133,224 +138,229 @@ export default function ProjectFormPage() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Link>
         </Button>
-        <h2 className="text-2xl font-bold text-foreground">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">
           {isEdit ? 'Edit Project' : 'Add Project'}
-        </h2>
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <div className="lg:col-span-2">
-          <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="text-base">Project Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-            <div className="space-y-2">
-              <Label htmlFor="name">Project Name</Label>
-              <Input id="name" {...register('name')} placeholder="Enterprise ERP System" />
-              {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="client">Client</Label>
-                <Input id="client" {...register('client')} placeholder="Acme Corp" />
-                {errors.client && (
-                  <p className="text-destructive text-xs">{errors.client.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input id="location" {...register('location')} placeholder="Cairo, Egypt" />
-                {errors.location && (
-                  <p className="text-destructive text-xs">{errors.location.message}</p>
-                )}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Start Date</Label>
-                <Input id="startDate" type="date" {...register('startDate')} />
-                {errors.startDate && (
-                  <p className="text-destructive text-xs">{errors.startDate.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endDate">End Date (leave empty if ongoing)</Label>
-                <Input id="endDate" type="date" {...register('endDate')} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                {...register('description')}
-                rows={4}
-                className="resize-none"
-                placeholder="Project overview…"
-              />
-              {errors.description && (
-                <p className="text-destructive text-xs">{errors.description.message}</p>
-              )}
-            </div>
+          <Card className="shadow-none border border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-base">Project Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Project Name</Label>
+                  <Input id="name" {...register('name')} placeholder="Enterprise ERP System" />
+                  {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="client">Client</Label>
+                    <Input id="client" {...register('client')} placeholder="Acme Corp" />
+                    {errors.client && (
+                      <p className="text-destructive text-xs">{errors.client.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input id="location" {...register('location')} placeholder="Cairo, Egypt" />
+                    {errors.location && (
+                      <p className="text-destructive text-xs">{errors.location.message}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate">Start Date</Label>
+                    <Input id="startDate" type="date" {...register('startDate')} />
+                    {errors.startDate && (
+                      <p className="text-destructive text-xs">{errors.startDate.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate">End Date (leave empty if ongoing)</Label>
+                    <Input id="endDate" type="date" {...register('endDate')} />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    {...register('description')}
+                    rows={4}
+                    className="resize-none"
+                    placeholder="Project overview…"
+                  />
+                  {errors.description && (
+                    <p className="text-destructive text-xs">{errors.description.message}</p>
+                  )}
+                </div>
 
-            {/* Technologies */}
-            <div className="space-y-2">
-              <Label htmlFor="tech-input">Technologies</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="tech-input"
-                  value={techInput}
-                  onChange={(e) => setTechInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())}
-                  placeholder="e.g. React, Node.js"
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={addTech}
-                  aria-label="Add technology"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {technologies.map((tech) => (
-                  <span
-                    key={tech}
-                    className="inline-flex items-center gap-1 text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full"
-                  >
-                    {tech}
-                    <button
+                {/* Technologies */}
+                <div className="space-y-2">
+                  <Label htmlFor="tech-input">Technologies</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="tech-input"
+                      value={techInput}
+                      onChange={(e) => setTechInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())}
+                      placeholder="e.g. React, Node.js"
+                      className="flex-1"
+                    />
+                    <Button
                       type="button"
-                      onClick={() => removeTech(tech)}
-                      className="hover:text-destructive"
-                      aria-label={`Remove technology ${tech}`}
+                      variant="outline"
+                      size="icon"
+                      onClick={addTech}
+                      aria-label="Add technology"
                     >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              {errors.technologies && (
-                <p className="text-destructive text-xs">At least one technology is required</p>
-              )}
-            </div>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {technologies.map((tech) => (
+                      <span
+                        key={tech}
+                        className="inline-flex items-center gap-1 text-xs bg-secondary text-primary border border-border pl-2.5 pr-1.5 py-0.5 rounded-full font-medium"
+                      >
+                        {tech}
+                        <button
+                          type="button"
+                          onClick={() => removeTech(tech)}
+                          className="hover:text-destructive focus-visible:text-destructive transition-colors outline-none cursor-pointer"
+                          aria-label={`Remove technology ${tech}`}
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  {errors.technologies && (
+                    <p className="text-destructive text-xs">At least one technology is required</p>
+                  )}
+                </div>
 
-            {/* Participations */}
-            <div className="space-y-4 pt-4 border-t border-border">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Assigned Staff</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => append({ staffId: '', role: '', responsibilities: '' })}
-                >
-                  <Plus className="w-4 h-4 mr-2" /> Add Staff
-                </Button>
-              </div>
-
-              {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="flex gap-4 items-start p-4 border border-border rounded-lg relative"
-                >
-                  <div className="flex-1 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`participations.${index}.staffId`}>Staff Member</Label>
-                      <Controller
-                        control={control}
-                        name={`participations.${index}.staffId` as const}
-                        render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value || ''}>
-                            <SelectTrigger id={`participations.${index}.staffId`}>
-                              <SelectValue placeholder="Select Staff..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {staffList?.map((staff: Staff) => (
-                                <SelectItem key={staff.id} value={staff.id}>
-                                  {staff.name} - {staff.jobTitle}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      {errors.participations?.[index]?.staffId && (
-                        <p className="text-destructive text-xs">
-                          {errors.participations[index]?.staffId?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor={`participations.${index}.role`}>Role</Label>
-                      <Input
-                        id={`participations.${index}.role`}
-                        placeholder="e.g. Lead Developer"
-                        {...register(`participations.${index}.role` as const)}
-                      />
-                      {errors.participations?.[index]?.role && (
-                        <p className="text-destructive text-xs">
-                          {errors.participations[index]?.role?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor={`participations.${index}.responsibilities`}>
-                        Responsibilities
-                      </Label>
-                      <Textarea
-                        id={`participations.${index}.responsibilities`}
-                        placeholder="e.g. Architected the backend and managed deployments."
-                        {...register(`participations.${index}.responsibilities` as const)}
-                      />
-                      {errors.participations?.[index]?.responsibilities && (
-                        <p className="text-destructive text-xs">
-                          {errors.participations[index]?.responsibilities?.message}
-                        </p>
-                      )}
-                    </div>
+                {/* Participations */}
+                <div className="space-y-4 pt-4 border-t border-border">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-base font-semibold text-foreground">Assigned Staff</h3>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => append({ staffId: '', role: '', responsibilities: '' })}
+                    >
+                      <Plus className="w-4 h-4 mr-2" /> Add Staff
+                    </Button>
                   </div>
 
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive mt-6 hover:bg-destructive/10"
-                    onClick={() => remove(index)}
-                    aria-label="Remove staff assignment"
-                  >
-                    <Trash2 className="w-4 h-4" />
+                  {fields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="border border-border rounded-lg bg-muted/20 p-4 relative hover:bg-muted/30 transition-colors duration-150"
+                    >
+                      <div className="space-y-4 pr-8">
+                        <div className="space-y-2">
+                          <Label htmlFor={`participations.${index}.staffId`}>Staff Member</Label>
+                          <Controller
+                            control={control}
+                            name={`participations.${index}.staffId` as const}
+                            render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value || ''}>
+                                <SelectTrigger id={`participations.${index}.staffId`}>
+                                  <SelectValue placeholder="Select Staff..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {staffList?.map((staff: Staff) => (
+                                    <SelectItem key={staff.id} value={staff.id}>
+                                      {staff.name} - {staff.jobTitle}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                          {errors.participations?.[index]?.staffId && (
+                            <p className="text-destructive text-xs">
+                              {errors.participations[index]?.staffId?.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor={`participations.${index}.role`}>Role</Label>
+                          <Input
+                            id={`participations.${index}.role`}
+                            placeholder="e.g. Lead Developer"
+                            {...register(`participations.${index}.role` as const)}
+                          />
+                          {errors.participations?.[index]?.role && (
+                            <p className="text-destructive text-xs">
+                              {errors.participations[index]?.role?.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor={`participations.${index}.responsibilities`}>
+                            Responsibilities
+                          </Label>
+                          <Textarea
+                            id={`participations.${index}.responsibilities`}
+                            placeholder="e.g. Architected the backend and managed deployments."
+                            {...register(`participations.${index}.responsibilities` as const)}
+                          />
+                          {errors.participations?.[index]?.responsibilities && (
+                            <p className="text-destructive text-xs">
+                              {errors.participations[index]?.responsibilities?.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-4 right-4 text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8 rounded-md"
+                        onClick={() => remove(index)}
+                        aria-label="Remove staff assignment"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <Button variant="outline" type="button" asChild>
+                    <Link to={isEdit ? `/projects/${id}` : '/projects'}>Cancel</Link>
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting} className="min-w-32">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving…
+                      </>
+                    ) : isEdit ? (
+                      'Update Project'
+                    ) : (
+                      'Create Project'
+                    )}
                   </Button>
                 </div>
-              ))}
-            </div>
-
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving…
-                </>
-              ) : isEdit ? (
-                'Update Project'
-              ) : (
-                'Create Project'
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              </form>
+            </CardContent>
+          </Card>
         </div>
-        
+
         <div className="lg:col-span-1">
-          <StaffSuggestionsCard 
-            technologies={technologies} 
-            assignedStaffIds={fields.map(f => f.staffId)}
+          <StaffSuggestionsCard
+            technologies={technologies}
+            assignedStaffIds={fields.map((f) => f.staffId)}
             onAddStaff={(staffId) => append({ staffId, role: '', responsibilities: '' })}
           />
         </div>
