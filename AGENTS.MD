@@ -50,3 +50,15 @@ This project is a monorepo managed via `pnpm` workspaces. You **must** use `pnpm
   pnpm <script-name>
   ```
 
+## 7. Design Context (Impeccable)
+
+When styling UI or building pages in `apps/frontend`, adhere strictly to the Impeccable specifications defined in the following context files:
+- **Strategic Brief:** [PRODUCT.md](file:///home/mahmoud/frontend-projects/practise-projects/staff-cv-generator/apps/frontend/PRODUCT.md)
+- **Visual Design Spec:** [DESIGN.md](file:///home/mahmoud/frontend-projects/practise-projects/staff-cv-generator/apps/frontend/DESIGN.md)
+- **Creative North Star:** "The Architect's Ledger" (Structured grid alignment, clear hierarchy, Slate Ink tones, A4 print compatibility).
+- **Core Rules:**
+  - **The Silent Anchor Rule:** Accent colors (Ocean Breeze) must occupy <=10% of any layout.
+  - **The Ink-Only Rule:** All body copy must use Prussian Ash (`#1a1f26`) and maintain >=4.5:1 contrast.
+  - **The Flat-At-Rest Rule:** Layout containers, card surfaces, and lists must be flat (no shadows). Shadows are reserved for dropdowns/popovers only.
+
+

@@ -45,7 +45,7 @@ export default function StaffListPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Staff Members</h2>
+          <h1 className="text-2xl font-bold text-foreground">Staff Members</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {staff?.length ?? 0} members in the system
           </p>
@@ -73,7 +73,7 @@ export default function StaffListPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="shadow-card">
+              <Card key={i} className="shadow-none border border-border bg-card">
                 <CardContent className="p-5 space-y-3">
                   <div className="flex gap-3">
                     <Skeleton className="w-12 h-12 rounded-full" />
@@ -88,13 +88,13 @@ export default function StaffListPage() {
           : filtered?.map((member: Staff) => (
               <Card
                 key={member.id}
-                className="shadow-card hover:shadow-elevated transition-shadow duration-200"
+                className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
                     <Avatar className="w-12 h-12">
                       <AvatarImage src={member.photoUrl ?? undefined} alt={member.name} />
-                      <AvatarFallback className="bg-accent/20 text-accent font-bold">
+                      <AvatarFallback className="bg-secondary text-primary font-bold">
                         {getInitials(member.name)}
                       </AvatarFallback>
                     </Avatar>
@@ -113,6 +113,7 @@ export default function StaffListPage() {
                       size="icon"
                       title="View profile"
                       aria-label={`View profile of ${member.name}`}
+                      className="h-10 w-10"
                       asChild
                     >
                       <Link to={`/staff/${member.id}`}>
@@ -126,6 +127,7 @@ export default function StaffListPage() {
                           size="icon"
                           title="Edit"
                           aria-label={`Edit profile of ${member.name}`}
+                          className="h-10 w-10"
                           asChild
                         >
                           <Link to={`/staff/${member.id}/edit`}>
@@ -137,7 +139,7 @@ export default function StaffListPage() {
                           size="icon"
                           title="Delete"
                           aria-label={`Delete ${member.name}`}
-                          className="text-destructive hover:bg-destructive/10"
+                          className="text-destructive hover:bg-destructive/10 h-10 w-10"
                           onClick={() => handleDelete(member.id, member.name)}
                         >
                           <Trash2 className="w-4 h-4" />

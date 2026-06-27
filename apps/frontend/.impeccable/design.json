@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-27T10:30:00Z",
+  "title": "Design System: GISCON CV Generator",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Cool Alabaster",
+        "canonical": "oklch(98% 0.005 264)",
+        "tonalRamp": [
+          "oklch(13% 0.025 264)",
+          "oklch(25% 0.03 264)",
+          "oklch(45% 0.02 264)",
+          "oklch(65% 0.015 264)",
+          "oklch(80% 0.01 264)",
+          "oklch(90% 0.008 264)",
+          "oklch(95% 0.005 264)",
+          "oklch(98% 0.005 264)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Prussian Ash",
+        "canonical": "oklch(13% 0.025 264)",
+        "tonalRamp": [
+          "oklch(5% 0.03 264)",
+          "oklch(13% 0.025 264)",
+          "oklch(25% 0.02 264)",
+          "oklch(40% 0.015 264)",
+          "oklch(60% 0.01 264)",
+          "oklch(75% 0.008 264)",
+          "oklch(90% 0.005 264)",
+          "oklch(95% 0.005 264)"
+        ]
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "Slate Ink",
+        "canonical": "oklch(27% 0.06 250)",
+        "tonalRamp": [
+          "oklch(12% 0.03 250)",
+          "oklch(18% 0.04 250)",
+          "oklch(27% 0.06 250)",
+          "oklch(36% 0.08 250)",
+          "oklch(48% 0.09 250)",
+          "oklch(62% 0.08 250)",
+          "oklch(78% 0.06 250)",
+          "oklch(92% 0.03 250)"
+        ]
+      },
+      "accent": {
+        "role": "accent",
+        "displayName": "Ocean Breeze",
+        "canonical": "oklch(56% 0.18 250)",
+        "tonalRamp": [
+          "oklch(25% 0.1 250)",
+          "oklch(35% 0.13 250)",
+          "oklch(45% 0.15 250)",
+          "oklch(56% 0.18 250)",
+          "oklch(65% 0.16 250)",
+          "oklch(75% 0.13 250)",
+          "oklch(85% 0.1 250)",
+          "oklch(95% 0.05 250)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Big dashboard metrics or section headers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Standard prose, descriptions, and paragraphs."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Metadata, form input labels, tags, and small lists."
+      }
+    },
+    "shadows": [
+      {
+        "name": "elevated-overlay",
+        "value": "0 4px 16px -2px oklch(0% 0 0 / 0.1), 0 2px 6px -2px oklch(0% 0 0 / 0.06)",
+        "purpose": "Reserved strictly for temporary interactive elements like dropdowns, tooltips, or select options."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-standard",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Exponential ease-out for quick responsive layout fades and transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Used for main form submission, saving records, or generating CV files.",
+      "html": "<button class=\"ds-btn-primary\">Generate CV</button>",
+      "css": ".ds-btn-primary { background: #1d2e3d; color: #f8f9fa; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; transition: background 0.18s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-primary:hover { background: oklch(22% 0.07 250); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Used for navigation cancel triggers, clean outlines, or neutral options.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { background: #edf0f2; color: #1a1f26; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; padding: 8px 16px; border: 1px solid #dce1e6; border-radius: 6px; cursor: pointer; transition: background 0.18s cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-secondary:hover { background: #edf0f2; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Architect's Ledger",
+    "overview": "The Architect's Ledger is a visual system built around alignment, soft visual grids, generous vertical rhythm, and publication-quality typography. Rather than boxy modules or heavy visual separations, it structures information through subtle tonal bands, thoughtful negative space, and clear typography sizes. It respects content first—making dense lists of staff profiles, skills, and projects easy to browse online and perfectly legible in physical print.",
+    "keyCharacteristics": [
+      "Tonal Depth: Content containers use background-color shifts instead of heavy shadows or borders.",
+      "Strict A4 Integrity: Every printable element is optimized for page boundaries, eliminating layout overflow and using black-and-white media rules.",
+      "Sincere Polish: High attention to interactive state transitions (hover, active, focus) and error messages."
+    ],
+    "rules": [
+      {
+        "name": "The Silent Anchor Rule",
+        "body": "Accent colors must occupy less than 10% of any layout. The Slate Ink base dominates the page, while the Ocean Breeze accent is used strictly to command attention to interactive anchors.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink-Only Rule",
+        "body": "Contrast must not be sacrificed for style. All body copy and list item text must use Prussian Ash. Muted text must maintain a minimum contrast ratio of 4.5:1 against its background container.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-At-Rest Rule",
+        "body": "All static page elements, tables, list items, and sidebar panels must be flat (zero shadow). Box-shadows are strictly forbidden for layout containers.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do format generated CV views for print with @media print rules, forcing background elements to clear and converting ink colors to pure black for legibility.",
+      "Do keep cards and container corner radius between 6px and 8px max.",
+      "Do write responsive layout templates that automatically fit standard A4 paper size width limits (max-width 794px or 21cm)."
+    ],
+    "donts": [
+      "Don't use raw, unstyled HTML controls or placeholder lists that look like draft prototypes.",
+      "Don't use side-stripe borders as colored accents on lists, cards, or callouts.",
+      "Don't use harsh high-contrast black borders or rigid, overly dense tables with no rhythm.",
+      "Don't use card grids when flat layouts with padding or background shifts are cleaner.",
+      "Don't pair cards with soft drop shadows of more than 8px blur.",
+      "Don't use gradient text under any circumstances."
+    ]
+  }
+}
