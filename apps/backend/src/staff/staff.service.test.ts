@@ -29,11 +29,11 @@ describe('StaffService', () => {
     });
 
     it('should return staff by id', async () => {
-      const mockStaff = { id: '1', name: 'John Doe', email: 'john@doe.com' };
-      jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(mockStaff as any);
+      const mockDbStaff = { id: '1', name: 'John Doe', user: { email: 'john@doe.com' } };
+      jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(mockDbStaff as any);
 
       const result = await StaffService.getStaffById('1');
-      expect(result).toEqual(mockStaff);
+      expect(result).toEqual({ id: '1', name: 'John Doe', email: 'john@doe.com' });
     });
   });
   describe('createStaff', () => {
