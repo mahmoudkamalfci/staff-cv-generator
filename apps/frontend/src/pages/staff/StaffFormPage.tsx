@@ -420,45 +420,47 @@ export default function StaffFormPage() {
         </div>
 
         {/* Section 2: Profile Photo */}
-        <div className="p-6">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-            Profile Photo
-          </h2>
-          {existing?.photoUrl && (
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border border-border mb-4">
-              <img
-                src={existing.photoUrl}
-                alt={existing.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handlePhotoChange}
-          />
-          <Button
-            variant="outline"
-            size="lg"
-            className="h-11"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploadPhoto.isPending}
-          >
-            {uploadPhoto.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" /> Uploading…
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4 mr-2" /> Upload Photo
-              </>
+        {isEdit && (
+          <div className="p-6">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+              Profile Photo
+            </h2>
+            {existing?.photoUrl && (
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-muted border border-border mb-4">
+                <img
+                  src={existing.photoUrl}
+                  alt={existing.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             )}
-          </Button>
-          <p className="text-muted-foreground text-xs mt-2">JPG, PNG, or WebP. Max 5MB.</p>
-        </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handlePhotoChange}
+            />
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-11"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploadPhoto.isPending}
+            >
+              {uploadPhoto.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" /> Uploading…
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" /> Upload Photo
+                </>
+              )}
+            </Button>
+            <p className="text-muted-foreground text-xs mt-2">JPG, PNG, or WebP. Max 5MB.</p>
+          </div>
+        )}
 
         {/* Section 3: Security */}
         {isEdit && (
