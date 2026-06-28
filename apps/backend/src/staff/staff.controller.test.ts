@@ -114,9 +114,11 @@ describe('StaffController', () => {
       const req = {
         params: { id: '1' },
         body: { password: 'newpassword123' },
+        user: { role: 'admin' },
       } as unknown as Request;
 
       const res = {
+        status: jest.fn().mockReturnThis(),
         json: jest.fn(),
       } as unknown as Response;
 
@@ -132,9 +134,11 @@ describe('StaffController', () => {
       const req = {
         params: { id: '1' },
         body: {},
+        user: { role: 'admin' },
       } as unknown as Request;
 
       const res = {
+        status: jest.fn().mockReturnThis(),
         json: jest.fn(),
       } as unknown as Response;
 

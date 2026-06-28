@@ -43,6 +43,8 @@ describe('staff.router', () => {
     });
 
     it('should reject requests from non-admin users', async () => {
+      jest.spyOn(StaffService, 'getStaffById').mockResolvedValue({ id: '1', userId: 'some-other-user' } as any);
+
       const response = await fetch(getUrl('/staff/1/reset-password'), {
         method: 'POST',
         headers: { 

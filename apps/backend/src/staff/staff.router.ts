@@ -33,13 +33,11 @@ staffRouter.delete(
 staffRouter.post(
   '/:id/photo',
   requireAuth,
-  requireAdmin,
   upload.single('photo'),
   asyncHandler(StaffController.uploadPhoto),
 );
 staffRouter.post(
   '/:id/reset-password',
   requireAuth,
-  requireAdmin,
   asyncHandler(StaffController.resetPassword),
 );

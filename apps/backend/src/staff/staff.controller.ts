@@ -49,11 +49,23 @@ export class StaffController {
   }
 
   static async uploadPhoto(req: Request, res: Response) {
+    const id = req.params.id as string;
+    const user = req.user;
+
+    if (user?.role !== 'admin') {
+      const staff = await StaffService.getStaffById(id);
+      if (!staff || staff.userId !== user?.userId) {
+        if (req.file) fs.unlinkSync(req.file.path);
+        res.status(403).json({ error: 'Forbidden: You can only edit your own profile' });
+        return;
+      }
+    }
+
     if (!req.file) throw new AppError(400, 'No photo provided');
 
     try {
       const updatedStaff = await StaffService.uploadPhoto(
-        req.params.id as string,
+        id,
         req.file.filename,
       );
       res.json({ data: updatedStaff });
@@ -64,10 +76,21 @@ export class StaffController {
   }
 
   static async resetPassword(req: Request, res: Response) {
+    const id = req.params.id as string;
+    const user = req.user;
+
+    if (user?.role !== 'admin') {
+      const staff = await StaffService.getStaffById(id);
+      if (!staff || staff.userId !== user?.userId) {
+        res.status(403).json({ error: 'Forbidden: You can only edit your own profile' });
+        return;
+      }
+    }
+
     const { password } = req.body;
     if (!password) throw new AppError(400, 'Password is required');
 
-    await StaffService.resetPassword(req.params.id as string, password);
+    await StaffService.resetPassword(id, password);
     res.json({ message: 'Password reset successfully' });
   }
 
