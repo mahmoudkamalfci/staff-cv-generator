@@ -17,6 +17,7 @@ An internal tool for HR to generate standardized CVs for staff members to send t
 
 - **Frontend**: React 18, Vite, Tailwind CSS v4, ShadCn UI, React Query, React PDF.
 - **Backend**: Node.js, Express, PostgreSQL (Prisma ORM), Zod.
+- **Testing**: Jest.
 - **Tooling**: Turborepo, pnpm workspaces, TypeScript.
 
 ## Architecture
