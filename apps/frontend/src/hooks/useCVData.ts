@@ -11,8 +11,9 @@ export const cvKeys = {
 export function useCVData(staffId: string, templateId: string) {
   return useQuery({
     queryKey: cvKeys.detail(staffId, templateId),
-    queryFn: () => api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data),
+    queryFn: () =>
+      api.get<{ data: CVData }>(`/cv/${staffId}/${templateId}`).then((r) => r.data.data),
     enabled: !!staffId && !!templateId,
-    staleTime: 0, // Always fresh — generates audit log on backend
+    staleTime: 0,
   });
 }

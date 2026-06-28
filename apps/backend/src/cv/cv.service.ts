@@ -1,7 +1,12 @@
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../middleware/errorHandler.js';
+import { config } from '../config.js';
 
 export class CvService {
+  private static formatPhotoUrl(photoUrl: string | null): string | null {
+    if (!photoUrl) return null;
+    return photoUrl.startsWith('http') ? photoUrl : `${config.backendUrl}${photoUrl}`;
+  }
   static async generateCv(staffId: string, templateId: string, userId: string) {
     const staff = await prisma.staff.findUnique({
       where: { id: staffId },
@@ -36,7 +41,10 @@ export class CvService {
     });
 
     return {
-      staff,
+      staff: {
+        ...staff,
+        photoUrl: CvService.formatPhotoUrl(staff.photoUrl),
+      },
       template,
       generatedCV,
     };
