@@ -3,15 +3,18 @@ import { AppError } from '../middleware/errorHandler.js';
 import type { CreateProjectInput, UpdateProjectInput } from '@cv-generator/shared';
 
 export class ProjectsService {
-  static async getProjects(page: number, limit: number, search?: string) {
-    const whereClause = search
-      ? {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { client: { contains: search, mode: 'insensitive' as const } },
-          ],
-        }
-      : {};
+  static async getProjects(page: number, limit: number, search?: string, staffId?: string) {
+    const whereClause = {
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' as const } },
+              { client: { contains: search, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
+      ...(staffId ? { participations: { some: { staffId } } } : {}),
+    };
 
     const [projects, total] = await Promise.all([
       prisma.project.findMany({

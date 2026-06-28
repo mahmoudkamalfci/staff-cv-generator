@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { ProjectsService } from './projects.service.js';
+import { prisma } from '../db/prisma.js';
 
 export class ProjectsController {
   static async getProjects(req: Request, res: Response) {
@@ -10,8 +11,23 @@ export class ProjectsController {
     limit = Math.min(limit, 100);
 
     const search = req.query.search as string | undefined;
+    let staffId: string | undefined = undefined;
 
-    const { projects, total } = await ProjectsService.getProjects(page, limit, search);
+    if (req.user && req.user.role === 'staff') {
+      const staffRecord = await prisma.staff.findUnique({
+        where: { userId: req.user.userId },
+        select: { id: true }
+      });
+      if (staffRecord) {
+        staffId = staffRecord.id;
+      } else {
+        // Staff user has no profile yet, return empty list safely
+        res.json({ data: [], pagination: { page, limit, total: 0 } });
+        return;
+      }
+    }
+
+    const { projects, total } = await ProjectsService.getProjects(page, limit, search, staffId);
     res.json({ data: projects, pagination: { page, limit, total } });
   }
 
