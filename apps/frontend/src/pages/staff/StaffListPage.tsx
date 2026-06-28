@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getInitials } from '@/lib/utils';
 import type { Staff } from '@cv-generator/shared';
+import { StaffCard } from '@/components/staff/StaffCard';
 
 export default function StaffListPage() {
   const [search, setSearch] = useState('');
@@ -51,13 +52,13 @@ export default function StaffListPage() {
             {pagination?.total ?? 0} members in the system
           </p>
         </div>
-        {user?.role === 'admin' && (
+        {user?.role === 'admin' ? (
           <Button variant="accent" asChild>
             <Link to="/staff/new">
               <Plus className="w-4 h-4 mr-2" /> Add Staff
             </Link>
           </Button>
-        )}
+        ) : null}
       </div>
 
       <div className="relative">
@@ -90,79 +91,22 @@ export default function StaffListPage() {
               </Card>
             ))
           : staff?.map((member: Staff) => (
-              <Card
+              <StaffCard
                 key={member.id}
-                className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150"
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-3">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={member.photoUrl ?? undefined} alt={member.name} />
-                      <AvatarFallback className="bg-secondary text-primary font-bold">
-                        {getInitials(member.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground truncate">{member.name}</p>
-                      <p className="text-sm text-muted-foreground truncate">{member.jobTitle}</p>
-                      <Badge variant="secondary" className="mt-1 text-xs">
-                        {member.yearsExperience} yr{member.yearsExperience !== 1 ? 's' : ''} exp
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 mt-4 justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      title="View profile"
-                      aria-label={`View profile of ${member.name}`}
-                      className="h-10 w-10"
-                      asChild
-                    >
-                      <Link to={`/staff/${member.id}`}>
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                    </Button>
-                    {user?.role === 'admin' && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Edit"
-                          aria-label={`Edit profile of ${member.name}`}
-                          className="h-10 w-10"
-                          asChild
-                        >
-                          <Link to={`/staff/${member.id}/edit`}>
-                            <Pencil className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Delete"
-                          aria-label={`Delete ${member.name}`}
-                          className="text-destructive hover:bg-destructive/10 h-10 w-10"
-                          onClick={() => handleDelete(member.id, member.name)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                member={member}
+                isAdmin={user?.role === 'admin'}
+                onDelete={handleDelete}
+              />
             ))}
       </div>
 
-      {!isLoading && staff?.length === 0 && (
+      {!isLoading && staff?.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <p>No staff members found.</p>
         </div>
-      )}
+      ) : null}
 
-      {pagination && pagination.total > pagination.limit && (
+      {pagination && pagination.total > pagination.limit ? (
         <div className="flex items-center justify-between mt-6">
           <p className="text-sm text-muted-foreground">
             Showing {(page - 1) * pagination.limit + 1} to{' '}
@@ -189,7 +133,7 @@ export default function StaffListPage() {
             </Button>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

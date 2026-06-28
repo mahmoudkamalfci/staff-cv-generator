@@ -20,6 +20,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import type { CVTemplate } from '@cv-generator/shared';
+import { TemplateCard } from '@/components/cv-templates/TemplateCard';
 
 function DeleteDialog({
   template,
@@ -94,12 +95,12 @@ export default function TemplatesPage() {
               Available templates for generating staff CVs.
             </p>
           </div>
-          {isAdmin && (
+          {isAdmin ? (
             <Button onClick={() => navigate('/templates/new')} className="h-10 px-4">
               <Plus className="w-4 h-4 mr-2" />
               New Template
             </Button>
-          )}
+          ) : null}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -112,94 +113,23 @@ export default function TemplatesPage() {
                 </Card>
               ))
             : templates?.map((template) => (
-                <Card
-                  key={template.id}
-                  className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150"
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="w-10 h-10 rounded-xl bg-accent/15 flex items-center justify-center mb-3">
-                        <LayoutTemplate className="w-5 h-5 text-accent" />
-                      </div>
-                      {isAdmin && (
-                        <div className="flex gap-1">
-                          {template.isBuiltIn ? (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    disabled
-                                    className="h-10 w-10"
-                                    aria-label={`Built-in template ${template.name} is locked`}
-                                  >
-                                    <Lock className="w-3.5 h-3.5" />
-                                  </Button>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>Built-in templates cannot be modified</TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-10 w-10"
-                                onClick={() => navigate(`/templates/${template.id}/edit`)}
-                                aria-label={`Edit template ${template.name}`}
-                              >
-                                <Pencil className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-10 w-10 text-destructive hover:text-destructive"
-                                onClick={() => setPendingDelete(template)}
-                                aria-label={`Delete template ${template.name}`}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <CardTitle className="text-base">{template.name}</CardTitle>
-                    <CardDescription className="text-sm">{template.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2 flex-wrap">
-                      <Badge variant="secondary" className="capitalize text-xs">
-                        {(template.config as { baseLayout?: string })?.baseLayout?.replace(
-                          '-',
-                          ' ',
-                        ) ?? 'custom'}{' '}
-                        layout
-                      </Badge>
-                      {template.isBuiltIn && (
-                        <Badge variant="outline" className="text-xs">
-                          Built-in
-                        </Badge>
-                      )}
-                      {template.isActive && (
-                        <Badge className="bg-success text-success-foreground border-0 text-xs font-semibold">
-                          Active
-                        </Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              <TemplateCard
+                key={template.id}
+                template={template}
+                isAdmin={isAdmin}
+                onEdit={(id) => navigate(`/templates/${id}/edit`)}
+                onDelete={(t) => setPendingDelete(t)}
+              />
+            ))}
         </div>
 
-        {pendingDelete && (
+        {pendingDelete ? (
           <DeleteDialog
             template={pendingDelete}
             onConfirm={handleDelete}
             onCancel={() => setPendingDelete(null)}
           />
-        )}
+        ) : null}
       </div>
     </TooltipProvider>
   );
