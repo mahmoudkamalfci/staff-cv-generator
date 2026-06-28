@@ -21,7 +21,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export function createApp(): express.Express {
   const app = express();
   app.use(logger);
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    })
+  );
   app.use(cors({ origin: config.frontendUrl, credentials: true }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

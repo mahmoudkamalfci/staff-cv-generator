@@ -100,7 +100,10 @@ export default function CVGeneratorPage() {
                 <p className="font-medium text-sm text-foreground">{selectedStaff.name}</p>
                 <p className="text-xs text-muted-foreground">{selectedStaff.jobTitle}</p>
               </div>
-              <Badge variant="secondary" className="ml-auto text-xs font-semibold bg-muted-foreground/10 text-muted-foreground border-0">
+              <Badge
+                variant="secondary"
+                className="ml-auto text-xs font-semibold bg-muted-foreground/10 text-muted-foreground border-0"
+              >
                 {selectedStaff.yearsExperience} yrs exp
               </Badge>
             </div>

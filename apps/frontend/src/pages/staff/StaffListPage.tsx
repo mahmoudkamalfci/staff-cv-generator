@@ -19,8 +19,6 @@ export default function StaffListPage() {
   const debouncedSearch = useDebounce(search, 300);
   const [page, setPage] = useState(1);
 
-
-
   const { data: response, isLoading } = useStaffList(page, debouncedSearch);
   const staff = response?.data;
   const pagination = response?.pagination;

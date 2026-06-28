@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
+import { config } from '../config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,7 +29,17 @@ export class StaffService {
       prisma.staff.count({ where: whereClause }),
     ]);
 
-    return { staff, total };
+    return {
+      staff: staff.map((s) => ({
+        ...s,
+        photoUrl: s.photoUrl
+          ? s.photoUrl.startsWith('https')
+            ? s.photoUrl
+            : `${config.backendUrl}${s.photoUrl}`
+          : null,
+      })),
+      total,
+    };
   }
 
   static async getStaffById(id: string) {

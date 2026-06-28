@@ -1,14 +1,23 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { StaffService } from './staff.service.js';
 import { prisma } from '../db/prisma.js';
-
+import { config } from '../config.js';
 
 describe('StaffService', () => {
   describe('getStaff', () => {
-    it('should return paginated staff list', async () => {
-      const mockStaff = [{ id: '1', name: 'John Doe', email: 'john@doe.com', photoUrl: null }];
+    it('should return paginated staff list and conditional prefixing for photoUrl', async () => {
+      const mockStaff = [
+        { id: '1', name: 'John Doe', email: 'john@doe.com', photoUrl: null },
+        { id: '2', name: 'Jane Smith', email: 'jane@smith.com', photoUrl: '/uploads/avatar.png' },
+        {
+          id: '3',
+          name: 'Bob Johnson',
+          email: 'bob@johnson.com',
+          photoUrl: 'https://example.com/avatar.png',
+        },
+      ];
       jest.spyOn(prisma.staff, 'findMany').mockResolvedValue(mockStaff as any);
-      jest.spyOn(prisma.staff, 'count').mockResolvedValue(1);
+      jest.spyOn(prisma.staff, 'count').mockResolvedValue(3);
 
       const result = await StaffService.getStaff(1, 10);
 
@@ -18,7 +27,24 @@ describe('StaffService', () => {
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
-      expect(result).toEqual({ staff: mockStaff, total: 1 });
+      expect(result).toEqual({
+        staff: [
+          { id: '1', name: 'John Doe', email: 'john@doe.com', photoUrl: null },
+          {
+            id: '2',
+            name: 'Jane Smith',
+            email: 'jane@smith.com',
+            photoUrl: `${config.backendUrl}/uploads/avatar.png`,
+          },
+          {
+            id: '3',
+            name: 'Bob Johnson',
+            email: 'bob@johnson.com',
+            photoUrl: 'https://example.com/avatar.png',
+          },
+        ],
+        total: 3,
+      });
     });
   });
 
@@ -40,7 +66,7 @@ describe('StaffService', () => {
     it('should create staff with user account, skills and participations', async () => {
       const mockUser = { id: 'u1', email: 'john@doe.com', passwordHash: 'hash', role: 'staff' };
       const mockStaff = { id: '1', name: 'John Doe', userId: 'u1' };
-      
+
       jest.spyOn(prisma, '$transaction').mockImplementation(async (cb) => {
         return (cb as any)(prisma);
       });
@@ -59,12 +85,14 @@ describe('StaffService', () => {
 
       const result = await StaffService.createStaff(data);
 
-      expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          email: 'john@doe.com',
-          role: 'staff',
-        })
-      }));
+      expect(prisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            email: 'john@doe.com',
+            role: 'staff',
+          }),
+        }),
+      );
 
       expect(prisma.staff.create).toHaveBeenCalledWith({
         data: {
@@ -126,9 +154,11 @@ describe('StaffService', () => {
 
       const result = await StaffService.resetPassword('1', 'newpass123');
 
-      expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
-        where: { id: 'u1' }
-      }));
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'u1' },
+        }),
+      );
       expect(result).toEqual({ success: true });
     });
   });
@@ -139,13 +169,13 @@ describe('StaffService', () => {
         {
           id: '1',
           name: 'Jane Doe',
-          skills: [{ name: 'React' }, { name: 'Node.js' }]
+          skills: [{ name: 'React' }, { name: 'Node.js' }],
         },
         {
           id: '2',
           name: 'John Smith',
-          skills: [{ name: 'Angular' }]
-        }
+          skills: [{ name: 'Angular' }],
+        },
       ];
 
       jest.spyOn(prisma.staff, 'findMany').mockResolvedValue(mockStaff as any);

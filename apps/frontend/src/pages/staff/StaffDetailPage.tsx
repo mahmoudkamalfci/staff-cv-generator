@@ -24,7 +24,8 @@ export default function StaffDetailPage() {
     );
   }
 
-  if (!staff) return <p className="text-muted-foreground text-center py-12">Staff member not found.</p>;
+  if (!staff)
+    return <p className="text-muted-foreground text-center py-12">Staff member not found.</p>;
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
@@ -61,7 +62,10 @@ export default function StaffDetailPage() {
                   <h1 className="text-2xl font-bold text-foreground">{staff.name}</h1>
                   <p className="text-muted-foreground mt-0.5">{staff.jobTitle}</p>
                 </div>
-                <Badge variant="secondary" className="self-start sm:self-center px-3 py-1 font-medium bg-muted text-muted-foreground border-0">
+                <Badge
+                  variant="secondary"
+                  className="self-start sm:self-center px-3 py-1 font-medium bg-muted text-muted-foreground border-0"
+                >
                   {staff.yearsExperience} year{staff.yearsExperience !== 1 ? 's' : ''} experience
                 </Badge>
               </div>
@@ -77,10 +81,16 @@ export default function StaffDetailPage() {
         {/* Section 2: Skills */}
         {staff.skills && staff.skills.length > 0 && (
           <div className="p-6">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Skills</h2>
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              Skills
+            </h2>
             <div className="flex flex-wrap gap-2">
               {staff.skills.map((skill) => (
-                <Badge key={skill.id} variant="secondary" className="px-3 py-1 bg-secondary text-primary border border-border font-medium">
+                <Badge
+                  key={skill.id}
+                  variant="secondary"
+                  className="px-3 py-1 bg-secondary text-primary border border-border font-medium"
+                >
                   {skill.name} <span className="opacity-60 ml-2">({skill.level})</span>
                 </Badge>
               ))}
@@ -91,14 +101,22 @@ export default function StaffDetailPage() {
         {/* Section 3: Previous Projects */}
         {staff.participations && staff.participations.length > 0 && (
           <div className="p-6">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Previous Projects</h2>
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+              Previous Projects
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {staff.participations.map((p) => (
-                <div key={p.id} className="p-4 border border-border bg-card/50 rounded-lg flex flex-col justify-between">
+                <div
+                  key={p.id}
+                  className="p-4 border border-border bg-card/50 rounded-lg flex flex-col justify-between"
+                >
                   <div>
                     <h3 className="font-semibold text-base">
                       {p.project ? (
-                        <Link to={`/projects/${p.projectId}`} className="text-primary hover:underline hover:text-accent">
+                        <Link
+                          to={`/projects/${p.projectId}`}
+                          className="text-primary hover:underline hover:text-accent"
+                        >
                           {p.project.name}
                         </Link>
                       ) : (
@@ -107,7 +125,9 @@ export default function StaffDetailPage() {
                     </h3>
                     <p className="text-xs font-medium text-muted-foreground mt-1">Role: {p.role}</p>
                     {p.responsibilities && (
-                      <p className="text-sm mt-3 text-foreground/90 leading-relaxed">{p.responsibilities}</p>
+                      <p className="text-sm mt-3 text-foreground/90 leading-relaxed">
+                        {p.responsibilities}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -119,7 +139,9 @@ export default function StaffDetailPage() {
         {/* Section 4: Generate CV */}
         <div className="p-6 bg-muted/10">
           <div className="space-y-3">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Generate CV Profile</h2>
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Generate CV Profile
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {templates?.map((t) => (
                 <Button
@@ -129,8 +151,12 @@ export default function StaffDetailPage() {
                   onClick={() => navigate(`/cv/preview/${id}/${t.id}`)}
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm text-foreground group-hover:text-accent">{t.name}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{t.description || 'Standard tender layout'}</p>
+                    <p className="font-semibold text-sm text-foreground group-hover:text-accent">
+                      {t.name}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                      {t.description || 'Standard tender layout'}
+                    </p>
                   </div>
                   <FileText className="w-4 h-4 text-muted-foreground group-hover:text-accent ml-2 shrink-0" />
                 </Button>
