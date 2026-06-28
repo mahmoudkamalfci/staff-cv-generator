@@ -9,6 +9,10 @@ import { config } from '../config.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class StaffService {
+  private static formatPhotoUrl(photoUrl: string | null): string | null {
+    if (!photoUrl) return null;
+    return photoUrl.startsWith('http') ? photoUrl : `${config.backendUrl}${photoUrl}`;
+  }
   static async getStaff(page: number, limit: number, search?: string) {
     const whereClause = search
       ? {
@@ -32,11 +36,7 @@ export class StaffService {
     return {
       staff: staff.map((s) => ({
         ...s,
-        photoUrl: s.photoUrl
-          ? s.photoUrl.startsWith('https')
-            ? s.photoUrl
-            : `${config.backendUrl}${s.photoUrl}`
-          : null,
+        photoUrl: StaffService.formatPhotoUrl(s.photoUrl),
       })),
       total,
     };
@@ -56,6 +56,7 @@ export class StaffService {
     const { user, ...rest } = staff;
     return {
       ...rest,
+      photoUrl: StaffService.formatPhotoUrl(rest.photoUrl),
       email: user?.email,
     };
   }
@@ -75,7 +76,7 @@ export class StaffService {
         },
       });
 
-      return tx.staff.create({
+      const newStaff = await tx.staff.create({
         data: {
           ...rest,
           userId: user.id,
@@ -83,6 +84,10 @@ export class StaffService {
           participations: participations ? { create: participations } : undefined,
         },
       });
+      return {
+        ...newStaff,
+        photoUrl: StaffService.formatPhotoUrl(newStaff.photoUrl),
+      };
     });
   }
 
@@ -99,7 +104,7 @@ export class StaffService {
         });
       }
 
-      return tx.staff.update({
+      const updated = await tx.staff.update({
         where: { id },
         data: {
           ...rest,
@@ -107,6 +112,10 @@ export class StaffService {
           participations: participations ? { deleteMany: {}, create: participations } : undefined,
         },
       });
+      return {
+        ...updated,
+        photoUrl: StaffService.formatPhotoUrl(updated.photoUrl),
+      };
     });
   }
 
@@ -178,7 +187,10 @@ export class StaffService {
       }
     }
 
-    return updatedStaff;
+    return {
+      ...updatedStaff,
+      photoUrl: StaffService.formatPhotoUrl(updatedStaff.photoUrl),
+    };
   }
 
   static async getSuggestions(technologies: string[]) {
@@ -211,7 +223,11 @@ export class StaffService {
             }),
           )
           .map((s) => s.name);
-        return { ...staff, matchedSkills };
+        return { 
+          ...staff, 
+          photoUrl: StaffService.formatPhotoUrl(staff.photoUrl),
+          matchedSkills 
+        };
       })
       .filter((staff) => staff.matchedSkills.length > 0);
 

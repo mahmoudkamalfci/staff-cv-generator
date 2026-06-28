@@ -59,7 +59,7 @@ describe('StaffService', () => {
       jest.spyOn(prisma.staff, 'findUnique').mockResolvedValue(mockDbStaff as any);
 
       const result = await StaffService.getStaffById('1');
-      expect(result).toEqual({ id: '1', name: 'John Doe', email: 'john@doe.com' });
+      expect(result).toEqual({ id: '1', name: 'John Doe', email: 'john@doe.com', photoUrl: null });
     });
   });
   describe('createStaff', () => {
@@ -104,7 +104,7 @@ describe('StaffService', () => {
           participations: { create: data.participations },
         },
       });
-      expect(result).toEqual(mockStaff);
+      expect(result).toEqual({ ...mockStaff, photoUrl: null });
     });
   });
 
@@ -142,7 +142,7 @@ describe('StaffService', () => {
           participations: { deleteMany: {}, create: data.participations },
         },
       });
-      expect(result).toEqual(mockStaff);
+      expect(result).toEqual({ ...mockStaff, photoUrl: null });
     });
   });
 
