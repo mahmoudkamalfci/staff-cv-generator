@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { api, setAccessToken } from '@/lib/api';
 import type { LoginInput, TokenResponse } from '@cv-generator/shared';
 
@@ -21,6 +22,7 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // On mount: try to refresh to restore session
   useEffect(() => {
@@ -42,13 +44,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data } = await api.post<TokenResponse>('/auth/login', input);
     setAccessToken(data.accessToken);
     setUser(data.user);
-  }, []);
+    queryClient.clear();
+  }, [queryClient]);
 
   const logout = useCallback(async () => {
     await api.post('/auth/logout').catch(() => null);
     setAccessToken(null);
     setUser(null);
-  }, []);
+    queryClient.clear();
+  }, [queryClient]);
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
