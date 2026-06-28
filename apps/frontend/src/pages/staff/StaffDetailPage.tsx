@@ -1,13 +1,25 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, FileText, Loader2 } from 'lucide-react';
-import { useStaffDetail } from '@/hooks/useStaff';
+import { useState } from 'react';
+import { ArrowLeft, Edit, Trash2, FileText, Loader2 } from 'lucide-react';
+import { useStaffDetail, useDeleteStaff } from '@/hooks/useStaff';
 import { useAuth } from '@/hooks/useAuth';
 import { useTemplateList } from '@/hooks/useTemplates';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { getInitials } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function StaffDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +27,23 @@ export default function StaffDetailPage() {
   const { data: staff, isLoading } = useStaffDetail(id!);
   const { data: templates } = useTemplateList();
   const navigate = useNavigate();
+  const deleteStaff = useDeleteStaff();
+  const { toast } = useToast();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const canEdit = user?.role === 'admin' || user?.id === staff?.userId;
+  const canDelete = user?.role === 'admin';
+
+  const handleDelete = async () => {
+    try {
+      await deleteStaff.mutateAsync(id!);
+      toast({ title: 'Staff member deleted' });
+      navigate('/staff');
+    } catch {
+      toast({ title: 'Delete failed', variant: 'destructive' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -36,13 +65,22 @@ export default function StaffDetailPage() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Staff
           </Link>
         </Button>
-        {user?.role === 'admin' && (
-          <Button variant="outline" size="sm" asChild className="h-10 px-4">
-            <Link to={`/staff/${id}/edit`}>
-              <Pencil className="w-4 h-4 mr-2" /> Edit Profile
-            </Link>
-          </Button>
-        )}
+        <div className="flex items-center space-x-2">
+          {canEdit && (
+            <Button variant="outline" asChild>
+              <Link to={`/staff/${id}/edit`}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </Link>
+            </Button>
+          )}
+          {canDelete && (
+            <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Unified Profile Sheet */}
@@ -165,6 +203,26 @@ export default function StaffDetailPage() {
           </div>
         </div>
       </Card>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the staff member and their profile.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
