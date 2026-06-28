@@ -41,17 +41,21 @@ export default function StaffFormPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
 
+  const { data: existing, isLoading } = useStaffDetail(id ?? '');
+
   useEffect(() => {
-    if (user && user.role !== 'admin') {
+    if (!user || isLoading) return;
+    
+    const canAccess = user.role === 'admin' || (isEdit && existing?.userId === user.id);
+    
+    if (!canAccess) {
       toast({
         title: 'Access denied',
         variant: 'destructive',
       });
       navigate('/staff', { replace: true });
     }
-  }, [user, navigate, toast]);
-
-  const { data: existing, isLoading } = useStaffDetail(id ?? '');
+  }, [user, navigate, toast, isEdit, existing, isLoading]);
   const createStaff = useCreateStaff();
   const updateStaff = useUpdateStaff(id ?? '');
   const uploadPhoto = useUploadStaffPhoto(id ?? '');
@@ -163,7 +167,9 @@ export default function StaffFormPage() {
     }
   };
 
-  if (!user || user.role !== 'admin') {
+  const canEditProfile = user?.role === 'admin' || (isEdit && existing?.userId === user?.id);
+
+  if (!user || (!canEditProfile && !isLoading)) {
     return null;
   }
 

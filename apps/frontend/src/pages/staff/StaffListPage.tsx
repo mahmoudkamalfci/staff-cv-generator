@@ -94,7 +94,8 @@ export default function StaffListPage() {
               <StaffCard
                 key={member.id}
                 member={member}
-                isAdmin={user?.role === 'admin'}
+                canEdit={user?.role === 'admin' || user?.id === member.userId}
+                canDelete={user?.role === 'admin'}
                 onDelete={handleDelete}
               />
             ))}

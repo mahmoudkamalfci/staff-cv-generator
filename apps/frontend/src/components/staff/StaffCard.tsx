@@ -9,11 +9,12 @@ import type { Staff } from '@cv-generator/shared';
 
 export interface StaffCardProps {
   member: Staff;
-  isAdmin: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
   onDelete: (id: string, name: string) => void;
 }
 
-export function StaffCard({ member, isAdmin, onDelete }: StaffCardProps) {
+export function StaffCard({ member, canEdit, canDelete, onDelete }: StaffCardProps) {
   return (
     <Card className="shadow-none border border-border bg-card hover:bg-muted/30 transition-colors duration-150">
       <CardContent className="p-5">
@@ -46,32 +47,32 @@ export function StaffCard({ member, isAdmin, onDelete }: StaffCardProps) {
               <Eye className="w-4 h-4" />
             </Link>
           </Button>
-          {isAdmin ? (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                title="Edit"
-                aria-label={`Edit profile of ${member.name}`}
-                className="h-10 w-10"
-                asChild
-              >
-                <Link to={`/staff/${member.id}/edit`}>
-                  <Pencil className="w-4 h-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                title="Delete"
-                aria-label={`Delete ${member.name}`}
-                className="text-destructive hover:bg-destructive/10 h-10 w-10"
-                onClick={() => onDelete(member.id, member.name)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </>
-          ) : null}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Edit"
+              aria-label={`Edit profile of ${member.name}`}
+              className="h-10 w-10"
+              asChild
+            >
+              <Link to={`/staff/${member.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+          )}
+          {canDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Delete"
+              aria-label={`Delete ${member.name}`}
+              className="text-destructive hover:bg-destructive/10 h-10 w-10"
+              onClick={() => onDelete(member.id, member.name)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
