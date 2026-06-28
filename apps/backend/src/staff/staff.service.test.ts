@@ -6,7 +6,7 @@ import { prisma } from '../db/prisma.js';
 describe('StaffService', () => {
   describe('getStaff', () => {
     it('should return paginated staff list', async () => {
-      const mockStaff = [{ id: '1', name: 'John Doe', email: 'john@doe.com' }];
+      const mockStaff = [{ id: '1', name: 'John Doe', email: 'john@doe.com', photoUrl: null }];
       jest.spyOn(prisma.staff, 'findMany').mockResolvedValue(mockStaff as any);
       jest.spyOn(prisma.staff, 'count').mockResolvedValue(1);
 
