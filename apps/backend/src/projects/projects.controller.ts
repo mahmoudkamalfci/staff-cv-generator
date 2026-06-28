@@ -13,7 +13,7 @@ export class ProjectsController {
     const search = req.query.search as string | undefined;
     let staffId: string | undefined = undefined;
 
-    if (req.user && req.user.role === 'staff') {
+    if (req.user && req.user.role !== 'admin') {
       const staffRecord = await prisma.staff.findUnique({
         where: { userId: req.user.userId },
         select: { id: true }

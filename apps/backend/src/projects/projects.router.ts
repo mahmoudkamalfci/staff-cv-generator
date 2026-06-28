@@ -7,8 +7,8 @@ import { CreateProjectSchema, UpdateProjectSchema } from '@cv-generator/shared';
 
 export const projectsRouter: Router = Router();
 
-projectsRouter.get('/', asyncHandler(ProjectsController.getProjects));
-projectsRouter.get('/:id', asyncHandler(ProjectsController.getProjectById));
+projectsRouter.get('/', requireAuth, asyncHandler(ProjectsController.getProjects));
+projectsRouter.get('/:id', requireAuth, asyncHandler(ProjectsController.getProjectById));
 
 projectsRouter.post(
   '/',
