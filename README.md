@@ -13,6 +13,14 @@ An internal tool for HR to generate standardized CVs for staff members to send t
 - **Admin**: Can add and update all resources.
 - **Staff**: Can only update their profile and view their assigned projects.
 
+## Features
+
+- **Staff Management**: Admin can add, update, and delete staff members.
+- **Project Management**: Admin can add, update, and delete projects.
+- **Assignments**: Assign staff to projects directly or add a project to a staff member from their profile.
+- **Smart Suggestions**: Get suggestions for assigning staff based on matching project technologies.
+- **CV Generation**: Generate a CV for a staff member using a prebuilt template or create a custom template.
+
 ## Tech Stack
 
 - **Frontend**: React 18, Vite, Tailwind CSS v4, ShadCn UI, React Query, React PDF.
