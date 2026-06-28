@@ -96,3 +96,11 @@ Run the development servers concurrently using Turbo:
 ```bash
 pnpm run dev
 ```
+
+### Testing
+
+To run the test suite across all packages (using Jest via Turborepo), run:
+
+```bash
+pnpm test
+```
