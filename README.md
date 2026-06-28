@@ -9,17 +9,25 @@ An internal tool for HR to generate standardized CVs for staff members to send t
   - **Email**: `admin@cvgenerator.local`
   - **Password**: `password123`
 
+### Assumptions Made
+- The system is primarily for internal company use (not a public SaaS).
+
 ### User Roles
 - **Admin**: Can add and update all resources.
 - **Staff**: Can only update their profile and view their assigned projects.
 
-## Features
+## Functional Requirements
 
 - **Staff Management**: Admin can add, update, and delete staff members.
 - **Project Management**: Admin can add, update, and delete projects.
 - **Assignments**: Assign staff to projects directly or add a project to a staff member from their profile.
 - **Smart Suggestions**: Get suggestions for assigning staff based on matching project technologies.
 - **CV Generation**: Generate a CV for a staff member using a prebuilt template or create a custom template.
+
+### Non-Functional Requirements
+- **Performance**: Fast page loads and efficient data caching (via React Query) with < 1s response times.
+- **Scalability**: Architecture supports handling a growing number of staff and CV templates.
+- **Security**: Secure JWT-based authentication and role-based access control.
 
 ## Tech Stack
 
@@ -28,10 +36,25 @@ An internal tool for HR to generate standardized CVs for staff members to send t
 - **Testing**: Jest.
 - **Tooling**: Turborepo, pnpm workspaces, TypeScript.
 
-## Architecture
+## Architecture & Design Decisions
 
-- **Monorepo**: This project uses Turborepo and pnpm workspaces to manage `apps/` (frontend, backend) and `packages/` (shared config, types/utils).
-- **Feature-Based Architecture**: The codebase (especially the backend) is organized by domain features (e.g., auth, staff, cv) to promote scalability and encapsulation.
+### Key Design Decisions
+- **Frontend Caching**: Utilized React Query to efficiently cache and invalidate server state, ensuring rapid UI updates without unnecessary network requests.
+- **Monorepo**: Chosen to easily share configuration, types, and logic between the frontend and backend.
+
+### Project Structure
+```text
+staff-cv-generator/
+├── apps/
+│   ├── frontend/   # React/Vite web application
+│   └── backend/    # Node.js/Express API server
+└── packages/
+    ├── shared/     # Shared Zod schemas and TypeScript types
+    └── config/     # Shared ESLint/TS configs
+```
+
+- **Monorepo Setup**: Uses Turborepo and pnpm workspaces to manage dependencies and task orchestration.
+- **Feature-Based Architecture**: The backend codebase is organized by domain features (e.g., auth, staff, cv) to promote scalability and encapsulation.
 
 ## Database ERD
 
