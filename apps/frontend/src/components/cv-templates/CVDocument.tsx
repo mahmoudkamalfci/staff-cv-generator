@@ -112,13 +112,7 @@ function makeStyles(primaryColor: string, accentColor: string) {
   });
 }
 
-// --- Section level-to-width map ---
-const LEVEL_WIDTH: Record<string, string> = {
-  beginner: '25%',
-  intermediate: '50%',
-  advanced: '75%',
-  expert: '100%',
-};
+
 
 // --- Individual section renderers ---
 function HeaderSection({ data, styles }: { data: CVData; styles: ReturnType<typeof makeStyles> }) {

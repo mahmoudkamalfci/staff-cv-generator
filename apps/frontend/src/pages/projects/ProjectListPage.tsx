@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Search, Trash2, Eye, Pencil, Calendar } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useProjectList, useDeleteProject } from '@/hooks/useProjects';
@@ -18,10 +18,7 @@ export default function ProjectListPage() {
   const debouncedSearch = useDebounce(search, 300);
   const [page, setPage] = useState(1);
 
-  // Reset page when search changes
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
+
 
   const { data: response, isLoading } = useProjectList(page, debouncedSearch);
   const projects = response?.data;
@@ -70,7 +67,10 @@ export default function ProjectListPage() {
           placeholder="Search by name or client…"
           className="pl-9"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           aria-label="Search projects by name or client"
         />
       </div>

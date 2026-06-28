@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Search, Trash2, Eye, Pencil } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useStaffList, useDeleteStaff } from '@/hooks/useStaff';
@@ -19,10 +19,7 @@ export default function StaffListPage() {
   const debouncedSearch = useDebounce(search, 300);
   const [page, setPage] = useState(1);
 
-  // Reset page when search changes
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
+
 
   const { data: response, isLoading } = useStaffList(page, debouncedSearch);
   const staff = response?.data;
@@ -72,7 +69,10 @@ export default function StaffListPage() {
           aria-label="Search staff members by name or job title"
           className="pl-9"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
         />
       </div>
 

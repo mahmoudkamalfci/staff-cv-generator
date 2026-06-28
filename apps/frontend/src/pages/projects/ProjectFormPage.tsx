@@ -74,6 +74,7 @@ export default function ProjectFormPage() {
         },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const technologies = watch('technologies') || [];
 
   const { fields, append, remove } = useFieldArray({

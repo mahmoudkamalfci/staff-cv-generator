@@ -40,6 +40,7 @@ export function SkillsManager({ staffId, skills, canEdit }: SkillsManagerProps) 
     resolver: zodResolver(CreateSkillSchema),
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const levelValue = watch('level');
 
   const onSubmit = async (data: CreateSkillInput) => {

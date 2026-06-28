@@ -44,7 +44,7 @@ describe('ProjectsService', () => {
       // mock prisma.project.create
       jest.spyOn(prisma.project, 'create').mockResolvedValue({ id: 'proj-1', ...data } as any);
       
-      const result = await ProjectsService.createProject(data as any);
+      await ProjectsService.createProject(data as any);
       expect(prisma.project.create).toHaveBeenCalledWith({
         data: {
           name: 'New Project',

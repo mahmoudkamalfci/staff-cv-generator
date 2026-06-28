@@ -93,6 +93,7 @@ export function Step4Preview({ config }: Props) {
   useEffect(() => {
     const firstStaff = staffList?.data?.[0];
     if (!firstStaff) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBaseCvData(SAMPLE_DATA);
       return;
     }

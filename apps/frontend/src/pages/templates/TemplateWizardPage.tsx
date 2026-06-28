@@ -64,6 +64,7 @@ export default function TemplateWizardPage() {
 
   useEffect(() => {
     if (existingTemplate && !isInitialized) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTemplateName(existingTemplate.name);
       setTemplateDescription(existingTemplate.description ?? '');
       setDraftConfig(existingTemplate.config as TemplateConfig);
