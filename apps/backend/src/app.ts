@@ -24,13 +24,20 @@ export function createApp(): express.Express {
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: 'cross-origin' },
-    })
+    }),
   );
   app.use(cors({ origin: config.frontendUrl, credentials: true }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
-  app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+  app.use(
+    '/uploads',
+    (_req, res, next) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      next();
+    },
+    express.static(path.join(__dirname, '..', 'uploads')),
+  );
 
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
