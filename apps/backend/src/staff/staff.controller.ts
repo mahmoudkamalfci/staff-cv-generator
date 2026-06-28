@@ -28,7 +28,18 @@ export class StaffController {
   }
 
   static async updateStaff(req: Request, res: Response) {
-    const updatedStaff = await StaffService.updateStaff(req.params.id as string, req.body);
+    const id = req.params.id as string;
+    const user = req.user;
+
+    if (user?.role !== 'admin') {
+      const staff = await StaffService.getStaffById(id);
+      if (!staff || staff.userId !== user?.userId) {
+        res.status(403).json({ error: 'Forbidden: You can only edit your own profile' });
+        return;
+      }
+    }
+
+    const updatedStaff = await StaffService.updateStaff(id, req.body);
     res.json({ data: updatedStaff });
   }
 

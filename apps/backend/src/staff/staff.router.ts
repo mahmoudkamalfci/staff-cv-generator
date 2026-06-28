@@ -21,7 +21,6 @@ staffRouter.post(
 staffRouter.patch(
   '/:id',
   requireAuth,
-  requireAdmin,
   validate(UpdateStaffSchema),
   asyncHandler(StaffController.updateStaff),
 );

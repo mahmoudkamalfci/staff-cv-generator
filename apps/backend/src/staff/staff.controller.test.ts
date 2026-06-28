@@ -43,6 +43,72 @@ describe('StaffController', () => {
     expect(res.json).toHaveBeenCalledWith({ data: mockStaff });
   });
 
+  describe('updateStaff', () => {
+    it('should allow admin to edit any profile', async () => {
+      const req = {
+        params: { id: '2' },
+        user: { role: 'admin', userId: '1' },
+        body: { name: 'Updated Name' },
+      } as unknown as Request;
+
+      const res = {
+        json: jest.fn(),
+      } as unknown as Response;
+
+      const mockStaff = { id: '2', name: 'Updated Name', userId: '2' };
+      jest.spyOn(StaffService, 'updateStaff').mockResolvedValue(mockStaff as any);
+
+      await StaffController.updateStaff(req, res);
+
+      expect(StaffService.updateStaff).toHaveBeenCalledWith('2', { name: 'Updated Name' });
+      expect(res.json).toHaveBeenCalledWith({ data: mockStaff });
+    });
+
+    it('should allow staff to edit their own profile', async () => {
+      const req = {
+        params: { id: '2' },
+        user: { role: 'user', userId: 'user-2' },
+        body: { name: 'Updated Name' },
+      } as unknown as Request;
+
+      const res = {
+        json: jest.fn(),
+      } as unknown as Response;
+
+      const mockStaff = { id: '2', name: 'Original Name', userId: 'user-2' };
+      const updatedStaff = { id: '2', name: 'Updated Name', userId: 'user-2' };
+      
+      jest.spyOn(StaffService, 'getStaffById').mockResolvedValue(mockStaff as any);
+      jest.spyOn(StaffService, 'updateStaff').mockResolvedValue(updatedStaff as any);
+
+      await StaffController.updateStaff(req, res);
+
+      expect(StaffService.updateStaff).toHaveBeenCalledWith('2', { name: 'Updated Name' });
+      expect(res.json).toHaveBeenCalledWith({ data: updatedStaff });
+    });
+
+    it('should return 403 if staff tries to edit another profile', async () => {
+      const req = {
+        params: { id: '2' },
+        user: { role: 'user', userId: 'user-3' },
+        body: { name: 'Updated Name' },
+      } as unknown as Request;
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      } as unknown as Response;
+
+      const mockStaff = { id: '2', name: 'Original Name', userId: 'user-2' };
+      jest.spyOn(StaffService, 'getStaffById').mockResolvedValue(mockStaff as any);
+
+      await StaffController.updateStaff(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden: You can only edit your own profile' });
+    });
+  });
+
   describe('resetPassword', () => {
     it('should reset password successfully', async () => {
       const req = {
