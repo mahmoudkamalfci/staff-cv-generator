@@ -1,7 +1,7 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { CvController } from './cv.controller.js';
 import { CvService } from './cv.service.js';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 
 describe('CvController', () => {

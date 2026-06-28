@@ -1,7 +1,7 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { TemplatesController } from './templates.controller.js';
 import { TemplatesService } from './templates.service.js';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 
 describe('TemplatesController', () => {

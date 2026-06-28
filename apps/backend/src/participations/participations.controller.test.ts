@@ -1,7 +1,7 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { ParticipationsController } from './participations.controller.js';
 import { ParticipationsService } from './participations.service.js';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 
 describe('ParticipationsController', () => {

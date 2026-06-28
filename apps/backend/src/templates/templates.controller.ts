@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { TemplatesService } from './templates.service.js';
 
 export class TemplatesController {

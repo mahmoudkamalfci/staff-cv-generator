@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { ParticipationsService } from './participations.service.js';
 
 export class ParticipationsController {

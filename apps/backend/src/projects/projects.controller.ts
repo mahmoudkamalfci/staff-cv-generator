@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { ProjectsService } from './projects.service.js';
 
 export class ProjectsController {

@@ -2,7 +2,7 @@ import { jest, describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import express from 'express';
 import { staffRouter } from './staff.router.js';
 import { StaffService } from './staff.service.js';
-import * as http from 'http';
+import type * as http from 'http';
 import jwt from 'jsonwebtoken';
 
 jest.mock('./staff.service.js');

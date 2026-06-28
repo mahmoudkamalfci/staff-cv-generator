@@ -1,7 +1,7 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { ProjectsController } from './projects.controller.js';
 import { ProjectsService } from './projects.service.js';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 
 describe('ProjectsController', () => {
